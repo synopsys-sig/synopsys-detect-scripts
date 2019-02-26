@@ -38,8 +38,6 @@ version = '1.0.2-SNAPSHOT'
 
 apply plugin: 'com.blackducksoftware.integration.simple'
 
-final String RELEASE_REPO = "scripts-release"
-final String SNAPSHOT_REPO = "scripts-snapshot"
 final File shellScriptFile = new File("${buildDir}/detect.sh")
 final File shellScriptVersionedFile = new File("${buildDir}/detect-${version}.sh")
 final File powershellScriptFile = new File("${buildDir}/detect.ps1")
@@ -55,40 +53,6 @@ build {
         buildScript(powershellScriptTemplateFile, powershellScriptFile)
         buildScript(powershellScriptTemplateFile, powershellScriptVersionedFile)
     }
-}
-
-tasks.register("deploy") {
-    doLast {
-        if (version.contains("SNAPSHOT")) {
-            // Don't deploy un-versioned files to snapshot because those are production scripts
-            deployToArtifactory(shellScriptVersionedFile, SNAPSHOT_REPO)
-            deployToArtifactory(powershellScriptVersionedFile, SNAPSHOT_REPO)
-        } else {
-            deployToArtifactory(shellScriptFile, SNAPSHOT_REPO)
-            deployToArtifactory(powershellScriptFile, SNAPSHOT_REPO)
-            deployToArtifactory(shellScriptVersionedFile, RELEASE_REPO)
-            deployToArtifactory(powershellScriptVersionedFile, RELEASE_REPO)
-        }
-    }
-}
-
-private void deployToArtifactory(final File file, final String repoPath) {
-    final IntLogger intLogger = new Slf4jIntLogger(LoggerFactory.getLogger("deployToArtifactory"))
-    final IntHttpClient intHttpClient = new IntHttpClient(intLogger, 200, true, ProxyInfo.NO_PROXY_INFO)
-    final CredentialsProvider credentialsProvider = intHttpClient.getCredentialsProvider()
-    final Credentials credentials = new UsernamePasswordCredentials(project.ext.artifactoryDeployerUsername, project.ext.artifactoryDeployerPassword)
-    credentialsProvider.setCredentials(AuthScope.ANY, credentials)
-    final String artifactoryUrl = "${project.ext.artifactoryUrl}/artifactory/$repoPath/${file.getName()}"
-
-    final Request request = new Request.Builder()
-        .uri(artifactoryUrl)
-        .method(HttpMethod.PUT)
-        .bodyContent(new FileBodyContent(file))
-        .build()
-
-    final Response response = intHttpClient.execute(request)
-    println response.getContentString(StandardCharsets.UTF_8)
-    response.close()
 }
 
 private void buildScript(final File scriptTemplateFile, final File outputFile) {
