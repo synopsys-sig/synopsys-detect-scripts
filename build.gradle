@@ -1,16 +1,9 @@
 import com.synopsys.integration.log.IntLogger
 import com.synopsys.integration.log.Slf4jIntLogger
-import com.synopsys.integration.rest.HttpMethod
-import com.synopsys.integration.rest.body.FileBodyContent
 import com.synopsys.integration.rest.client.IntHttpClient
 import com.synopsys.integration.rest.proxy.ProxyInfo
 import com.synopsys.integration.rest.request.Request
-import com.synopsys.integration.rest.request.Response
 import org.apache.commons.lang3.StringUtils
-import org.apache.http.auth.AuthScope
-import org.apache.http.auth.Credentials
-import org.apache.http.auth.UsernamePasswordCredentials
-import org.apache.http.client.CredentialsProvider
 import org.slf4j.LoggerFactory
 
 import java.nio.charset.StandardCharsets
@@ -46,11 +39,14 @@ final File powershellScriptVersionedFile = new File("${buildDir}/detect-${versio
 build {
     doLast {
         final File shellScriptTemplateFile = new File("${projectDir}/script-templates/detect-sh")
-        buildScript(shellScriptTemplateFile, shellScriptFile)
-        buildScript(shellScriptTemplateFile, shellScriptVersionedFile)
-
         final File powershellScriptTemplateFile = new File("${projectDir}/script-templates/detect-ps")
-        buildScript(powershellScriptTemplateFile, powershellScriptFile)
+
+        if (!version.contains("-SNAPSHOT")) {
+            buildScript(shellScriptTemplateFile, shellScriptFile)
+            buildScript(powershellScriptTemplateFile, powershellScriptFile)
+        }
+
+        buildScript(shellScriptTemplateFile, shellScriptVersionedFile)
         buildScript(powershellScriptTemplateFile, powershellScriptVersionedFile)
     }
 }
