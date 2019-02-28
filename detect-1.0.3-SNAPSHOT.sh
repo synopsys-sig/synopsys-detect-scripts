@@ -10,7 +10,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-02-27, the
+# urls for the detect jar file. As of 2019-02-28, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
@@ -44,7 +44,7 @@ DETECT_CURL_OPTS=${DETECT_CURL_OPTS:-}
 SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
-echo "Detect Shell Script 1.0.2-SNAPSHOT"
+echo "Detect Shell Script 1.0.3-SNAPSHOT"
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
