@@ -23,11 +23,11 @@ DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST}
 DETECT_SOURCE=${DETECT_SOURCE:-}
 
 # To override the default location of /tmp, specify
-# your own DETECT_JAR_PATH in your environment and
+# your own DETECT_JAR_DOWNLOAD_DIR in your environment and
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
-# DETECT_JAR_PATH.
-DETECT_JAR_PATH=${DETECT_JAR_PATH:-/tmp}
+# DETECT_JAR_DOWNLOAD_DIR.
+DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_DOWNLOAD_DIR:-/tmp}
 
 # If you want to pass any java options to the
 # invocation, specify DETECT_JAVA_OPTS in your
@@ -87,7 +87,7 @@ get_detect() {
   echo "will look for : ${DETECT_SOURCE}"
 
   DETECT_FILENAME=${DETECT_FILENAME:-$(awk -F "/" '{print $NF}' <<< $DETECT_SOURCE)}
-  DETECT_DESTINATION="${DETECT_JAR_PATH}/${DETECT_FILENAME}"
+  DETECT_DESTINATION="${DETECT_JAR_DOWNLOAD_DIR}/${DETECT_FILENAME}"
 
   USE_REMOTE=1
   if [ ! -f $DETECT_DESTINATION ]; then
@@ -116,11 +116,11 @@ run_detect() {
   # first, silently delete (-f ignores missing
   # files) any existing shell script, then create
   # the one we will run
-  rm -f $DETECT_JAR_PATH/hub-detect-java.sh
-  echo "#!/bin/sh" > $DETECT_JAR_PATH/hub-detect-java.sh
-  echo "" >> $DETECT_JAR_PATH/hub-detect-java.sh
-  echo $JAVACMD $SCRIPT_ARGS >> $DETECT_JAR_PATH/hub-detect-java.sh
-  source $DETECT_JAR_PATH/hub-detect-java.sh
+  rm -f $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
+  echo "#!/bin/sh" > $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
+  echo "" >> $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
+  echo $JAVACMD $SCRIPT_ARGS >> $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
+  source $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
   RESULT=$?
   echo "Result code of ${RESULT}, exiting"
   exit $RESULT

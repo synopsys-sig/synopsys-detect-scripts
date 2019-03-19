@@ -27,7 +27,7 @@ buildscript {
 }
 
 group = 'com.synopsys.integration'
-version = '1.0.3-SNAPSHOT'
+version = '2.0.0-SNAPSHOT'
 
 apply plugin: 'com.blackducksoftware.integration.simple'
 
