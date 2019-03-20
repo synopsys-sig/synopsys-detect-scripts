@@ -13,7 +13,7 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-03-19, the
+# urls for the detect jar file. As of 2019-03-20, the
 # available DETECT_VERSION_KEY values are:
 # DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
 # Every new major version of detect will have its own
@@ -30,14 +30,14 @@ $EnvDetectSkipJavaTest = Get-EnvironmentVariable -Key "DETECT_SKIP_JAVA_TEST" -D
 $EnvDetectSource = Get-EnvironmentVariable -Key "DETECT_SOURCE" -DefaultValue "";
 
 # To override the default location of /tmp, specify
-# your own DETECT_JAR_PATH in your environment and
+# your own DETECT_JAR_DOWNLOAD_DIR in your environment and
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
-# DETECT_JAR_PATH.
+# DETECT_JAR_DOWNLOAD_DIR.
 # Otherwise, if the environment temp folder is set,
 # it will be used. Otherwise, a temporary folder will
 # be created in your home directory
-$EnvDetectFolder = Get-EnvironmentVariable -Key "DETECT_JAR_PATH" -DefaultValue "";
+$EnvDetectFolder = Get-EnvironmentVariable -Key "DETECT_JAR_DOWNLOAD_DIR" -DefaultValue "";
 $EnvTempFolder = Get-EnvironmentVariable -Key "TMP" -DefaultValue "";
 $EnvHomeTempFolder = "$HOME/tmp"
 
@@ -65,7 +65,7 @@ $EnvDetectExitCodePassthru = Get-EnvironmentVariable -Key "DETECT_EXIT_CODE_PASS
 # heap size, you would set DETECT_JAVA_OPTS=-Xmx6G.
 # $DetectJavaOpts = Get-EnvironmentVariable -Key "DETECT_JAVA_OPTS" -DefaultValue "";
 
-$Version = "1.0.3-SNAPSHOT"
+$Version = "2.0.0-SNAPSHOT"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 #Enable TLS2
 

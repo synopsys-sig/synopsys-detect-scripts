@@ -10,7 +10,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-03-19, the
+# urls for the detect jar file. As of 2019-03-20, the
 # available DETECT_VERSION_KEY values are:
 # DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
 # Every new major version of detect will have its own
@@ -23,11 +23,11 @@ DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST}
 DETECT_SOURCE=${DETECT_SOURCE:-}
 
 # To override the default location of /tmp, specify
-# your own DETECT_JAR_PATH in your environment and
+# your own DETECT_JAR_DOWNLOAD_DIR in your environment and
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
-# DETECT_JAR_PATH.
-DETECT_JAR_PATH=${DETECT_JAR_PATH:-/tmp}
+# DETECT_JAR_DOWNLOAD_DIR.
+DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_DOWNLOAD_DIR:-/tmp}
 
 # If you want to pass any java options to the
 # invocation, specify DETECT_JAVA_OPTS in your
@@ -44,7 +44,7 @@ DETECT_CURL_OPTS=${DETECT_CURL_OPTS:-}
 SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
-echo "Detect Shell Script 1.0.3-SNAPSHOT"
+echo "Detect Shell Script 2.0.0-SNAPSHOT"
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
@@ -87,7 +87,7 @@ get_detect() {
   echo "will look for : ${DETECT_SOURCE}"
 
   DETECT_FILENAME=${DETECT_FILENAME:-$(awk -F "/" '{print $NF}' <<< $DETECT_SOURCE)}
-  DETECT_DESTINATION="${DETECT_JAR_PATH}/${DETECT_FILENAME}"
+  DETECT_DESTINATION="${DETECT_JAR_DOWNLOAD_DIR}/${DETECT_FILENAME}"
 
   USE_REMOTE=1
   if [ ! -f $DETECT_DESTINATION ]; then
@@ -116,11 +116,11 @@ run_detect() {
   # first, silently delete (-f ignores missing
   # files) any existing shell script, then create
   # the one we will run
-  rm -f $DETECT_JAR_PATH/hub-detect-java.sh
-  echo "#!/bin/sh" > $DETECT_JAR_PATH/hub-detect-java.sh
-  echo "" >> $DETECT_JAR_PATH/hub-detect-java.sh
-  echo $JAVACMD $SCRIPT_ARGS >> $DETECT_JAR_PATH/hub-detect-java.sh
-  source $DETECT_JAR_PATH/hub-detect-java.sh
+  rm -f $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
+  echo "#!/bin/sh" > $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
+  echo "" >> $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
+  echo $JAVACMD $SCRIPT_ARGS >> $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
+  source $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
   RESULT=$?
   echo "Result code of ${RESULT}, exiting"
   exit $RESULT
