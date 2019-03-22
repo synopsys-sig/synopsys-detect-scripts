@@ -88,16 +88,16 @@ function Detect {
         Write-Host "Skipping java test."
     }
 
-    Write-Host "Initializing detect folder."
+    Write-Host "Initializing Detect folder."
     $DetectFolder = Initialize-DetectFolder -DetectFolder $EnvDetectFolder -TempFolder $EnvTempFolder -HomeTempFolder $EnvHomeTempFolder
 
     Write-Host "Checking for proxy."
     $ProxyInfo = Get-ProxyInfo
 
-    Write-Host "Getting detect."
+    Write-Host "Getting Detect."
     $DetectJarFile = Get-DetectJar -DetectFolder $DetectFolder -DetectSource $EnvDetectSource -DetectVersionKey $EnvDetectVersionKey -DetectVersion $EnvDetectDesiredVersion -ProxyInfo $ProxyInfo
 
-    Write-Host "Executing detect."
+    Write-Host "Executing Detect."
     $DetectArgs = $args;
     $DetectExitCode = Invoke-Detect -DetectJar $DetectJarFile -DetectArgs $DetectArgs
     
@@ -215,11 +215,11 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
         }
     }
 
-    Write-Host "Using detect source $DetectSource"
+    Write-Host "Using Detect source $DetectSource"
 
     $DetectVersion = Parse-Version -DetectSource $DetectSource
 
-    Write-Host "Using detect version $DetectVersion"
+    Write-Host "Using Detect version $DetectVersion"
 
     $DetectJarFile = "$DetectFolder/synopsys-detect-$DetectVersion.jar"
 
@@ -250,7 +250,7 @@ function Invoke-Detect ($DetectJarFile, $DetectArgs) {
     $JavaArgs = @("-jar", $DetectJarFile)
     $AllArgs = $JavaArgs + $DetectArgs
     Set-ToEscaped($AllArgs)
-    Write-Host "Running detect: $AllArgs"
+    Write-Host "Running Detect: $AllArgs"
     $DetectProcess = Start-Process java -ArgumentList $AllArgs -NoNewWindow -PassThru
     Wait-Process -InputObject $DetectProcess -ErrorAction SilentlyContinue
     $DetectExitCode = $DetectProcess.ExitCode;
@@ -260,7 +260,7 @@ function Invoke-Detect ($DetectJarFile, $DetectArgs) {
 
 function Initialize-DetectFolder ($DetectFolder, $TempFolder, $HomeTempFolder) {
     if ($DetectFolder -ne "") {
-        Write-Host "Using supplied detect folder: $DetectFolder"
+        Write-Host "Using supplied Detect folder: $DetectFolder"
         return Initialize-Folder -Folder $DetectFolder
     }
 
@@ -281,22 +281,22 @@ function Initialize-Folder ($Folder) {
 }
 
 function Receive-DetectSource ($ProxyInfo, $DetectVersionUrl, $DetectVersionKey) {
-    Write-Host "Finding latest detect version."
+    Write-Host "Finding latest Detect version."
     $DetectVersionData = Invoke-WebRequestWrapper -Url $DetectVersionUrl -ProxyInfo $ProxyInfo
     $DetectVersionJson = ConvertFrom-Json -InputObject $DetectVersionData
     
     $Properties = $DetectVersionJson | select -ExpandProperty "properties"
     $DetectVersionUrl = $Properties | select -ExpandProperty $DetectVersionKey
-    Write-Host "Resolved detect source $DetectVersionUrl"
+    Write-Host "Resolved Detect source $DetectVersionUrl"
     return $DetectVersionUrl
 }
 
 function Receive-DetectJar ($DetectUrl, $DetectJarFile, $ProxyInfo) {
-    Write-Host "You don't have detect. Downloading now."
+    Write-Host "You don't have Detect. Downloading now."
     Write-Host "Using url $DetectUrl"
     $Request = Invoke-WebRequestWrapper -Url $DetectUrl -DownloadLocation $DetectJarFile -ProxyInfo $ProxyInfo
     $DetectJarExists = Test-Path $DetectJarFile
-    Write-Host "Downloaded detect jar successfully '$DetectJarExists'"
+    Write-Host "Downloaded Detect jar successfully '$DetectJarExists'"
 }
 
 function Set-ToEscaped ($ArgArray) {
