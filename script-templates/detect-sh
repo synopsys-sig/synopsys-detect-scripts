@@ -41,6 +41,12 @@ DETECT_JAVA_OPTS=${DETECT_JAVA_OPTS:-}
 # DETECT_CURL_OPTS=--proxy http://myproxy:3128
 DETECT_CURL_OPTS=${DETECT_CURL_OPTS:-}
 
+# If you only want to download the appropriate jar file set
+# this to 1 in your environment. This can be useful if you
+# want to invoke the jar yourself but do not want to also
+# get and update the jar file when a new version releases.
+DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
+
 SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
@@ -66,7 +72,9 @@ done
 
 run() {
   get_detect
-  run_detect
+  if [ $DETECT_DOWNLOAD_ONLY -eq 0 ]; then
+    run_detect
+  fi
 }
 
 get_detect() {
