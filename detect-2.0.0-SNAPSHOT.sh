@@ -10,7 +10,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-04-08, the
+# urls for the detect jar file. As of 2019-04-09, the
 # available DETECT_VERSION_KEY values are:
 # DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
 # Every new major version of detect will have its own
@@ -59,6 +59,8 @@ for i in $*; do
     LOGGABLE_SCRIPT_ARGS="$LOGGABLE_SCRIPT_ARGS --blackduck.proxy.password=<redacted>"
   elif [[ $i == --blackduck.api.token=* ]]; then
     LOGGABLE_SCRIPT_ARGS="$LOGGABLE_SCRIPT_ARGS --blackduck.api.token=<redacted>"
+  elif [[ $i == --polaris.access.token=* ]]; then
+    LOGGABLE_SCRIPT_ARGS="$LOGGABLE_SCRIPT_ARGS --polaris.access.token=<redacted>"
   else
     LOGGABLE_SCRIPT_ARGS="$LOGGABLE_SCRIPT_ARGS $i"
   fi
