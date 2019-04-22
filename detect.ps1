@@ -13,10 +13,9 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-02-28, the
+# urls for the detect jar file. As of 2019-04-22, the
 # available DETECT_VERSION_KEY values are:
-# DETECT_LATEST, DETECT_LATEST_3, DETECT_LATEST_4,
-# DETECT_LATEST_5
+# DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
 $EnvDetectVersionKey = Get-EnvironmentVariable -Key "DETECT_VERSION_KEY" -DefaultValue "DETECT_LATEST";
@@ -31,14 +30,14 @@ $EnvDetectSkipJavaTest = Get-EnvironmentVariable -Key "DETECT_SKIP_JAVA_TEST" -D
 $EnvDetectSource = Get-EnvironmentVariable -Key "DETECT_SOURCE" -DefaultValue "";
 
 # To override the default location of /tmp, specify
-# your own DETECT_JAR_PATH in your environment and
+# your own DETECT_JAR_DOWNLOAD_DIR in your environment and
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
-# DETECT_JAR_PATH.
+# DETECT_JAR_DOWNLOAD_DIR.
 # Otherwise, if the environment temp folder is set,
 # it will be used. Otherwise, a temporary folder will
 # be created in your home directory
-$EnvDetectFolder = Get-EnvironmentVariable -Key "DETECT_JAR_PATH" -DefaultValue "";
+$EnvDetectFolder = Get-EnvironmentVariable -Key "DETECT_JAR_DOWNLOAD_DIR" -DefaultValue "";
 $EnvTempFolder = Get-EnvironmentVariable -Key "TMP" -DefaultValue "";
 $EnvHomeTempFolder = "$HOME/tmp"
 
@@ -66,7 +65,7 @@ $EnvDetectExitCodePassthru = Get-EnvironmentVariable -Key "DETECT_EXIT_CODE_PASS
 # heap size, you would set DETECT_JAVA_OPTS=-Xmx6G.
 # $DetectJavaOpts = Get-EnvironmentVariable -Key "DETECT_JAVA_OPTS" -DefaultValue "";
 
-$Version = "1.0.2"
+$Version = "2.0.0"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 #Enable TLS2
 
@@ -89,16 +88,16 @@ function Detect {
         Write-Host "Skipping java test."
     }
 
-    Write-Host "Initializing detect folder."
+    Write-Host "Initializing Detect folder."
     $DetectFolder = Initialize-DetectFolder -DetectFolder $EnvDetectFolder -TempFolder $EnvTempFolder -HomeTempFolder $EnvHomeTempFolder
 
     Write-Host "Checking for proxy."
     $ProxyInfo = Get-ProxyInfo
 
-    Write-Host "Getting detect."
+    Write-Host "Getting Detect."
     $DetectJarFile = Get-DetectJar -DetectFolder $DetectFolder -DetectSource $EnvDetectSource -DetectVersionKey $EnvDetectVersionKey -DetectVersion $EnvDetectDesiredVersion -ProxyInfo $ProxyInfo
 
-    Write-Host "Executing detect."
+    Write-Host "Executing Detect."
     $DetectArgs = $args;
     $DetectExitCode = Invoke-Detect -DetectJar $DetectJarFile -DetectArgs $DetectArgs
     
@@ -216,11 +215,11 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
         }
     }
 
-    Write-Host "Using detect source $DetectSource"
+    Write-Host "Using Detect source $DetectSource"
 
     $DetectVersion = Parse-Version -DetectSource $DetectSource
 
-    Write-Host "Using detect version $DetectVersion"
+    Write-Host "Using Detect version $DetectVersion"
 
     $DetectJarFile = "$DetectFolder/synopsys-detect-$DetectVersion.jar"
 
@@ -251,7 +250,7 @@ function Invoke-Detect ($DetectJarFile, $DetectArgs) {
     $JavaArgs = @("-jar", $DetectJarFile)
     $AllArgs = $JavaArgs + $DetectArgs
     Set-ToEscaped($AllArgs)
-    Write-Host "Running detect: $AllArgs"
+    Write-Host "Running Detect: $AllArgs"
     $DetectProcess = Start-Process java -ArgumentList $AllArgs -NoNewWindow -PassThru
     Wait-Process -InputObject $DetectProcess -ErrorAction SilentlyContinue
     $DetectExitCode = $DetectProcess.ExitCode;
@@ -261,7 +260,7 @@ function Invoke-Detect ($DetectJarFile, $DetectArgs) {
 
 function Initialize-DetectFolder ($DetectFolder, $TempFolder, $HomeTempFolder) {
     if ($DetectFolder -ne "") {
-        Write-Host "Using supplied detect folder: $DetectFolder"
+        Write-Host "Using supplied Detect folder: $DetectFolder"
         return Initialize-Folder -Folder $DetectFolder
     }
 
@@ -282,22 +281,22 @@ function Initialize-Folder ($Folder) {
 }
 
 function Receive-DetectSource ($ProxyInfo, $DetectVersionUrl, $DetectVersionKey) {
-    Write-Host "Finding latest detect version."
+    Write-Host "Finding latest Detect version."
     $DetectVersionData = Invoke-WebRequestWrapper -Url $DetectVersionUrl -ProxyInfo $ProxyInfo
     $DetectVersionJson = ConvertFrom-Json -InputObject $DetectVersionData
     
     $Properties = $DetectVersionJson | select -ExpandProperty "properties"
     $DetectVersionUrl = $Properties | select -ExpandProperty $DetectVersionKey
-    Write-Host "Resolved detect source $DetectVersionUrl"
+    Write-Host "Resolved Detect source $DetectVersionUrl"
     return $DetectVersionUrl
 }
 
 function Receive-DetectJar ($DetectUrl, $DetectJarFile, $ProxyInfo) {
-    Write-Host "You don't have detect. Downloading now."
+    Write-Host "You don't have Detect. Downloading now."
     Write-Host "Using url $DetectUrl"
     $Request = Invoke-WebRequestWrapper -Url $DetectUrl -DownloadLocation $DetectJarFile -ProxyInfo $ProxyInfo
     $DetectJarExists = Test-Path $DetectJarFile
-    Write-Host "Downloaded detect jar successfully '$DetectJarExists'"
+    Write-Host "Downloaded Detect jar successfully '$DetectJarExists'"
 }
 
 function Set-ToEscaped ($ArgArray) {
