@@ -65,6 +65,8 @@ for i in $*; do
     LOGGABLE_SCRIPT_ARGS="$LOGGABLE_SCRIPT_ARGS --blackduck.proxy.password=<redacted>"
   elif [[ $i == --blackduck.api.token=* ]]; then
     LOGGABLE_SCRIPT_ARGS="$LOGGABLE_SCRIPT_ARGS --blackduck.api.token=<redacted>"
+  elif [[ $i == --polaris.access.token=* ]]; then 
+    LOGGABLE_SCRIPT_ARGS="$LOGGABLE_SCRIPT_ARGS --polaris.access.token=<redacted>"
   else
     LOGGABLE_SCRIPT_ARGS="$LOGGABLE_SCRIPT_ARGS $i"
   fi
