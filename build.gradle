@@ -21,8 +21,7 @@ buildscript {
 
     dependencies {
         classpath 'com.blackducksoftware.integration:common-gradle-plugin:0.0.+'
-        classpath 'com.blackducksoftware.integration:integration-rest:0.8.3'
-        classpath 'com.blackducksoftware.integration:integration-common:15.4.0'
+        classpath 'com.blackducksoftware.integration:integration-rest:0.10.2'
     }
 }
 
