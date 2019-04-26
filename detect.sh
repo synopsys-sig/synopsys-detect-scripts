@@ -10,7 +10,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-04-22, the
+# urls for the detect jar file. As of 2019-04-26, the
 # available DETECT_VERSION_KEY values are:
 # DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
 # Every new major version of detect will have its own
@@ -41,10 +41,16 @@ DETECT_JAVA_OPTS=${DETECT_JAVA_OPTS:-}
 # DETECT_CURL_OPTS=--proxy http://myproxy:3128
 DETECT_CURL_OPTS=${DETECT_CURL_OPTS:-}
 
+# If you only want to download the appropriate jar file set
+# this to 1 in your environment. This can be useful if you
+# want to invoke the jar yourself but do not want to also
+# get and update the jar file when a new version releases.
+DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
+
 SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
-echo "Detect Shell Script 2.0.0"
+echo "Detect Shell Script 2.1.0"
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
@@ -68,7 +74,9 @@ done
 
 run() {
   get_detect
-  run_detect
+  if [ $DETECT_DOWNLOAD_ONLY -eq 0 ]; then
+    run_detect
+  fi
 }
 
 get_detect() {
