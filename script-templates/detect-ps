@@ -56,6 +56,14 @@ $EnvDetectExitCodePassthru = Get-EnvironmentVariable -Key "DETECT_EXIT_CODE_PASS
 # Note: This script will not pick up proxy information
 # passed to the bash script using 'DETECT_CURL_OPTS'
 
+# To control which java detect will use to run, specify
+# the path in in DETECT_JAVA_PATH or JAVA_HOME in your
+# environment, or ensure that java is first on the path.
+# DETECT_JAVA_PATH will take precedence over JAVA_HOME.
+# JAVA_HOME will take precedence over the path.
+$DetectJavaPath = Get-EnvironmentVariable -Key "DETECT_JAVA_PATH" -DefaultValue "";
+$JavaHome = Get-EnvironmentVariable -Key "JAVA_HOME" -DefaultValue "";
+
 # TODO: Mirror the functionality of the shell script
 # and allow Java opts.
 
@@ -251,11 +259,27 @@ function Invoke-Detect ($DetectJarFile, $DetectArgs) {
     $AllArgs = $JavaArgs + $DetectArgs
     Set-ToEscaped($AllArgs)
     Write-Host "Running Detect: $AllArgs"
-    $DetectProcess = Start-Process java -ArgumentList $AllArgs -NoNewWindow -PassThru
+    $JavaCommand = Determine-Java($JavaHome, $DetectJavaPath)
+    $DetectProcess = Start-Process $JavaCommand -ArgumentList $AllArgs -NoNewWindow -PassThru
     Wait-Process -InputObject $DetectProcess -ErrorAction SilentlyContinue
     $DetectExitCode = $DetectProcess.ExitCode;
     Write-Host "Result code of $DetectExitCode, exiting"
     return $DetectExitCode
+}
+
+function Determine-Java ($EnvJavaHome, $EnvDetectJavaPath) {
+    $JavaCommand = "java"
+    if ($DetectJavaPath -ne "") {
+        Write-Host "Java Source: DETECT_JAVA_PATH=$DetectJavaPath"
+        $JavaCommand = $DetectJavaPath
+    } elseif ($JavaHome -ne "") {
+        Write-Host "Java Source: JAVA_HOME=$JavaHome"
+        $JavaCommand = $JavaHome
+    } else {
+        Write-Host "Java Source: PATH"
+    }
+
+    return $JavaCommand
 }
 
 function Initialize-DetectFolder ($DetectFolder, $TempFolder, $HomeTempFolder) {
