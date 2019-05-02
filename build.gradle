@@ -35,24 +35,22 @@ jar {
 shadowJar {
     getArchiveBaseName().set('synopsys-detect-scripts')
     classifier = null
-    version = version
 }
 
 jar.finalizedBy shadowJar
 
+build.dependsOn.add("generateVersionFile")
 build.dependsOn.add("runJar")
 
-build {
-    doLast {
-        final File versionFile = new File(project.projectDir, "src/main/resources/version.txt")
-        versionFile.delete()
-        versionFile << version
-    }
+task generateVersionFile {
+    final File versionFile = new File(project.projectDir, "src/main/resources/version.txt")
+    versionFile.delete()
+    versionFile << version
 }
 
 task runJar(type: JavaExec) {
-    main = "-jar";
-    args(jar.archivePath, "${project.buildDir}/libs/")
+    main = "-jar"
+    args(jar.getArchiveFile().get().asFile, "${project.buildDir}/libs/")
 }
 
 dependencies {
