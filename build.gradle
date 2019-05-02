@@ -42,6 +42,14 @@ jar.finalizedBy shadowJar
 
 build.dependsOn.add("runJar")
 
+build {
+    doLast {
+        final File versionFile = new File(project.projectDir, "src/main/resources/version.txt")
+        versionFile.delete()
+        versionFile << version
+    }
+}
+
 task runJar(type: JavaExec) {
     main = "-jar";
     args(jar.archivePath, "${project.buildDir}/libs/")
