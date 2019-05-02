@@ -84,28 +84,28 @@ public class ScriptBuilder {
 
     public void generateScripts(final File outputDirectory) throws IOException, IntegrationException {
         final String version = ResourceUtil.getResourceAsString(this.getClass(), "/version.txt", StandardCharsets.UTF_8);
-
-        final File shellScriptFile = new File(outputDirectory, "detect.sh");
-        final File shellScriptVersionedFile = new File(outputDirectory, String.format("detect-%s.sh", version));
-        final File powershellScriptFile = new File(outputDirectory, "detect.ps1");
-        final File powershellScriptVersionedFile = new File(outputDirectory, String.format("detect-%s.ps1", version));
-
-        if (!version.contains("-SNAPSHOT")) {
-            buildScript("detect-sh", shellScriptFile, version);
-            buildScript("detect-ps", powershellScriptFile, version);
-        }
-
-        buildScript("detect-sh", shellScriptVersionedFile, version);
-        buildScript("detect-ps", powershellScriptVersionedFile, version);
+        generateScript(outputDirectory, "detect-sh.sh", "sh", version);
+        generateScript(outputDirectory, "detect-ps.ps1", "ps1", version);
     }
 
-    private void buildScript(final String scriptTemplateFileName, final File outputFile, final String version) throws IOException, IntegrationException {
+    public void generateScript(final File outputDirectory, final String templateFileName, final String scriptExtension, final String scriptVersion) throws IOException, IntegrationException {
+        final File shellScriptFile = new File(outputDirectory, String.format("detect.%s", scriptExtension));
+        final File shellScriptVersionedFile = new File(outputDirectory, String.format("detect-%s.%s", scriptVersion, scriptExtension));
+
+        if (!scriptVersion.contains("-SNAPSHOT")) {
+            buildScript(templateFileName, shellScriptFile, scriptVersion);
+        }
+
+        buildScript(templateFileName, shellScriptVersionedFile, scriptVersion);
+    }
+
+    private void buildScript(final String scriptTemplateFileName, final File outputFile, final String scriptVersion) throws IOException, IntegrationException {
         final String VERSION_TOKEN = "//SCRIPT_VERSION//";
         final String BUILD_DATE_TOKEN = "//BUILD_DATE//";
         final String MAJOR_VERSIONS_TOKEN = "//DETECT_MAJOR_VERSIONS//";
 
         String scriptContents = ResourceUtil.getResourceAsString(this.getClass(), "/" + scriptTemplateFileName, StandardCharsets.UTF_8);
-        scriptContents = scriptContents.replaceAll(VERSION_TOKEN, version);
+        scriptContents = scriptContents.replaceAll(VERSION_TOKEN, scriptVersion);
 
         final Date date = Date.from(Instant.now());
         final DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-dd");
