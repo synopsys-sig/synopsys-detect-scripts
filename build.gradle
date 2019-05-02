@@ -1,14 +1,3 @@
-import com.synopsys.integration.log.IntLogger
-import com.synopsys.integration.log.Slf4jIntLogger
-import com.synopsys.integration.rest.client.IntHttpClient
-import com.synopsys.integration.rest.proxy.ProxyInfo
-import com.synopsys.integration.rest.request.Request
-import org.apache.commons.lang3.StringUtils
-import org.slf4j.LoggerFactory
-
-import java.nio.charset.StandardCharsets
-import java.time.Instant
-
 buildscript {
     ext {
         springBootVersion = '2.0.3.RELEASE'
@@ -22,7 +11,14 @@ buildscript {
     dependencies {
         classpath 'com.blackducksoftware.integration:common-gradle-plugin:0.0.+'
         classpath 'com.blackducksoftware.integration:integration-rest:0.10.2'
+        classpath 'org.codehaus.groovy:groovy-all:2.4.12'
+        classpath 'org.junit.jupiter:junit-jupiter:5.4.2'
+        classpath 'org.mockito:mockito-core:2.+'
     }
+}
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
 }
 
 group = 'com.synopsys.integration'
@@ -30,96 +26,34 @@ version = '2.1.1-SNAPSHOT'
 
 apply plugin: 'com.blackducksoftware.integration.simple'
 
-final File shellScriptFile = new File("${buildDir}/detect.sh")
-final File shellScriptVersionedFile = new File("${buildDir}/detect-${version}.sh")
-final File powershellScriptFile = new File("${buildDir}/detect.ps1")
-final File powershellScriptVersionedFile = new File("${buildDir}/detect-${version}.ps1")
-
-build {
-    doLast {
-        final File shellScriptTemplateFile = new File("${projectDir}/script-templates/detect-sh")
-        final File powershellScriptTemplateFile = new File("${projectDir}/script-templates/detect-ps")
-
-        if (!version.contains("-SNAPSHOT")) {
-            buildScript(shellScriptTemplateFile, shellScriptFile)
-            buildScript(powershellScriptTemplateFile, powershellScriptFile)
-        }
-
-        buildScript(shellScriptTemplateFile, shellScriptVersionedFile)
-        buildScript(powershellScriptTemplateFile, powershellScriptVersionedFile)
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.synopsys.integration.synopsys.detect.scripts.ScriptBuilder'
     }
 }
 
-private void buildScript(final File scriptTemplateFile, final File outputFile) {
-    final String VERSION_TOKEN = '//SCRIPT_VERSION//'
-    final String BUILD_DATE_TOKEN = '//BUILD_DATE//'
-    final String MAJOR_VERSIONS_TOKEN = '//DETECT_MAJOR_VERSIONS//'
-
-    String scriptContents = scriptTemplateFile.getText('UTF-8')
-    scriptContents = scriptContents.replaceAll(VERSION_TOKEN, version.toString())
-
-    final Date date = Date.from(Instant.now())
-    scriptContents = scriptContents.replaceAll(BUILD_DATE_TOKEN, date.format("YYYY-MM-dd"))
-
-    // TODO: Remove oldArtifactoryUrl after 5.3.0 release of Detect
-    final String oldArtifactoryUrl = "https://repo.blackducksoftware.com/artifactory/api/storage/bds-integrations-release/com/blackducksoftware/integration/hub-detect?properties"
-    final String artifactoryUrl = "https://repo.blackducksoftware.com/artifactory/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties"
-    List<String> detectPropertyTags = fetchDetectPropertyTags(artifactoryUrl)
-    if (detectPropertyTags.isEmpty()) {
-        detectPropertyTags = fetchDetectPropertyTags(oldArtifactoryUrl)
-    }
-
-    final String majorVersionsCommentBlock = formatDetectPropertyTags(detectPropertyTags)
-    scriptContents = scriptContents.replace(MAJOR_VERSIONS_TOKEN, majorVersionsCommentBlock)
-
-    outputFile.delete()
-    outputFile << scriptContents
-    outputFile.setExecutable(true)
+shadowJar {
+    getArchiveBaseName().set('synopsys-detect-scripts')
+    classifier = null
+    version = version
 }
 
-private String formatDetectPropertyTags(final List<String> detectPropertyTags) {
-    final int MAX_COMMENT_CHARACTERS = 55
-    final StringBuilder result = new StringBuilder()
+jar.finalizedBy shadowJar
 
-    String line = "#"
-    for (int i = 0; i < detectPropertyTags.size(); i++) {
-        final String tag = detectPropertyTags.get(i)
-        String newText = " $tag"
+build.dependsOn.add("runJar")
 
-        final boolean nextTagExists = i + 1 < detectPropertyTags.size()
-        if (nextTagExists) {
-            newText += ","
-        }
-
-        if (line.size() + newText.size() < MAX_COMMENT_CHARACTERS) {
-            line = line + newText
-        } else {
-            result.append(line)
-            result.append(System.lineSeparator())
-            line = "#" + newText
-        }
-    }
-
-    if (StringUtils.isNotBlank(line)) {
-        result.append(line)
-    }
-
-    return result.toString()
+task runJar(type: JavaExec) {
+    main = "-jar";
+    args(jar.archivePath, "${project.buildDir}/libs/")
 }
 
-private List<String> fetchDetectPropertyTags(final String artifactoryUrl) {
-    final IntLogger intLogger = new Slf4jIntLogger(LoggerFactory.getLogger("fetchDetectPropertyTagLines"))
-    final IntHttpClient intHttpClient = new IntHttpClient(intLogger, 200, true, ProxyInfo.NO_PROXY_INFO)
-    final Request request = new Request.Builder().uri(artifactoryUrl).build()
+dependencies {
+    implementation 'com.blackducksoftware.integration:common-gradle-plugin:0.0.+'
+    implementation 'com.blackducksoftware.integration:blackduck-common:+'
 
-    final List<String> propertyTags = new ArrayList<>()
-    intHttpClient.execute(request).withCloseable { response ->
-        final String responseContent = response.getContentString(StandardCharsets.UTF_8)
-        final List<String> tags = responseContent.findAll("\"DETECT_LATEST.*?\"")
-        for (final String tag : tags) {
-            propertyTags.add(tag.replace("\"", ""))
-        }
-    }
+    runtimeClasspath 'com.blackducksoftware.integration:common-gradle-plugin:0.0.+'
+    runtimeClasspath 'com.blackducksoftware.integration:blackduck-common:+'
 
-    return propertyTags
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+    testImplementation 'org.mockito:mockito-core:2.+'
 }
