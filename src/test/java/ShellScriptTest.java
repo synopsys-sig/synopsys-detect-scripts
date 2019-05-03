@@ -56,6 +56,7 @@ public class ShellScriptTest extends CommonScriptTest {
         processBuilder.command(command);
         processBuilder.environment().clear();
         processBuilder.environment().putAll(environment);
+        processBuilder.inheritIO();
 
         return processBuilder.start();
     }

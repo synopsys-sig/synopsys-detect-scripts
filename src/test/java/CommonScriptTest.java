@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.commons.util.StringUtils;
 
 public abstract class CommonScriptTest {
     public abstract Process executeScript(final Map<String, String> environment, final List<String> args) throws IOException;
@@ -43,13 +44,43 @@ public abstract class CommonScriptTest {
         Assert.assertTrue(detectJarFile.exists());
     }
 
+    @Test
+    void testDetectReleaseVersion() throws IOException, InterruptedException {
+        final File outputDirectory = getOutputDirectory();
+        final Map<String, String> environment = new HashMap<>();
+        environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), outputDirectory.getAbsolutePath());
+        environment.put(EnvironmentVariables.DETECT_DOWNLOAD_ONLY.name(), "1");
+        environment.put(EnvironmentVariables.DETECT_LATEST_RELEASE_VERSION.name(), "5.3.2");
+
+        final Process process = executeScript(environment, new ArrayList<>());
+        waitForProcess(process);
+        Assert.assertEquals(0, process.exitValue());
+
+        final File detectJarFile = findDetectJarFile(outputDirectory, "5.3.2");
+        Assert.assertTrue(detectJarFile.exists());
+    }
+
     private File findDetectJarFile(final File outputDirectory) {
-        final FilenameFilter filenameFilter = (path, fileName) -> fileName.endsWith(".jar");
+        return findDetectJarFile(outputDirectory, null);
+    }
+
+    private File findDetectJarFile(final File outputDirectory, final String detectVersion) {
+        final FilenameFilter filenameFilter = (path, fileName) -> isDetectJar(fileName, detectVersion);
         final File[] jarFiles = outputDirectory.listFiles(filenameFilter);
         Assert.assertNotNull(jarFiles);
-        Assert.assertEquals(1, jarFiles.length);
+        Assert.assertEquals("Failed to find detect jar.", 1, jarFiles.length);
 
         return jarFiles[0];
+    }
+
+    private boolean isDetectJar(final String fileName, final String detectVersion) {
+        final boolean isJar = fileName.endsWith(".jar");
+        boolean versionCheckPassed = true;
+        if (StringUtils.isNotBlank(detectVersion)) {
+            versionCheckPassed = fileName.contains(detectVersion);
+        }
+
+        return isJar && versionCheckPassed;
     }
 
     private void waitForProcess(final Process process) throws InterruptedException {
