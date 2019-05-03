@@ -1,9 +1,7 @@
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import org.junit.Assert;
@@ -47,23 +45,12 @@ public class ShellScriptTest extends CommonScriptTest {
     }
 
     @Override
-    public Process executeScript(final Map<String, String> environment, final List<String> args) throws IOException {
-        final List<String> command = new ArrayList<>();
-        command.add(shellScript.getAbsolutePath());
-        command.addAll(args);
-
-        final ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command(command);
-        processBuilder.environment().clear();
-        processBuilder.environment().putAll(environment);
-
-        // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
-        return processBuilder.start();
-    }
-
-    @Override
     public File getOutputDirectory() {
         return shellScriptDataDirectory;
     }
 
+    @Override
+    public File getScriptFile() {
+        return shellScript;
+    }
 }

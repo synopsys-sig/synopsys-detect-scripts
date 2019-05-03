@@ -16,9 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
 
 public abstract class CommonScriptTest {
-    public abstract Process executeScript(final Map<String, String> environment, final List<String> args) throws IOException;
-
     public abstract File getOutputDirectory();
+
+    public abstract File getScriptFile();
 
     @Test
     void testJarExists() throws IOException, InterruptedException {
@@ -99,6 +99,20 @@ public abstract class CommonScriptTest {
     void testEscapingSpacesInvalid() throws IOException, InterruptedException {
         final boolean success = testEscapingSpaces("--detect.project.name=Synopsys Detect");
         Assert.assertFalse(success);
+    }
+
+    public Process executeScript(final Map<String, String> environment, final List<String> args) throws IOException {
+        final List<String> command = new ArrayList<>();
+        command.add(getScriptFile().getAbsolutePath());
+        command.addAll(args);
+
+        final ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command(command);
+        processBuilder.environment().clear();
+        processBuilder.environment().putAll(environment);
+
+        // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
+        return processBuilder.start();
     }
 
     private boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
