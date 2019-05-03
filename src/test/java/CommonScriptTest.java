@@ -60,6 +60,22 @@ public abstract class CommonScriptTest {
         Assert.assertTrue(detectJarFile.exists());
     }
 
+    @Test
+    void testDetectVersionVersionKey() throws IOException, InterruptedException {
+        final File outputDirectory = getOutputDirectory();
+        final Map<String, String> environment = new HashMap<>();
+        environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), outputDirectory.getAbsolutePath());
+        environment.put(EnvironmentVariables.DETECT_DOWNLOAD_ONLY.name(), "1");
+        environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_4");
+
+        final Process process = executeScript(environment, new ArrayList<>());
+        waitForProcess(process);
+        Assert.assertEquals(0, process.exitValue());
+
+        final File detectJarFile = findDetectJarFile(outputDirectory, "4.4.2");
+        Assert.assertTrue(detectJarFile.exists());
+    }
+
     private File findDetectJarFile(final File outputDirectory) {
         return findDetectJarFile(outputDirectory, null);
     }
