@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
+
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
@@ -18,101 +20,87 @@ public abstract class CommonScriptTest {
 
     @Test
     void testJarExists() throws IOException, InterruptedException {
-        final File outputDirectory = getOutputDirectory();
-        final Map<String, String> environment = new HashMap<>();
-        environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), outputDirectory.getAbsolutePath());
+        final Map<String, String> environment = createEnvironment(false);
 
         final Process process = executeScript(environment, new ArrayList<>());
         waitForProcess(process);
+        Assert.assertNotEquals(0, process.exitValue());
 
-        final File detectJarFile = findDetectJarFile(outputDirectory);
-        Assert.assertTrue(detectJarFile.exists());
+        assertJarExists(null);
     }
 
     @Test
     void testDownloadOnly() throws IOException, InterruptedException {
-        final File outputDirectory = getOutputDirectory();
-        final Map<String, String> environment = new HashMap<>();
-        environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), outputDirectory.getAbsolutePath());
-        environment.put(EnvironmentVariables.DETECT_DOWNLOAD_ONLY.name(), "1");
+        final Map<String, String> environment = createEnvironment(true);
 
         final Process process = executeScript(environment, new ArrayList<>());
         waitForProcess(process);
         Assert.assertEquals(0, process.exitValue());
 
-        final File detectJarFile = findDetectJarFile(outputDirectory);
-        Assert.assertTrue(detectJarFile.exists());
+        assertJarExists(null);
     }
 
     @Test
     void testDetectReleaseVersion() throws IOException, InterruptedException {
-        final File outputDirectory = getOutputDirectory();
-        final Map<String, String> environment = new HashMap<>();
-        environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), outputDirectory.getAbsolutePath());
-        environment.put(EnvironmentVariables.DETECT_DOWNLOAD_ONLY.name(), "1");
+        final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_LATEST_RELEASE_VERSION.name(), "5.3.2");
 
         final Process process = executeScript(environment, new ArrayList<>());
         waitForProcess(process);
         Assert.assertEquals(0, process.exitValue());
 
-        final File detectJarFile = findDetectJarFile(outputDirectory, "5.3.2");
-        Assert.assertTrue(detectJarFile.exists());
+        assertJarExists("5.3.2");
     }
 
     @Test
     void testDetectVersionVersionKey() throws IOException, InterruptedException {
-        final File outputDirectory = getOutputDirectory();
-        final Map<String, String> environment = new HashMap<>();
-        environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), outputDirectory.getAbsolutePath());
-        environment.put(EnvironmentVariables.DETECT_DOWNLOAD_ONLY.name(), "1");
+        final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_4");
 
         final Process process = executeScript(environment, new ArrayList<>());
         waitForProcess(process);
         Assert.assertEquals(0, process.exitValue());
 
-        final File detectJarFile = findDetectJarFile(outputDirectory, "4.4.2");
-        Assert.assertTrue(detectJarFile.exists());
+        assertJarExists("4.4.2");
     }
 
     @Test
     void testDetectSource() throws IOException, InterruptedException {
-        final File outputDirectory = getOutputDirectory();
-        final Map<String, String> environment = new HashMap<>();
-        environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), outputDirectory.getAbsolutePath());
-        environment.put(EnvironmentVariables.DETECT_DOWNLOAD_ONLY.name(), "1");
+        final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://repo.blackducksoftware.com:443/artifactory/bds-integrations-release/com/blackducksoftware/integration/hub-detect/5.2.0/hub-detect-5.2.0.jar");
 
         final Process process = executeScript(environment, new ArrayList<>());
         waitForProcess(process);
         Assert.assertEquals(0, process.exitValue());
 
-        final File detectJarFile = findDetectJarFile(outputDirectory, "5.2.0");
+        assertJarExists("5.2.0");
+    }
+
+    private void assertJarExists(@Nullable final String detectVersion) {
+        final FilenameFilter filenameFilter = (path, fileName) -> fileName.endsWith(".jar");
+        final File[] jarFiles = getOutputDirectory().listFiles(filenameFilter);
+        Assert.assertNotNull(jarFiles);
+
+        File detectJarFile = null;
+        for (final File jarFile : jarFiles) {
+            if (StringUtils.isNotBlank(detectVersion) && jarFile.getName().contains(detectVersion)) {
+                detectJarFile = jarFile;
+                break;
+            } else {
+                detectJarFile = jarFile;
+            }
+        }
+
+        Assert.assertNotNull(detectJarFile);
         Assert.assertTrue(detectJarFile.exists());
     }
 
-    private File findDetectJarFile(final File outputDirectory) {
-        return findDetectJarFile(outputDirectory, null);
-    }
+    private Map<String, String> createEnvironment(final boolean downloadOnly) {
+        final Map<String, String> environment = new HashMap<>();
+        environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), getOutputDirectory().getAbsolutePath());
+        environment.put(EnvironmentVariables.DETECT_DOWNLOAD_ONLY.name(), downloadOnly ? "1" : "");
 
-    private File findDetectJarFile(final File outputDirectory, final String detectVersion) {
-        final FilenameFilter filenameFilter = (path, fileName) -> isDetectJar(fileName, detectVersion);
-        final File[] jarFiles = outputDirectory.listFiles(filenameFilter);
-        Assert.assertNotNull(jarFiles);
-        Assert.assertEquals("Failed to find detect jar.", 1, jarFiles.length);
-
-        return jarFiles[0];
-    }
-
-    private boolean isDetectJar(final String fileName, final String detectVersion) {
-        final boolean isJar = fileName.endsWith(".jar");
-        boolean versionCheckPassed = true;
-        if (StringUtils.isNotBlank(detectVersion)) {
-            versionCheckPassed = fileName.contains(detectVersion);
-        }
-
-        return isJar && versionCheckPassed;
+        return environment;
     }
 
     private void waitForProcess(final Process process) throws InterruptedException {
