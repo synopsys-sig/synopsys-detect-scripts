@@ -84,22 +84,34 @@ public class ScriptBuilder {
 
     public void generateScripts(final File outputDirectory) throws IOException, IntegrationException {
         final String version = ResourceUtil.getResourceAsString(this.getClass(), "/version.txt", StandardCharsets.UTF_8);
-        generateScript(outputDirectory, "detect-sh.sh", "sh", version);
-        generateScript(outputDirectory, "detect-ps.ps1", "ps1", version);
+        final List<File> shellScriptFiles = generateScript(outputDirectory, "detect-sh.sh", "sh", version);
+        final List<File> powershellScriptFiles = generateScript(outputDirectory, "detect-ps.ps1", "ps1", version);
+
+        shellScriptFiles.forEach(this::logFileLocation);
+        powershellScriptFiles.forEach(this::logFileLocation);
     }
 
-    public void generateScript(final File outputDirectory, final String templateFileName, final String scriptExtension, final String scriptVersion) throws IOException, IntegrationException {
+    private void logFileLocation(final File file) {
+        logger.info(String.format("Generated script at: %s", file.getAbsolutePath()));
+    }
+
+    public List<File> generateScript(final File outputDirectory, final String templateFileName, final String scriptExtension, final String scriptVersion) throws IOException, IntegrationException {
         final File shellScriptFile = new File(outputDirectory, String.format("detect.%s", scriptExtension));
         final File shellScriptVersionedFile = new File(outputDirectory, String.format("detect-%s.%s", scriptVersion, scriptExtension));
+        final List<File> createdFiles = new ArrayList<>();
 
         if (!scriptVersion.contains("-SNAPSHOT")) {
-            buildScript(templateFileName, shellScriptFile, scriptVersion);
+            final File createdFile = buildScript(templateFileName, shellScriptFile, scriptVersion);
+            createdFiles.add(createdFile);
         }
 
-        buildScript(templateFileName, shellScriptVersionedFile, scriptVersion);
+        final File createdFile = buildScript(templateFileName, shellScriptVersionedFile, scriptVersion);
+        createdFiles.add(createdFile);
+
+        return createdFiles;
     }
 
-    private void buildScript(final String scriptTemplateFileName, final File outputFile, final String scriptVersion) throws IOException, IntegrationException {
+    private File buildScript(final String scriptTemplateFileName, final File outputFile, final String scriptVersion) throws IOException, IntegrationException {
         final String VERSION_TOKEN = "//SCRIPT_VERSION//";
         final String BUILD_DATE_TOKEN = "//BUILD_DATE//";
         final String MAJOR_VERSIONS_TOKEN = "//DETECT_MAJOR_VERSIONS//";
@@ -126,6 +138,8 @@ public class ScriptBuilder {
         outputFile.delete();
         FileUtils.write(outputFile, scriptContents, StandardCharsets.UTF_8);
         outputFile.setExecutable(true);
+
+        return outputFile;
     }
 
     private String formatDetectPropertyTags(final List<String> detectPropertyTags) {
