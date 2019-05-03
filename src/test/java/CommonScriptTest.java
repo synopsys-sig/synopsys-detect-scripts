@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nullable;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
 
 public abstract class CommonScriptTest {
+    public abstract Process executeScript(final Map<String, String> environment, final List<String> args) throws IOException;
+
     public abstract File getOutputDirectory();
 
     public abstract File getScriptFile();
@@ -84,12 +84,6 @@ public abstract class CommonScriptTest {
     }
 
     @Test
-    void testEscapingSpacesInner() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys\\ Detect");
-        Assert.assertTrue(success);
-    }
-
-    @Test
     void testEscapingSpacesOuter() throws IOException, InterruptedException {
         final boolean success = testEscapingSpaces("--detect.project.name=\"Synopsys Detect\"");
         Assert.assertTrue(success);
@@ -101,21 +95,7 @@ public abstract class CommonScriptTest {
         Assert.assertFalse(success);
     }
 
-    public Process executeScript(final Map<String, String> environment, final List<String> args) throws IOException {
-        final List<String> command = new ArrayList<>();
-        command.add(getScriptFile().getAbsolutePath());
-        command.addAll(args);
-
-        final ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command(command);
-        processBuilder.environment().clear();
-        processBuilder.environment().putAll(environment);
-
-        // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
-        return processBuilder.start();
-    }
-
-    private boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
+    protected boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(false);
         final List<String> arguments = new ArrayList<>();
         arguments.add(escapedProjectName);
@@ -130,7 +110,7 @@ public abstract class CommonScriptTest {
         return standardOutput.contains("detect.project.name = Synopsys Detect");
     }
 
-    private void assertJarExists(@Nullable final String detectVersion) {
+    protected void assertJarExists(final String detectVersion) {
         final FilenameFilter filenameFilter = (path, fileName) -> fileName.endsWith(".jar");
         final File[] jarFiles = getOutputDirectory().listFiles(filenameFilter);
         Assert.assertNotNull(jarFiles);
@@ -149,7 +129,7 @@ public abstract class CommonScriptTest {
         Assert.assertTrue(detectJarFile.exists());
     }
 
-    private Map<String, String> createEnvironment(final boolean downloadOnly) {
+    protected Map<String, String> createEnvironment(final boolean downloadOnly) {
         final Map<String, String> environment = new HashMap<>();
         environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), getOutputDirectory().getAbsolutePath());
         environment.put(EnvironmentVariables.DETECT_DOWNLOAD_ONLY.name(), downloadOnly ? "1" : "");
@@ -157,7 +137,7 @@ public abstract class CommonScriptTest {
         return environment;
     }
 
-    private void waitForProcess(final Process process) throws InterruptedException {
+    protected void waitForProcess(final Process process) throws InterruptedException {
         waitForProcess(process, 100, TimeUnit.SECONDS);
     }
 
@@ -167,7 +147,7 @@ public abstract class CommonScriptTest {
     }
 
     // Copying both streams will cause the logs to be deformed in the console.
-    private void logToConsole(final Process process) throws IOException {
+    protected void logToConsole(final Process process) throws IOException {
         IOUtils.copy(process.getErrorStream(), System.err);
         final String standardOutput = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
         System.out.println(standardOutput);
