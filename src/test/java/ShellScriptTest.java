@@ -56,8 +56,8 @@ public class ShellScriptTest extends CommonScriptTest {
         processBuilder.command(command);
         processBuilder.environment().clear();
         processBuilder.environment().putAll(environment);
-        processBuilder.inheritIO();
 
+        // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
         return processBuilder.start();
     }
 

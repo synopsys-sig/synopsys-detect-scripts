@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nullable;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
@@ -24,6 +26,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>());
         waitForProcess(process);
+        logToConsole(process);
         Assert.assertNotEquals(0, process.exitValue());
 
         assertJarExists(null);
@@ -35,6 +38,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>());
         waitForProcess(process);
+        logToConsole(process);
         Assert.assertEquals(0, process.exitValue());
 
         assertJarExists(null);
@@ -47,6 +51,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>());
         waitForProcess(process);
+        logToConsole(process);
         Assert.assertEquals(0, process.exitValue());
 
         assertJarExists("5.3.2");
@@ -59,6 +64,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>());
         waitForProcess(process);
+        logToConsole(process);
         Assert.assertEquals(0, process.exitValue());
 
         assertJarExists("4.4.2");
@@ -71,9 +77,43 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>());
         waitForProcess(process);
+        logToConsole(process);
         Assert.assertEquals(0, process.exitValue());
 
         assertJarExists("5.2.0");
+    }
+
+    @Test
+    void testEscapingSpacesInner() throws IOException, InterruptedException {
+        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys\\ Detect");
+        Assert.assertTrue(success);
+    }
+
+    @Test
+    void testEscapingSpacesOuter() throws IOException, InterruptedException {
+        final boolean success = testEscapingSpaces("--detect.project.name=\"Synopsys Detect\"");
+        Assert.assertTrue(success);
+    }
+
+    @Test
+    void testEscapingSpacesInvalid() throws IOException, InterruptedException {
+        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys Detect");
+        Assert.assertFalse(success);
+    }
+
+    private boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
+        final Map<String, String> environment = createEnvironment(false);
+        final List<String> arguments = new ArrayList<>();
+        arguments.add(escapedProjectName);
+
+        final Process process = executeScript(environment, arguments);
+        waitForProcess(process);
+        Assert.assertNotEquals(0, process.exitValue());
+        final String standardOutput = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
+        IOUtils.copy(process.getErrorStream(), System.err);
+        System.out.println(standardOutput);
+
+        return standardOutput.contains("detect.project.name = Synopsys Detect");
     }
 
     private void assertJarExists(@Nullable final String detectVersion) {
@@ -110,5 +150,12 @@ public abstract class CommonScriptTest {
     private void waitForProcess(final Process process, final long timeout, final TimeUnit timeUnit) throws InterruptedException {
         final boolean processHitTimeout = !process.waitFor(timeout, timeUnit);
         Assert.assertFalse(processHitTimeout);
+    }
+
+    // Copying both streams will cause the logs to be deformed in the console.
+    private void logToConsole(final Process process) throws IOException {
+        IOUtils.copy(process.getErrorStream(), System.err);
+        final String standardOutput = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
+        System.out.println(standardOutput);
     }
 }
