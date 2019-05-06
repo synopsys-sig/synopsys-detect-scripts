@@ -16,18 +16,17 @@ import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.synopsys.detect.scripts.ScriptBuilder;
 
 public class ShellScriptTest extends CommonScriptTest {
-    private static final File shellScriptOutputDirectory = new File("/tmp/script-test/");
-    private static final File shellScriptDataDirectory = new File(shellScriptOutputDirectory, "shellScriptData");
+    private static final File shellScriptDataDirectory = new File(TEST_OUTPUT_DIRECTORY, "shellScriptData");
 
     private static File shellScript;
 
     @BeforeAll
     static void setUpBeforeAll() throws IOException, IntegrationException {
-        shellScriptOutputDirectory.mkdirs();
+        TEST_OUTPUT_DIRECTORY.mkdirs();
         shellScriptDataDirectory.mkdirs();
 
         final ScriptBuilder scriptBuilder = new ScriptBuilder();
-        final List<File> scriptFiles = scriptBuilder.generateScript(shellScriptOutputDirectory, "detect-sh.sh", "sh", "something-SNAPSHOT");
+        final List<File> scriptFiles = scriptBuilder.generateScript(TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "something-SNAPSHOT");
         Assert.assertEquals(1, scriptFiles.size());
 
         shellScript = scriptFiles.get(0);
@@ -42,7 +41,7 @@ public class ShellScriptTest extends CommonScriptTest {
 
     @AfterAll
     static void tearDownAfterAll() {
-        Arrays.stream(Objects.requireNonNull(shellScriptOutputDirectory.listFiles()))
+        Arrays.stream(Objects.requireNonNull(TEST_OUTPUT_DIRECTORY.listFiles()))
             .map(File::delete)
             .forEach(Assert::assertTrue);
     }
