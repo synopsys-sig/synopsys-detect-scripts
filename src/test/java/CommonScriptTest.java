@@ -146,10 +146,19 @@ public abstract class CommonScriptTest {
         Assert.assertFalse(processHitTimeout);
     }
 
-    // Copying both streams will cause the logs to be deformed in the console.
-    protected void logToConsole(final Process process) throws IOException {
-        IOUtils.copy(process.getErrorStream(), System.err);
-        final String standardOutput = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-        System.out.println(standardOutput);
+    protected Process createProcess(final List<String> finalCommand, final Map<String, String> environment, final boolean inheritIO) throws IOException {
+        final ProcessBuilder processBuilder = new ProcessBuilder();
+        processBuilder.command(finalCommand);
+        processBuilder.environment().clear();
+        processBuilder.environment().put("PATH", System.getenv("PATH"));
+        processBuilder.environment().putAll(environment);
+
+        if (inheritIO) {
+            // inheritIO to log to console unless the test requires the data from the output streams.
+            processBuilder.inheritIO();
+        }
+
+        // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
+        return processBuilder.start();
     }
 }

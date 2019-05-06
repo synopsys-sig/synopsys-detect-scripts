@@ -60,19 +60,7 @@ public class PowershellScriptTest extends CommonScriptTest {
         final String commandString = String.format("& { . %s; detect %s}", scriptPath, argumentsString);
         command.add(commandString);
 
-        final ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command(command);
-        processBuilder.environment().clear();
-        processBuilder.environment().put("PATH", System.getenv("PATH"));
-        processBuilder.environment().putAll(environment);
-
-        if (inheritIO) {
-            // inheritIO to log to console unless the test requires the data from the output streams.
-            processBuilder.inheritIO();
-        }
-
-        // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
-        return processBuilder.start();
+        return createProcess(command, environment, inheritIO);
     }
 
     @Override

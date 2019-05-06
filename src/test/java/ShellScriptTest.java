@@ -52,18 +52,7 @@ public class ShellScriptTest extends CommonScriptTest {
         command.add(getScriptFile().getAbsolutePath());
         command.addAll(args);
 
-        final ProcessBuilder processBuilder = new ProcessBuilder();
-        processBuilder.command(command);
-        processBuilder.environment().clear();
-        processBuilder.environment().put("PATH", System.getenv("PATH"));
-        processBuilder.environment().putAll(environment);
-
-        if (inheritIO) {
-            // inheritIO to log to console unless the test requires the data from the output streams.
-            processBuilder.inheritIO();
-        }
-
-        return processBuilder.start();
+        return createProcess(command, environment, inheritIO);
     }
 
     @Override
