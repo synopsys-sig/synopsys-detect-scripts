@@ -55,6 +55,7 @@ public class ShellScriptTest extends CommonScriptTest {
         final ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command(command);
         processBuilder.environment().clear();
+        processBuilder.environment().put("PATH", System.getenv("PATH"));
         processBuilder.environment().putAll(environment);
 
         if (inheritIO) {
