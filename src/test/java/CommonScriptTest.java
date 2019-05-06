@@ -109,6 +109,7 @@ public abstract class CommonScriptTest {
     @Test
     void testDetectJavaPath() throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(false);
+        environment.put(EnvironmentVariables.JAVA_HOME.name(), "test/java/home/badtest"); // Testing precedence
         environment.put(EnvironmentVariables.DETECT_JAVA_PATH.name(), "test/java/home/java");
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
