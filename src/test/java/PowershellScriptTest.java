@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.synopsys.detect.scripts.ScriptBuilder;
 
-@Disabled
 // TODO: Implement the download only capability in powershell then remove tests that have this message. If the script cannot download only, it will try to run detect, and get the wrong exit codes for the test.
 public class PowershellScriptTest extends CommonScriptTest {
     private static final File powershellScriptDataDirectory = new File(TEST_OUTPUT_DIRECTORY, "powershellScriptData");
