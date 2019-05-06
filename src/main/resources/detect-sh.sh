@@ -126,8 +126,8 @@ get_detect() {
   fi
 }
 
-run_detect() {
-  if [ -n "${DETECT_JAVA_PATH}" ]; then
+set_detect_java_path() {
+if [ -n "${DETECT_JAVA_PATH}" ]; then
     echo "Java Source: DETECT_JAVA_PATH=${DETECT_JAVA_PATH}"
   elif [ -n "${JAVA_HOME}" ]; then
     echo "Java Source: JAVA_HOME=${JAVA_HOME}"
@@ -136,6 +136,10 @@ run_detect() {
     echo "Java Source: PATH"
     DETECT_JAVA_PATH="java"
   fi
+}
+
+run_detect() {
+  set_detect_java_path
 
   JAVACMD="${DETECT_JAVA_PATH} ${DETECT_JAVA_OPTS} -jar ${DETECT_DESTINATION}"
   echo "running Detect: ${JAVACMD} ${LOGGABLE_SCRIPT_ARGS}"
