@@ -14,7 +14,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.platform.commons.util.StringUtils;
 
 public abstract class CommonScriptTest {
-    protected static final File TEST_OUTPUT_DIRECTORY = new File("/tmp/scripts");
+    protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
+    protected static final File TEST_OUTPUT_DIRECTORY = new File(WORKING_DIRECTORY, "build/tmp/scripts/");
 
     public abstract Process executeScript(final Map<String, String> environment, final List<String> args, final boolean inheritIO) throws IOException;
 
