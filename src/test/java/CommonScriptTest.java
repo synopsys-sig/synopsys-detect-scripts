@@ -117,9 +117,11 @@ public abstract class CommonScriptTest {
 
         File detectJarFile = null;
         for (final File jarFile : jarFiles) {
-            if (StringUtils.isNotBlank(detectVersion) && jarFile.getName().contains(detectVersion)) {
-                detectJarFile = jarFile;
-                break;
+            if (StringUtils.isNotBlank(detectVersion)) {
+                if (jarFile.getName().contains(detectVersion)) {
+                    detectJarFile = jarFile;
+                    break;
+                }
             } else {
                 detectJarFile = jarFile;
             }
