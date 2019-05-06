@@ -19,7 +19,7 @@ import com.synopsys.integration.synopsys.detect.scripts.ScriptBuilder;
 
 // TODO: Implement the download only capability in powershell then remove tests that have this message. If the script cannot download only, it will try to run detect, and get the wrong exit codes for the test.
 public class PowershellScriptTest extends CommonScriptTest {
-    private static final File powershellScriptOutputDirectory = new File("/tmp/script-test/");
+    private static final File powershellScriptOutputDirectory = new File(System.getProperty("user.dir") + "/tmp/script-test/");
     private static final File powershellScriptDataDirectory = new File(powershellScriptOutputDirectory, "shellScriptData");
 
     private static File powershellScript;
@@ -53,7 +53,6 @@ public class PowershellScriptTest extends CommonScriptTest {
     @Override
     public Process executeScript(final Map<String, String> environment, final List<String> args) throws IOException {
         final List<String> command = new ArrayList<>();
-        // pwsh -Command "& { . /Users/jakem/workspace/scripts/synopsys-detect-scripts/build/libs/detect-2.1.1-SNAPSHOT.ps1; detect --detect.project.name="test"}"
         command.add("pwsh");
         command.add("-Command");
 
@@ -64,7 +63,8 @@ public class PowershellScriptTest extends CommonScriptTest {
 
         final ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command(command);
-        //        processBuilder.environment().clear();
+        processBuilder.environment().clear();
+        processBuilder.environment().put("PATH", System.getenv("PATH"));
         processBuilder.environment().putAll(environment);
 
         // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
