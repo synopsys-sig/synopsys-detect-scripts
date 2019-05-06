@@ -51,7 +51,7 @@ public class PowershellScriptTest extends CommonScriptTest {
     }
 
     @Override
-    public Process executeScript(final Map<String, String> environment, final List<String> args) throws IOException {
+    public Process executeScript(final Map<String, String> environment, final List<String> args, final boolean inheritIO) throws IOException {
         final List<String> command = new ArrayList<>();
         command.add("pwsh");
         command.add("-Command");
@@ -66,6 +66,11 @@ public class PowershellScriptTest extends CommonScriptTest {
         processBuilder.environment().clear();
         processBuilder.environment().put("PATH", System.getenv("PATH"));
         processBuilder.environment().putAll(environment);
+
+        if (inheritIO) {
+            // inheritIO to log to console unless the test requires the data from the output streams.
+            processBuilder.inheritIO();
+        }
 
         // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
         return processBuilder.start();
@@ -88,9 +93,8 @@ public class PowershellScriptTest extends CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_4");
 
-        final Process process = executeScript(environment, new ArrayList<>());
+        final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        logToConsole(process);
         // Assert.assertEquals(0, process.exitValue());
 
         assertJarExists("4.4.2");
@@ -103,9 +107,8 @@ public class PowershellScriptTest extends CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://repo.blackducksoftware.com:443/artifactory/bds-integrations-release/com/blackducksoftware/integration/hub-detect/5.2.0/hub-detect-5.2.0.jar");
 
-        final Process process = executeScript(environment, new ArrayList<>());
+        final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        logToConsole(process);
         // Assert.assertEquals(0, process.exitValue());
 
         assertJarExists("5.2.0");
@@ -118,9 +121,8 @@ public class PowershellScriptTest extends CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_LATEST_RELEASE_VERSION.name(), "5.3.2");
 
-        final Process process = executeScript(environment, new ArrayList<>());
+        final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        logToConsole(process);
         // Assert.assertEquals(0, process.exitValue());
 
         assertJarExists("5.3.2");

@@ -47,7 +47,7 @@ public class ShellScriptTest extends CommonScriptTest {
     }
 
     @Override
-    public Process executeScript(final Map<String, String> environment, final List<String> args) throws IOException {
+    public Process executeScript(final Map<String, String> environment, final List<String> args, final boolean inheritIO) throws IOException {
         final List<String> command = new ArrayList<>();
         command.add(getScriptFile().getAbsolutePath());
         command.addAll(args);
@@ -57,7 +57,11 @@ public class ShellScriptTest extends CommonScriptTest {
         processBuilder.environment().clear();
         processBuilder.environment().putAll(environment);
 
-        // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
+        if (inheritIO) {
+            // inheritIO to log to console unless the test requires the data from the output streams.
+            processBuilder.inheritIO();
+        }
+
         return processBuilder.start();
     }
 

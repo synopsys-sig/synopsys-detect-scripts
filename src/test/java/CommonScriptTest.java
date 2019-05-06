@@ -16,7 +16,7 @@ import org.junit.platform.commons.util.StringUtils;
 public abstract class CommonScriptTest {
     protected static final File TEST_OUTPUT_DIRECTORY = new File(System.getProperty("user.dir") + "/tmp/script-test/");
 
-    public abstract Process executeScript(final Map<String, String> environment, final List<String> args) throws IOException;
+    public abstract Process executeScript(final Map<String, String> environment, final List<String> args, final boolean inheritIO) throws IOException;
 
     public abstract File getOutputDirectory();
 
@@ -26,9 +26,8 @@ public abstract class CommonScriptTest {
     void testJarExists() throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(false);
 
-        final Process process = executeScript(environment, new ArrayList<>());
+        final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        logToConsole(process);
         Assert.assertNotEquals(0, process.exitValue());
 
         assertJarExists(null);
@@ -38,9 +37,8 @@ public abstract class CommonScriptTest {
     void testDownloadOnly() throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(true);
 
-        final Process process = executeScript(environment, new ArrayList<>());
+        final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        logToConsole(process);
         Assert.assertEquals(0, process.exitValue());
 
         assertJarExists(null);
@@ -51,9 +49,8 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_LATEST_RELEASE_VERSION.name(), "5.3.2");
 
-        final Process process = executeScript(environment, new ArrayList<>());
+        final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        logToConsole(process);
         Assert.assertEquals(0, process.exitValue());
 
         assertJarExists("5.3.2");
@@ -64,9 +61,8 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_4");
 
-        final Process process = executeScript(environment, new ArrayList<>());
+        final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        logToConsole(process);
         Assert.assertEquals(0, process.exitValue());
 
         assertJarExists("4.4.2");
@@ -77,9 +73,8 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://repo.blackducksoftware.com:443/artifactory/bds-integrations-release/com/blackducksoftware/integration/hub-detect/5.2.0/hub-detect-5.2.0.jar");
 
-        final Process process = executeScript(environment, new ArrayList<>());
+        final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        logToConsole(process);
         Assert.assertEquals(0, process.exitValue());
 
         assertJarExists("5.2.0");
@@ -102,7 +97,7 @@ public abstract class CommonScriptTest {
         final List<String> arguments = new ArrayList<>();
         arguments.add(escapedProjectName);
 
-        final Process process = executeScript(environment, arguments);
+        final Process process = executeScript(environment, arguments, false);
         waitForProcess(process);
         Assert.assertNotEquals(0, process.exitValue());
         final String standardOutput = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
