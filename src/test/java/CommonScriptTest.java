@@ -103,7 +103,7 @@ public abstract class CommonScriptTest {
         Assert.assertEquals(127, process.exitValue());
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-        Assert.assertTrue(output.contains("Java Source: JAVA_HOME=test/java/home/bin/java"));
+        Assert.assertTrue(output.contains("Java Source: JAVA_HOME/bin/test=test/java/home/bin/java"));
     }
 
     @Test
@@ -132,6 +132,19 @@ public abstract class CommonScriptTest {
         Assert.assertTrue(output.contains("Java Source: PATH"));
     }
 
+    @Test
+    void testSpacesInDownloadDir() throws IOException, InterruptedException {
+        final Map<String, String> environment = new HashMap<>();
+        final File directoryWithSpaces = new File(getOutputDirectory(), "directory with spaces");
+        directoryWithSpaces.mkdirs();
+        environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), directoryWithSpaces.getAbsolutePath());
+
+        final Process process = executeScript(environment, new ArrayList<>(), true);
+        waitForProcess(process);
+
+        assertJarExists(directoryWithSpaces, null);
+    }
+
     protected boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(false);
         final List<String> arguments = new ArrayList<>();
@@ -148,8 +161,12 @@ public abstract class CommonScriptTest {
     }
 
     protected void assertJarExists(final String detectVersion) {
+        assertJarExists(getOutputDirectory(), detectVersion);
+    }
+
+    protected void assertJarExists(final File searchDirectory, final String detectVersion) {
         final FilenameFilter filenameFilter = (path, fileName) -> fileName.endsWith(".jar");
-        final File[] jarFiles = getOutputDirectory().listFiles(filenameFilter);
+        final File[] jarFiles = searchDirectory.listFiles(filenameFilter);
         Assert.assertNotNull(jarFiles);
 
         File detectJarFile = null;
