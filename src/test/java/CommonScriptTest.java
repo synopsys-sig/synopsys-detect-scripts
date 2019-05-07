@@ -114,7 +114,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
         waitForProcess(process);
-                Assert.assertEquals(127, process.exitValue());
+        Assert.assertEquals(127, process.exitValue());
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
         Assert.assertTrue(output.contains("Java Source: DETECT_JAVA_PATH=test/java/home/java"));
@@ -142,7 +142,8 @@ public abstract class CommonScriptTest {
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
 
-        assertJarExists(directoryWithSpaces, null);
+        final File detectJarFile = assertJarExists(directoryWithSpaces, null);
+        Assert.assertTrue(detectJarFile.delete());
     }
 
     protected boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
@@ -160,11 +161,11 @@ public abstract class CommonScriptTest {
         return standardOutput.contains("detect.project.name = Synopsys Detect");
     }
 
-    protected void assertJarExists(final String detectVersion) {
-        assertJarExists(getOutputDirectory(), detectVersion);
+    protected File assertJarExists(final String detectVersion) {
+        return assertJarExists(getOutputDirectory(), detectVersion);
     }
 
-    protected void assertJarExists(final File searchDirectory, final String detectVersion) {
+    protected File assertJarExists(final File searchDirectory, final String detectVersion) {
         final FilenameFilter filenameFilter = (path, fileName) -> fileName.endsWith(".jar");
         final File[] jarFiles = searchDirectory.listFiles(filenameFilter);
         Assert.assertNotNull(jarFiles);
@@ -183,6 +184,8 @@ public abstract class CommonScriptTest {
 
         Assert.assertNotNull(detectJarFile);
         Assert.assertTrue(detectJarFile.exists());
+
+        return detectJarFile;
     }
 
     protected Map<String, String> createEnvironment(final boolean downloadOnly) {
