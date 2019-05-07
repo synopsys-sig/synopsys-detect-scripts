@@ -277,7 +277,7 @@ function Determine-Java ($EnvJavaHome, $EnvDetectJavaPath) {
         Write-Host "Java Source: DETECT_JAVA_PATH=$JavaCommand"
     } elseif ($JavaHome -ne "") {
         $JavaCommand = "$JavaHome/bin/java"
-        Write-Host "Java Source: JAVA_HOME=$JavaCommand"
+        Write-Host "Java Source: JAVA_HOME/bin/java=$JavaCommand"
     } else {
         Write-Host "Java Source: PATH"
     }

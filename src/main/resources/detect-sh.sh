@@ -134,7 +134,7 @@ if [ -n "${DETECT_JAVA_PATH}" ]; then
     echo "Java Source: DETECT_JAVA_PATH=${DETECT_JAVA_PATH}"
   elif [ -n "${JAVA_HOME}" ]; then
     DETECT_JAVA_PATH="${JAVA_HOME}/bin/java"
-     echo "Java Source: JAVA_HOME=${DETECT_JAVA_PATH}"
+     echo "Java Source: JAVA_HOME/bin/java=${DETECT_JAVA_PATH}"
   else
     echo "Java Source: PATH"
     DETECT_JAVA_PATH="java"
