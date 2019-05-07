@@ -34,6 +34,9 @@ DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_DOWNLOAD_DIR:-/tmp}
 # environment, or ensure that java is first on the path.
 # DETECT_JAVA_PATH will take precedence over JAVA_HOME.
 # JAVA_HOME will take precedence over the path.
+# Note: DETECT_JAVA_PATH should point directly to the
+# java executable. For JAVA_HOME the java executable is
+# expected to be in JAVA_HOME/bin/java
 DETECT_JAVA_PATH=${DETECT_JAVA_PATH:-}
 
 # If you want to pass any java options to the
@@ -130,8 +133,8 @@ set_detect_java_path() {
 if [ -n "${DETECT_JAVA_PATH}" ]; then
     echo "Java Source: DETECT_JAVA_PATH=${DETECT_JAVA_PATH}"
   elif [ -n "${JAVA_HOME}" ]; then
-    echo "Java Source: JAVA_HOME=${JAVA_HOME}"
-    DETECT_JAVA_PATH=${JAVA_HOME}
+    DETECT_JAVA_PATH="${JAVA_HOME}/bin/java"
+     echo "Java Source: JAVA_HOME=${DETECT_JAVA_PATH}"
   else
     echo "Java Source: PATH"
     DETECT_JAVA_PATH="java"

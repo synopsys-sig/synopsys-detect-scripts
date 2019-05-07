@@ -96,14 +96,14 @@ public abstract class CommonScriptTest {
     @Test
     void testJavaHome() throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(false);
-        environment.put(EnvironmentVariables.JAVA_HOME.name(), "test/java/home/java");
+        environment.put(EnvironmentVariables.JAVA_HOME.name(), "test/java/home");
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
         waitForProcess(process);
         Assert.assertEquals(127, process.exitValue());
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-        Assert.assertTrue(output.contains("Java Source: JAVA_HOME=test/java/home/java"));
+        Assert.assertTrue(output.contains("Java Source: JAVA_HOME=test/java/home/bin/java"));
     }
 
     @Test

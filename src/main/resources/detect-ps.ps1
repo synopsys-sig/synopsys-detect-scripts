@@ -61,6 +61,9 @@ $EnvDetectExitCodePassthru = Get-EnvironmentVariable -Key "DETECT_EXIT_CODE_PASS
 # environment, or ensure that java is first on the path.
 # DETECT_JAVA_PATH will take precedence over JAVA_HOME.
 # JAVA_HOME will take precedence over the path.
+# Note: DETECT_JAVA_PATH should point directly to the
+# java executable. For JAVA_HOME the java executable is
+# expected to be in JAVA_HOME/bin/java
 $DetectJavaPath = Get-EnvironmentVariable -Key "DETECT_JAVA_PATH" -DefaultValue "";
 $JavaHome = Get-EnvironmentVariable -Key "JAVA_HOME" -DefaultValue "";
 
@@ -270,11 +273,11 @@ function Invoke-Detect ($DetectJarFile, $DetectArgs) {
 function Determine-Java ($EnvJavaHome, $EnvDetectJavaPath) {
     $JavaCommand = "java"
     if ($DetectJavaPath -ne "") {
-        Write-Host "Java Source: DETECT_JAVA_PATH=$DetectJavaPath"
         $JavaCommand = $DetectJavaPath
+        Write-Host "Java Source: DETECT_JAVA_PATH=$JavaCommand"
     } elseif ($JavaHome -ne "") {
-        Write-Host "Java Source: JAVA_HOME=$JavaHome"
-        $JavaCommand = $JavaHome
+        $JavaCommand = "$JavaHome/bin/java"
+        Write-Host "Java Source: JAVA_HOME=$JavaCommand"
     } else {
         Write-Host "Java Source: PATH"
     }
