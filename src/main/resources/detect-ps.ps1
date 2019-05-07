@@ -56,6 +56,17 @@ $EnvDetectExitCodePassthru = Get-EnvironmentVariable -Key "DETECT_EXIT_CODE_PASS
 # Note: This script will not pick up proxy information
 # passed to the bash script using 'DETECT_CURL_OPTS'
 
+# To control which java detect will use to run, specify
+# the path in in DETECT_JAVA_PATH or JAVA_HOME in your
+# environment, or ensure that java is first on the path.
+# DETECT_JAVA_PATH will take precedence over JAVA_HOME.
+# JAVA_HOME will take precedence over the path.
+# Note: DETECT_JAVA_PATH should point directly to the
+# java executable. For JAVA_HOME the java executable is
+# expected to be in JAVA_HOME/bin/java
+$DetectJavaPath = Get-EnvironmentVariable -Key "DETECT_JAVA_PATH" -DefaultValue "";
+$JavaHome = Get-EnvironmentVariable -Key "JAVA_HOME" -DefaultValue "";
+
 # TODO: Mirror the functionality of the shell script
 # and allow Java opts.
 
@@ -71,7 +82,7 @@ $Version = "//SCRIPT_VERSION//"
 
 function Detect {
     Write-Host "Detect Powershell Script $Version"
-    
+
     if ($EnvDetectSkipJavaTest -ne "1") {
         if (Test-JavaNotAvailable) {
             #If java is not available, we abort early.
@@ -100,7 +111,7 @@ function Detect {
     Write-Host "Executing Detect."
     $DetectArgs = $args;
     $DetectExitCode = Invoke-Detect -DetectJar $DetectJarFile -DetectArgs $DetectArgs
-    
+
     if ($EnvDetectExitCodePassthru -eq "1") {
         return $DetectExitCode
     }
@@ -128,7 +139,7 @@ function Get-ProxyInfo () {
     try {
 
         $ProxyHost = Get-FirstFromEnv @("blackduck.proxy.host", "BLACKDUCK_PROXY_HOST", "blackduck.hub.proxy.host", "BLACKDUCK_HUB_PROXY_HOST");
-        
+
         if ([string]::IsNullOrEmpty($ProxyHost)) {
             Write-Host "Skipping proxy, no host found."
         }
@@ -136,7 +147,7 @@ function Get-ProxyInfo () {
             Write-Host "Found proxy host."
             $ProxyUrlBuilder = New-Object System.UriBuilder -ArgumentList $ProxyHost
 
-            $ProxyPort = Get-FirstFromEnv @("blackduck.proxy.port", "BLACKDUCK_PROXY_PORT", "blackduck.hub.proxy.port", "BLACKDUCK_HUB_PROXY_PORT"); 
+            $ProxyPort = Get-FirstFromEnv @("blackduck.proxy.port", "BLACKDUCK_PROXY_PORT", "blackduck.hub.proxy.port", "BLACKDUCK_HUB_PROXY_PORT");
 
             if ([string]::IsNullOrEmpty($ProxyPort)) {
                 Write-Host "No proxy port found."
@@ -149,8 +160,8 @@ function Get-ProxyInfo () {
             $ProxyInfoProperties.Uri = $ProxyUrlBuilder.Uri
 
             #Handle credentials
-            $ProxyUsername = Get-FirstFromEnv @("blackduck.proxy.username", "BLACKDUCK_PROXY_USERNAME", "blackduck.hub.proxy.username", "BLACKDUCK_HUB_PROXY_USERNAME"); 
-            $ProxyPassword = Get-FirstFromEnv @("blackduck.proxy.password", "BLACKDUCK_PROXY_PASSWORD", "blackduck.hub.proxy.password", "BLACKDUCK_HUB_PROXY_PASSWORD"); 
+            $ProxyUsername = Get-FirstFromEnv @("blackduck.proxy.username", "BLACKDUCK_PROXY_USERNAME", "blackduck.hub.proxy.username", "BLACKDUCK_HUB_PROXY_USERNAME");
+            $ProxyPassword = Get-FirstFromEnv @("blackduck.proxy.password", "BLACKDUCK_PROXY_PASSWORD", "blackduck.hub.proxy.password", "BLACKDUCK_HUB_PROXY_PASSWORD");
 
             if ([string]::IsNullOrEmpty($ProxyPassword) -or [string]::IsNullOrEmpty($ProxyUsername)) {
                 Write-Host "No proxy credentials found."
@@ -169,9 +180,9 @@ function Get-ProxyInfo () {
     }
     catch [Exception] {
         Write-Host ("An exception occurred setting up the proxy, will continue but will not use a proxy.")
-        Write-Host ("  Reason: {0}" -f $_.Exception.GetType().FullName); 
-        Write-Host ("  Reason: {0}" -f $_.Exception.Message); 
-        Write-Host ("  Reason: {0}" -f $_.Exception.StackTrace); 
+        Write-Host ("  Reason: {0}" -f $_.Exception.GetType().FullName);
+        Write-Host ("  Reason: {0}" -f $_.Exception.Message);
+        Write-Host ("  Reason: {0}" -f $_.Exception.StackTrace);
     }
 
     $ProxyInfo = New-Object -TypeName PSObject -Prop $ProxyInfoProperties
@@ -196,11 +207,11 @@ function Invoke-WebRequestWrapper($Url, $ProxyInfo, $DownloadLocation = $null) {
     }
     catch [Exception] {
         Write-Host ("An exception occurred setting additional properties on web request.")
-        Write-Host ("  Reason: {0}" -f $_.Exception.GetType().FullName); 
-        Write-Host ("  Reason: {0}" -f $_.Exception.Message); 
+        Write-Host ("  Reason: {0}" -f $_.Exception.GetType().FullName);
+        Write-Host ("  Reason: {0}" -f $_.Exception.Message);
         Write-Host ("  Reason: {0}" -f $_.Exception.StackTrace);
     }
-    
+
     return Invoke-WebRequest $Url -UseBasicParsing @parameters
 }
 
@@ -233,7 +244,7 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
         Write-Host "You have already downloaded the latest file, so the local file will be used."
     }
 
-    return $DetectJarFile    
+    return $DetectJarFile
 }
 
 function Parse-Version($DetectSource) {
@@ -251,11 +262,27 @@ function Invoke-Detect ($DetectJarFile, $DetectArgs) {
     $AllArgs = $JavaArgs + $DetectArgs
     Set-ToEscaped($AllArgs)
     Write-Host "Running Detect: $AllArgs"
-    $DetectProcess = Start-Process java -ArgumentList $AllArgs -NoNewWindow -PassThru
+    $JavaCommand = Determine-Java($JavaHome, $DetectJavaPath)
+    $DetectProcess = Start-Process $JavaCommand -ArgumentList $AllArgs -NoNewWindow -PassThru
     Wait-Process -InputObject $DetectProcess -ErrorAction SilentlyContinue
     $DetectExitCode = $DetectProcess.ExitCode;
     Write-Host "Result code of $DetectExitCode, exiting"
     return $DetectExitCode
+}
+
+function Determine-Java ($EnvJavaHome, $EnvDetectJavaPath) {
+    $JavaCommand = "java"
+    if ($DetectJavaPath -ne "") {
+        $JavaCommand = $DetectJavaPath
+        Write-Host "Java Source: DETECT_JAVA_PATH=$JavaCommand"
+    } elseif ($JavaHome -ne "") {
+        $JavaCommand = "$JavaHome/bin/java"
+        Write-Host "Java Source: JAVA_HOME/bin/java=$JavaCommand"
+    } else {
+        Write-Host "Java Source: PATH"
+    }
+
+    return $JavaCommand
 }
 
 function Initialize-DetectFolder ($DetectFolder, $TempFolder, $HomeTempFolder) {
@@ -284,7 +311,7 @@ function Receive-DetectSource ($ProxyInfo, $DetectVersionUrl, $DetectVersionKey)
     Write-Host "Finding latest Detect version."
     $DetectVersionData = Invoke-WebRequestWrapper -Url $DetectVersionUrl -ProxyInfo $ProxyInfo
     $DetectVersionJson = ConvertFrom-Json -InputObject $DetectVersionData
-    
+
     $Properties = $DetectVersionJson | select -ExpandProperty "properties"
     $DetectVersionUrl = $Properties | select -ExpandProperty $DetectVersionKey
     Write-Host "Resolved Detect source $DetectVersionUrl"
@@ -309,25 +336,25 @@ function Set-ToEscaped ($ArgArray) {
 function Test-JavaNotAvailable() {
     Write-Host "Checking if Java is installed by asking for version."
     try {
-        $ProcessStartInfo = New-object System.Diagnostics.ProcessStartInfo 
-        $ProcessStartInfo.CreateNoWindow = $true 
-        $ProcessStartInfo.UseShellExecute = $false 
-        $ProcessStartInfo.RedirectStandardOutput = $true 
-        $ProcessStartInfo.RedirectStandardError = $true 
-        $ProcessStartInfo.FileName = 'java' 
-        $ProcessStartInfo.Arguments = @("-version") 
-        $Process = New-Object System.Diagnostics.Process 
+        $ProcessStartInfo = New-object System.Diagnostics.ProcessStartInfo
+        $ProcessStartInfo.CreateNoWindow = $true
+        $ProcessStartInfo.UseShellExecute = $false
+        $ProcessStartInfo.RedirectStandardOutput = $true
+        $ProcessStartInfo.RedirectStandardError = $true
+        $ProcessStartInfo.FileName = Determine-Java($JavaHome, $DetectJavaPath)
+        $ProcessStartInfo.Arguments = @("-version")
+        $Process = New-Object System.Diagnostics.Process
         $Process.StartInfo = $ProcessStartInfo
         [void]$Process.Start()
         $StdOutput = $process.StandardOutput.ReadToEnd()
-        $StdError = $process.StandardError.ReadToEnd() 
+        $StdError = $process.StandardError.ReadToEnd()
         $Process.WaitForExit()
         Write-Host "Java Standard Output: $StdOutput"
         Write-Host "Java Error Output: $StdError"
         Write-Host "Successfully able to start java and get version."
         return $FALSE;
     }
-    catch { 
+    catch {
         Write-Host "An error occurred checking the Java version. Please ensure Java is installed."
         return $TRUE;
     }

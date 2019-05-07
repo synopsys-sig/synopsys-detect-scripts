@@ -93,6 +93,45 @@ public abstract class CommonScriptTest {
         Assert.assertFalse(success);
     }
 
+    @Test
+    void testJavaHome() throws IOException, InterruptedException {
+        final Map<String, String> environment = createEnvironment(false);
+        environment.put(EnvironmentVariables.JAVA_HOME.name(), "test/java/home");
+
+        final Process process = executeScript(environment, new ArrayList<>(), false);
+        waitForProcess(process);
+        Assert.assertEquals(127, process.exitValue());
+
+        final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
+        Assert.assertTrue(output.contains("Java Source: JAVA_HOME=test/java/home/bin/java"));
+    }
+
+    @Test
+    void testDetectJavaPath() throws IOException, InterruptedException {
+        final Map<String, String> environment = createEnvironment(false);
+        environment.put(EnvironmentVariables.JAVA_HOME.name(), "test/java/home/badtest"); // Testing precedence
+        environment.put(EnvironmentVariables.DETECT_JAVA_PATH.name(), "test/java/home/java");
+
+        final Process process = executeScript(environment, new ArrayList<>(), false);
+        waitForProcess(process);
+                Assert.assertEquals(127, process.exitValue());
+
+        final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
+        Assert.assertTrue(output.contains("Java Source: DETECT_JAVA_PATH=test/java/home/java"));
+    }
+
+    @Test
+    void testJavaPath() throws IOException, InterruptedException {
+        final Map<String, String> environment = createEnvironment(false);
+
+        final Process process = executeScript(environment, new ArrayList<>(), false);
+        waitForProcess(process);
+        Assert.assertEquals(7, process.exitValue());
+
+        final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
+        Assert.assertTrue(output.contains("Java Source: PATH"));
+    }
+
     protected boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(false);
         final List<String> arguments = new ArrayList<>();
