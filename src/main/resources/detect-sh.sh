@@ -29,6 +29,16 @@ DETECT_SOURCE=${DETECT_SOURCE:-}
 # DETECT_JAR_DOWNLOAD_DIR.
 DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_DOWNLOAD_DIR:-/tmp}
 
+# To control which java detect will use to run, specify
+# the path in in DETECT_JAVA_PATH or JAVA_HOME in your
+# environment, or ensure that java is first on the path.
+# DETECT_JAVA_PATH will take precedence over JAVA_HOME.
+# JAVA_HOME will take precedence over the path.
+# Note: DETECT_JAVA_PATH should point directly to the
+# java executable. For JAVA_HOME the java executable is
+# expected to be in JAVA_HOME/bin/java
+DETECT_JAVA_PATH=${DETECT_JAVA_PATH:-}
+
 # If you want to pass any java options to the
 # invocation, specify DETECT_JAVA_OPTS in your
 # environment. For example, to specify a 6 gigabyte
@@ -119,8 +129,22 @@ get_detect() {
   fi
 }
 
+set_detect_java_path() {
+if [ -n "${DETECT_JAVA_PATH}" ]; then
+    echo "Java Source: DETECT_JAVA_PATH=${DETECT_JAVA_PATH}"
+  elif [ -n "${JAVA_HOME}" ]; then
+    DETECT_JAVA_PATH="${JAVA_HOME}/bin/java"
+     echo "Java Source: JAVA_HOME/bin/java=${DETECT_JAVA_PATH}"
+  else
+    echo "Java Source: PATH"
+    DETECT_JAVA_PATH="java"
+  fi
+}
+
 run_detect() {
-  JAVACMD="java ${DETECT_JAVA_OPTS} -jar ${DETECT_DESTINATION}"
+  set_detect_java_path
+
+  JAVACMD="${DETECT_JAVA_PATH} ${DETECT_JAVA_OPTS} -jar ${DETECT_DESTINATION}"
   echo "running Detect: ${JAVACMD} ${LOGGABLE_SCRIPT_ARGS}"
 
   eval "${JAVACMD} ${SCRIPT_ARGS}"
