@@ -100,7 +100,7 @@ get_detect() {
   DETECT_DESTINATION="${DETECT_JAR_DOWNLOAD_DIR}/${DETECT_FILENAME}"
 
   USE_REMOTE=1
-  if [ ! -f "${DETECT_DESTINATION}" ]; then
+  if [ ! -f $DETECT_DESTINATION ]; then
     echo "You don't have the current file, so it will be downloaded."
   else
     echo "You have already downloaded the latest file, so the local file will be used."
@@ -109,7 +109,7 @@ get_detect() {
 
   if [ $USE_REMOTE -eq 1 ]; then
     echo "getting ${DETECT_SOURCE} from remote"
-    curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o "${DETECT_DESTINATION}" "${DETECT_SOURCE}")
+    curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o $DETECT_DESTINATION "${DETECT_SOURCE}")
     if [ 200 -eq $curlReturn ]; then
       echo "saved ${DETECT_SOURCE} to ${DETECT_DESTINATION}"
     else
@@ -120,17 +120,10 @@ get_detect() {
 }
 
 run_detect() {
-  JAVACMD="java ${DETECT_JAVA_OPTS} -jar \"${DETECT_DESTINATION}\""
+  JAVACMD="java ${DETECT_JAVA_OPTS} -jar ${DETECT_DESTINATION}"
   echo "running Detect: ${JAVACMD} ${LOGGABLE_SCRIPT_ARGS}"
 
-  # first, silently delete (-f ignores missing
-  # files) any existing shell script, then create
-  # the one we will run
-  rm -f "${DETECT_JAR_DOWNLOAD_DIR}/hub-detect-java.sh"
-  echo "#!/bin/sh" > "${DETECT_JAR_DOWNLOAD_DIR}/hub-detect-java.sh"
-  echo "" >> "${DETECT_JAR_DOWNLOAD_DIR}/hub-detect-java.sh"
-  echo $JAVACMD $SCRIPT_ARGS >> "${DETECT_JAR_DOWNLOAD_DIR}/hub-detect-java.sh"
-  source "${DETECT_JAR_DOWNLOAD_DIR}/hub-detect-java.sh"
+  eval "${JAVACMD} ${SCRIPT_ARGS}"
   RESULT=$?
   echo "Result code of ${RESULT}, exiting"
   exit $RESULT
