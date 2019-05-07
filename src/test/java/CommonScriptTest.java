@@ -103,7 +103,7 @@ public abstract class CommonScriptTest {
         Assert.assertEquals(127, process.exitValue());
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-        Assert.assertTrue(output.contains("Java Source: JAVA_HOME/bin/test=test/java/home/bin/java"));
+        Assert.assertTrue(output.contains("Java Source: JAVA_HOME/bin/java=test/java/home/bin/java"));
     }
 
     @Test
