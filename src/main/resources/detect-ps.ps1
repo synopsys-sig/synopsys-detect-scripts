@@ -38,6 +38,11 @@ $EnvDetectSource = Get-EnvironmentVariable -Key "DETECT_SOURCE" -DefaultValue ""
 # it will be used. Otherwise, a temporary folder will
 # be created in your home directory
 $EnvDetectFolder = Get-EnvironmentVariable -Key "DETECT_JAR_DOWNLOAD_DIR" -DefaultValue "";
+if ([string]::IsNullOrEmpty($EnvDetectFolder)) {
+	# Try again using old name for backward compatibility
+	$EnvDetectFolder = Get-EnvironmentVariable -Key "DETECT_JAR_PATH" -DefaultValue "";
+}
+
 $EnvTempFolder = Get-EnvironmentVariable -Key "TMP" -DefaultValue "";
 $EnvHomeTempFolder = "$HOME/tmp"
 

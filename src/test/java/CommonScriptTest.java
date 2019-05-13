@@ -1,3 +1,5 @@
+import static org.junit.jupiter.api.Assertions.fail;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -25,7 +27,18 @@ public abstract class CommonScriptTest {
 
     @Test
     void testJarExists() throws IOException, InterruptedException {
-        final Map<String, String> environment = createEnvironment(false);
+        final Map<String, String> environment = createEnvironment(false, false);
+
+        final Process process = executeScript(environment, new ArrayList<>(), true);
+        waitForProcess(process);
+        Assert.assertNotEquals(0, process.exitValue());
+
+        assertJarExists(null);
+    }
+
+    @Test
+    void testJarExistsOldEnvVar() throws IOException, InterruptedException {
+        final Map<String, String> environment = createEnvironment(false, true);
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
@@ -36,7 +49,7 @@ public abstract class CommonScriptTest {
 
     @Test
     void testDownloadOnly() throws IOException, InterruptedException {
-        final Map<String, String> environment = createEnvironment(true);
+        final Map<String, String> environment = createEnvironment(true, false);
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
@@ -47,7 +60,7 @@ public abstract class CommonScriptTest {
 
     @Test
     void testDetectReleaseVersion() throws IOException, InterruptedException {
-        final Map<String, String> environment = createEnvironment(true);
+        final Map<String, String> environment = createEnvironment(true, false);
         environment.put(EnvironmentVariables.DETECT_LATEST_RELEASE_VERSION.name(), "5.3.2");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
@@ -59,7 +72,7 @@ public abstract class CommonScriptTest {
 
     @Test
     void testDetectVersionVersionKey() throws IOException, InterruptedException {
-        final Map<String, String> environment = createEnvironment(true);
+        final Map<String, String> environment = createEnvironment(true, false);
         environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_4");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
@@ -71,7 +84,7 @@ public abstract class CommonScriptTest {
 
     @Test
     void testDetectSource() throws IOException, InterruptedException {
-        final Map<String, String> environment = createEnvironment(true);
+        final Map<String, String> environment = createEnvironment(true, false);
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://repo.blackducksoftware.com:443/artifactory/bds-integrations-release/com/blackducksoftware/integration/hub-detect/5.2.0/hub-detect-5.2.0.jar");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
@@ -95,7 +108,7 @@ public abstract class CommonScriptTest {
 
     @Test
     void testJavaHome() throws IOException, InterruptedException {
-        final Map<String, String> environment = createEnvironment(false);
+        final Map<String, String> environment = createEnvironment(false, false);
         environment.put(EnvironmentVariables.JAVA_HOME.name(), "test/java/home");
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
@@ -108,7 +121,7 @@ public abstract class CommonScriptTest {
 
     @Test
     void testDetectJavaPath() throws IOException, InterruptedException {
-        final Map<String, String> environment = createEnvironment(false);
+        final Map<String, String> environment = createEnvironment(false, false);
         environment.put(EnvironmentVariables.JAVA_HOME.name(), "test/java/home/badtest"); // Testing precedence
         environment.put(EnvironmentVariables.DETECT_JAVA_PATH.name(), "test/java/home/java");
 
@@ -122,7 +135,7 @@ public abstract class CommonScriptTest {
 
     @Test
     void testJavaPath() throws IOException, InterruptedException {
-        final Map<String, String> environment = createEnvironment(false);
+        final Map<String, String> environment = createEnvironment(false, false);
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
         waitForProcess(process);
@@ -147,7 +160,7 @@ public abstract class CommonScriptTest {
     }
 
     protected boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
-        final Map<String, String> environment = createEnvironment(false);
+        final Map<String, String> environment = createEnvironment(false, false);
         final List<String> arguments = new ArrayList<>();
         arguments.add(escapedProjectName);
 
@@ -188,9 +201,13 @@ public abstract class CommonScriptTest {
         return detectJarFile;
     }
 
-    protected Map<String, String> createEnvironment(final boolean downloadOnly) {
+    protected Map<String, String> createEnvironment(final boolean downloadOnly, final boolean setOldJarDownloadDirVar) {
         final Map<String, String> environment = new HashMap<>();
-        environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), getOutputDirectory().getAbsolutePath());
+        if (setOldJarDownloadDirVar) {
+            environment.put(EnvironmentVariables.DETECT_JAR_PATH.name(), getOutputDirectory().getAbsolutePath());
+        } else {
+            environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), getOutputDirectory().getAbsolutePath());
+        }
         environment.put(EnvironmentVariables.DETECT_DOWNLOAD_ONLY.name(), downloadOnly ? "1" : "");
 
         return environment;

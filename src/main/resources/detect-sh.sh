@@ -27,6 +27,10 @@ DETECT_SOURCE=${DETECT_SOURCE:-}
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
 # DETECT_JAR_DOWNLOAD_DIR.
+if [ -z "${DETECT_JAR_DOWNLOAD_DIR}" ]; then
+	# If new name not set: Try old name for backward compatibility
+    DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_PATH:-/tmp}
+fi
 DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_DOWNLOAD_DIR:-/tmp}
 
 # To control which java detect will use to run, specify

@@ -77,7 +77,7 @@ public class PowershellScriptTest extends CommonScriptTest {
     @Test
     void testDetectVersionVersionKey() throws IOException, InterruptedException {
         // TODO: Implement the download only capability in powershell then remove this test
-        final Map<String, String> environment = createEnvironment(true);
+        final Map<String, String> environment = createEnvironment(true, false);
         environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_4");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
@@ -91,7 +91,7 @@ public class PowershellScriptTest extends CommonScriptTest {
     @Test
     void testDetectSource() throws IOException, InterruptedException {
         // TODO: Implement the download only capability in powershell then remove this test
-        final Map<String, String> environment = createEnvironment(true);
+        final Map<String, String> environment = createEnvironment(true, false);
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://repo.blackducksoftware.com:443/artifactory/bds-integrations-release/com/blackducksoftware/integration/hub-detect/5.2.0/hub-detect-5.2.0.jar");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
@@ -105,7 +105,7 @@ public class PowershellScriptTest extends CommonScriptTest {
     @Test
     void testDetectReleaseVersion() throws IOException, InterruptedException {
         // TODO: Implement the download only capability in powershell then remove this test
-        final Map<String, String> environment = createEnvironment(true);
+        final Map<String, String> environment = createEnvironment(true, false);
         environment.put(EnvironmentVariables.DETECT_LATEST_RELEASE_VERSION.name(), "5.3.2");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
