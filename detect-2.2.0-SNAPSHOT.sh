@@ -10,7 +10,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-05-01, the
+# urls for the detect jar file. As of 2019-05-31, the
 # available DETECT_VERSION_KEY values are:
 # DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
 # Every new major version of detect will have its own
@@ -27,7 +27,21 @@ DETECT_SOURCE=${DETECT_SOURCE:-}
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
 # DETECT_JAR_DOWNLOAD_DIR.
+if [ -z "${DETECT_JAR_DOWNLOAD_DIR}" ]; then
+	# If new name not set: Try old name for backward compatibility
+    DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_PATH:-/tmp}
+fi
 DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_DOWNLOAD_DIR:-/tmp}
+
+# To control which java detect will use to run, specify
+# the path in in DETECT_JAVA_PATH or JAVA_HOME in your
+# environment, or ensure that java is first on the path.
+# DETECT_JAVA_PATH will take precedence over JAVA_HOME.
+# JAVA_HOME will take precedence over the path.
+# Note: DETECT_JAVA_PATH should point directly to the
+# java executable. For JAVA_HOME the java executable is
+# expected to be in JAVA_HOME/bin/java
+DETECT_JAVA_PATH=${DETECT_JAVA_PATH:-}
 
 # If you want to pass any java options to the
 # invocation, specify DETECT_JAVA_OPTS in your
@@ -50,7 +64,7 @@ DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
 SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
-echo "Detect Shell Script 2.1.1-SNAPSHOT"
+echo "Detect Shell Script 2.2.0-SNAPSHOT"
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
@@ -100,7 +114,7 @@ get_detect() {
   DETECT_DESTINATION="${DETECT_JAR_DOWNLOAD_DIR}/${DETECT_FILENAME}"
 
   USE_REMOTE=1
-  if [ ! -f $DETECT_DESTINATION ]; then
+  if [ ! -f "${DETECT_DESTINATION}" ]; then
     echo "You don't have the current file, so it will be downloaded."
   else
     echo "You have already downloaded the latest file, so the local file will be used."
@@ -109,7 +123,7 @@ get_detect() {
 
   if [ $USE_REMOTE -eq 1 ]; then
     echo "getting ${DETECT_SOURCE} from remote"
-    curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o $DETECT_DESTINATION "${DETECT_SOURCE}")
+    curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o "${DETECT_DESTINATION}" "${DETECT_SOURCE}")
     if [ 200 -eq $curlReturn ]; then
       echo "saved ${DETECT_SOURCE} to ${DETECT_DESTINATION}"
     else
@@ -119,18 +133,25 @@ get_detect() {
   fi
 }
 
+set_detect_java_path() {
+if [ -n "${DETECT_JAVA_PATH}" ]; then
+    echo "Java Source: DETECT_JAVA_PATH=${DETECT_JAVA_PATH}"
+  elif [ -n "${JAVA_HOME}" ]; then
+    DETECT_JAVA_PATH="${JAVA_HOME}/bin/java"
+     echo "Java Source: JAVA_HOME/bin/java=${DETECT_JAVA_PATH}"
+  else
+    echo "Java Source: PATH"
+    DETECT_JAVA_PATH="java"
+  fi
+}
+
 run_detect() {
-  JAVACMD="java ${DETECT_JAVA_OPTS} -jar ${DETECT_DESTINATION}"
+  set_detect_java_path
+
+  JAVACMD="${DETECT_JAVA_PATH} ${DETECT_JAVA_OPTS} -jar \"${DETECT_DESTINATION}\""
   echo "running Detect: ${JAVACMD} ${LOGGABLE_SCRIPT_ARGS}"
 
-  # first, silently delete (-f ignores missing
-  # files) any existing shell script, then create
-  # the one we will run
-  rm -f $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
-  echo "#!/bin/sh" > $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
-  echo "" >> $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
-  echo $JAVACMD $SCRIPT_ARGS >> $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
-  source $DETECT_JAR_DOWNLOAD_DIR/hub-detect-java.sh
+  eval "${JAVACMD} ${SCRIPT_ARGS}"
   RESULT=$?
   echo "Result code of ${RESULT}, exiting"
   exit $RESULT
