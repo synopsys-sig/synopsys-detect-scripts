@@ -9,7 +9,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.blackducksoftware.integration:common-gradle-plugin:0.0.+'
+        classpath 'com.blackducksoftware.integration:common-gradle-plugin:0.0.65'
         classpath 'com.blackducksoftware.integration:integration-rest:0.10.2'
         classpath 'org.codehaus.groovy:groovy-all:2.4.12'
         classpath 'org.junit.jupiter:junit-jupiter:5.4.2'
@@ -22,7 +22,7 @@ plugins {
 }
 
 group = 'com.synopsys.integration'
-version = '2.2.0-SNAPSHOT'
+version = '2.2.0'
 
 apply plugin: 'com.blackducksoftware.integration.simple'
 
