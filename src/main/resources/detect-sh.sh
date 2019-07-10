@@ -148,7 +148,7 @@ if [ -n "${DETECT_JAVA_PATH}" ]; then
 run_detect() {
   set_detect_java_path
 
-  JAVACMD="${DETECT_JAVA_PATH} ${DETECT_JAVA_OPTS} -jar \"${DETECT_DESTINATION}\""
+  JAVACMD="\"${DETECT_JAVA_PATH}\" ${DETECT_JAVA_OPTS} -jar \"${DETECT_DESTINATION}\""
   echo "running Detect: ${JAVACMD} ${LOGGABLE_SCRIPT_ARGS}"
 
   eval "${JAVACMD} ${SCRIPT_ARGS}"
