@@ -13,7 +13,7 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-08-13, the
+# urls for the detect jar file. As of 2019-08-14, the
 # available DETECT_VERSION_KEY values are:
 # DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
 # Every new major version of detect will have its own
@@ -81,7 +81,7 @@ $JavaHome = Get-EnvironmentVariable -Key "JAVA_HOME" -DefaultValue "";
 # heap size, you would set DETECT_JAVA_OPTS=-Xmx6G.
 # $DetectJavaOpts = Get-EnvironmentVariable -Key "DETECT_JAVA_OPTS" -DefaultValue "";
 
-$Version = "2.2.1-SNAPSHOT"
+$Version = "2.2.1"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 #Enable TLS2
 

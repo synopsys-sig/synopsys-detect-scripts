@@ -10,7 +10,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-06-25, the
+# urls for the detect jar file. As of 2019-08-14, the
 # available DETECT_VERSION_KEY values are:
 # DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
 # Every new major version of detect will have its own
@@ -64,7 +64,7 @@ DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
 SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
-echo "Detect Shell Script 2.2.0"
+echo "Detect Shell Script 2.2.1"
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
@@ -96,10 +96,10 @@ run() {
 get_detect() {
   if [ -z "${DETECT_SOURCE}" ]; then
     if [ -z "${DETECT_RELEASE_VERSION}" ]; then
-      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" 'https://repo.blackducksoftware.com/artifactory/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}' | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
+      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" 'https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}' | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
       DETECT_SOURCE=$(eval $VERSION_CURL_CMD)
     else
-      DETECT_SOURCE="https://repo.blackducksoftware.com/artifactory/bds-integrations-release/com/synopsys/integration/synopsys-detect/${DETECT_RELEASE_VERSION}/synopsys-detect-${DETECT_RELEASE_VERSION}.jar"
+      DETECT_SOURCE="https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/${DETECT_RELEASE_VERSION}/synopsys-detect-${DETECT_RELEASE_VERSION}.jar"
     fi
   fi
 
@@ -148,7 +148,7 @@ if [ -n "${DETECT_JAVA_PATH}" ]; then
 run_detect() {
   set_detect_java_path
 
-  JAVACMD="${DETECT_JAVA_PATH} ${DETECT_JAVA_OPTS} -jar \"${DETECT_DESTINATION}\""
+  JAVACMD="\"${DETECT_JAVA_PATH}\" ${DETECT_JAVA_OPTS} -jar \"${DETECT_DESTINATION}\""
   echo "running Detect: ${JAVACMD} ${LOGGABLE_SCRIPT_ARGS}"
 
   eval "${JAVACMD} ${SCRIPT_ARGS}"
