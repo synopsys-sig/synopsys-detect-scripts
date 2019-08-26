@@ -134,11 +134,16 @@ get_detect() {
 }
 
 set_detect_java_path() {
-if [ -n "${DETECT_JAVA_PATH}" ]; then
+  PATH_SEPERATOR="/"
+  if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
+    PATH_SEPERATOR="\\"
+  fi
+
+  if [ -n "${DETECT_JAVA_PATH}" ]; then
     echo "Java Source: DETECT_JAVA_PATH=${DETECT_JAVA_PATH}"
   elif [ -n "${JAVA_HOME}" ]; then
-    DETECT_JAVA_PATH="${JAVA_HOME}/bin/java"
-     echo "Java Source: JAVA_HOME/bin/java=${DETECT_JAVA_PATH}"
+    DETECT_JAVA_PATH="${JAVA_HOME}${PATH_SEPERATOR}bin${PATH_SEPERATOR}java"
+    echo "Java Source: JAVA_HOME${PATH_SEPERATOR}bin${PATH_SEPERATOR}java=${DETECT_JAVA_PATH}"
   else
     echo "Java Source: PATH"
     DETECT_JAVA_PATH="java"
