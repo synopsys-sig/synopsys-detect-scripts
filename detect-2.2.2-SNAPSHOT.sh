@@ -10,7 +10,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-08-26, the
+# urls for the detect jar file. As of 2019-08-27, the
 # available DETECT_VERSION_KEY values are:
 # DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
 # Every new major version of detect will have its own
@@ -134,11 +134,16 @@ get_detect() {
 }
 
 set_detect_java_path() {
-if [ -n "${DETECT_JAVA_PATH}" ]; then
+  PATH_SEPERATOR="/"
+  if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
+    PATH_SEPERATOR="\\"
+  fi
+
+  if [ -n "${DETECT_JAVA_PATH}" ]; then
     echo "Java Source: DETECT_JAVA_PATH=${DETECT_JAVA_PATH}"
   elif [ -n "${JAVA_HOME}" ]; then
-    DETECT_JAVA_PATH="${JAVA_HOME}/bin/java"
-     echo "Java Source: JAVA_HOME/bin/java=${DETECT_JAVA_PATH}"
+    DETECT_JAVA_PATH="${JAVA_HOME}${PATH_SEPERATOR}bin${PATH_SEPERATOR}java"
+    echo "Java Source: JAVA_HOME${PATH_SEPERATOR}bin${PATH_SEPERATOR}java=${DETECT_JAVA_PATH}"
   else
     echo "Java Source: PATH"
     DETECT_JAVA_PATH="java"
