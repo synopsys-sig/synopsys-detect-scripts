@@ -61,10 +61,13 @@ DETECT_CURL_OPTS=${DETECT_CURL_OPTS:-}
 # get and update the jar file when a new version releases.
 DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
 
+# If you only want to know the version of the detect script
+# set this to 1 in your environment. This can be useful
+# for automation.
+DETECT_SCRIPT_VERSION_ONLY=${DETECT_SCRIPT_VERSION_ONLY:-0}
+
 SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
-
-echo "Detect Shell Script //SCRIPT_VERSION//"
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
@@ -87,9 +90,15 @@ for i in $*; do
 done
 
 run() {
-  get_detect
-  if [ $DETECT_DOWNLOAD_ONLY -eq 0 ]; then
-    run_detect
+  if [ $DETECT_SCRIPT_VERSION_ONLY -eq 1 ]; then
+    echo "//SCRIPT_VERSION//"
+  else
+    echo "Detect Shell Script //SCRIPT_VERSION//"
+
+    get_detect
+    if [ $DETECT_DOWNLOAD_ONLY -eq 0 ]; then
+      run_detect
+    fi
   fi
 }
 
