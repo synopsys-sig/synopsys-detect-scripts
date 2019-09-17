@@ -64,7 +64,12 @@ DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
 SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
-echo "Detect Shell Script //SCRIPT_VERSION//"
+# This provides a way to get the script version (via, say, grep/sed). Do not change.
+SCRIPT_VERSION=//SCRIPT_VERSION//
+
+echo "Detect Shell Script ${SCRIPT_VERSION}"
+
+DETECT_BINARY_REPO_URL=https://sig-repo.synopsys.com
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
@@ -96,16 +101,16 @@ run() {
 get_detect() {
   if [ -z "${DETECT_SOURCE}" ]; then
     if [ -z "${DETECT_RELEASE_VERSION}" ]; then
-      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" 'https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}' | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
-      DETECT_SOURCE=$(eval $VERSION_CURL_CMD)
+      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" '${DETECT_BINARY_REPO_URL}/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}'"
+      VERSION_EXTRACT_CMD="${VERSION_CURL_CMD} | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
+      DETECT_SOURCE=$(eval ${VERSION_EXTRACT_CMD})
+      if [ -z "${DETECT_SOURCE}" ]; then
+        echo "Unable to derive the location of ${DETECT_VERSION_KEY} from response to: ${VERSION_CURL_CMD}"
+        exit -1
+      fi
     else
-      DETECT_SOURCE="https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/${DETECT_RELEASE_VERSION}/synopsys-detect-${DETECT_RELEASE_VERSION}.jar"
+      DETECT_SOURCE="${DETECT_BINARY_REPO_URL}/bds-integrations-release/com/synopsys/integration/synopsys-detect/${DETECT_RELEASE_VERSION}/synopsys-detect-${DETECT_RELEASE_VERSION}.jar"
     fi
-  fi
-
-  if [ -z "${DETECT_SOURCE}" ]; then
-    echo "DETECT_SOURCE was not set or computed correctly, please check your configuration and environment."
-    exit -1
   fi
 
   echo "will look for : ${DETECT_SOURCE}"
