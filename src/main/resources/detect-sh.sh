@@ -128,8 +128,10 @@ get_detect() {
 
   if [ $USE_REMOTE -eq 1 ]; then
     echo "getting ${DETECT_SOURCE} from remote"
-    curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o "${DETECT_DESTINATION}" "${DETECT_SOURCE}")
+    TEMP_DETECT_DESTINATION="${DETECT_DESTINATION}-temp"
+    curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" "${DETECT_SOURCE}")
     if [ 200 -eq $curlReturn ]; then
+      mv TEMPT_DETECT_DESTINATION DETECT_DESTINATION
       echo "saved ${DETECT_SOURCE} to ${DETECT_DESTINATION}"
     else
       echo "The curl response was ${curlReturn}, which is not successful - please check your configuration and environment."
