@@ -10,7 +10,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-09-17, the
+# urls for the detect jar file. As of 2019-09-18, the
 # available DETECT_VERSION_KEY values are:
 # DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
 # Every new major version of detect will have its own
@@ -64,7 +64,12 @@ DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
 SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
-echo "Detect Shell Script 2.2.2-SNAPSHOT"
+# This provides a way to get the script version (via, say, grep/sed). Do not change.
+SCRIPT_VERSION=2.2.2-SNAPSHOT
+
+echo "Detect Shell Script ${SCRIPT_VERSION}"
+
+DETECT_BINARY_REPO_URL=https://sig-repo.synopsys.com
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
@@ -96,16 +101,16 @@ run() {
 get_detect() {
   if [ -z "${DETECT_SOURCE}" ]; then
     if [ -z "${DETECT_RELEASE_VERSION}" ]; then
-      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" 'https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}' | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
-      DETECT_SOURCE=$(eval $VERSION_CURL_CMD)
+      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" '${DETECT_BINARY_REPO_URL}/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}'"
+      VERSION_EXTRACT_CMD="${VERSION_CURL_CMD} | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
+      DETECT_SOURCE=$(eval ${VERSION_EXTRACT_CMD})
+      if [ -z "${DETECT_SOURCE}" ]; then
+        echo "Unable to derive the location of ${DETECT_VERSION_KEY} from response to: ${VERSION_CURL_CMD}"
+        exit -1
+      fi
     else
-      DETECT_SOURCE="https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/${DETECT_RELEASE_VERSION}/synopsys-detect-${DETECT_RELEASE_VERSION}.jar"
+      DETECT_SOURCE="${DETECT_BINARY_REPO_URL}/bds-integrations-release/com/synopsys/integration/synopsys-detect/${DETECT_RELEASE_VERSION}/synopsys-detect-${DETECT_RELEASE_VERSION}.jar"
     fi
-  fi
-
-  if [ -z "${DETECT_SOURCE}" ]; then
-    echo "DETECT_SOURCE was not set or computed correctly, please check your configuration and environment."
-    exit -1
   fi
 
   echo "will look for : ${DETECT_SOURCE}"
@@ -123,8 +128,10 @@ get_detect() {
 
   if [ $USE_REMOTE -eq 1 ]; then
     echo "getting ${DETECT_SOURCE} from remote"
-    curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o "${DETECT_DESTINATION}" "${DETECT_SOURCE}")
+    TEMP_DETECT_DESTINATION="${DETECT_DESTINATION}-temp"
+    curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" "${DETECT_SOURCE}")
     if [ 200 -eq $curlReturn ]; then
+      mv "${TEMP_DETECT_DESTINATION}" "${DETECT_DESTINATION}"
       echo "saved ${DETECT_SOURCE} to ${DETECT_DESTINATION}"
     else
       echo "The curl response was ${curlReturn}, which is not successful - please check your configuration and environment."
