@@ -131,7 +131,7 @@ get_detect() {
     TEMP_DETECT_DESTINATION="${DETECT_DESTINATION}-temp"
     curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" "${DETECT_SOURCE}")
     if [ 200 -eq $curlReturn ]; then
-      mv TEMPT_DETECT_DESTINATION DETECT_DESTINATION
+      mv "${TEMP_DETECT_DESTINATION}" "${DETECT_DESTINATION}"
       echo "saved ${DETECT_SOURCE} to ${DETECT_DESTINATION}"
     else
       echo "The curl response was ${curlReturn}, which is not successful - please check your configuration and environment."
