@@ -27,7 +27,7 @@ DETECT_SOURCE=${DETECT_SOURCE:-}
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
 # DETECT_JAR_DOWNLOAD_DIR.
-if [ -z "${DETECT_JAR_DOWNLOAD_DIR}" ]; then
+if [[ -z "${DETECT_JAR_DOWNLOAD_DIR}" ]]; then
 	# If new name not set: Try old name for backward compatibility
     DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_PATH:-/tmp}
 fi
@@ -93,7 +93,7 @@ done
 
 run() {
   get_detect
-  if [ $DETECT_DOWNLOAD_ONLY -eq 0 ]; then
+  if [[ ${DETECT_DOWNLOAD_ONLY} -eq 0 ]]; then
     run_detect
   fi
 }
@@ -111,12 +111,12 @@ get_detect() {
   PATH_SEPARATOR=$(get_path_separator)
   USE_LOCAL=0
   LOCAL_FILE="${DETECT_JAR_DOWNLOAD_DIR}${PATH_SEPARATOR}synopsys-detect-filename.txt"
-  if [ -z "${DETECT_SOURCE}" ]; then
-    if [ -z "${DETECT_RELEASE_VERSION}" ]; then
+  if [[ -z "${DETECT_SOURCE}" ]]; then
+    if [[ -z "${DETECT_RELEASE_VERSION}" ]]; then
       VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" '${DETECT_BINARY_REPO_URL}/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}'"
       VERSION_EXTRACT_CMD="${VERSION_CURL_CMD} | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
       DETECT_SOURCE=$(eval ${VERSION_EXTRACT_CMD})
-      if [ -z "${DETECT_SOURCE}" ]; then
+      if [[ -z "${DETECT_SOURCE}" ]]; then
         echo "Unable to derive the location of ${DETECT_VERSION_KEY} from response to: ${VERSION_CURL_CMD}"
         USE_LOCAL=1
       fi
@@ -153,8 +153,8 @@ get_detect() {
   if [ ${USE_REMOTE} -eq 1 ]; then
     echo "getting ${DETECT_SOURCE} from remote"
     TEMP_DETECT_DESTINATION="${DETECT_DESTINATION}-temp"
-    curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" "${DETECT_SOURCE}")
-    if [[ 200 -eq $curlReturn ]]; then
+    curlReturn=$(curl ${DETECT_CURL_OPTS} --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" "${DETECT_SOURCE}")
+    if [[ 200 -eq ${curlReturn} ]]; then
       mv "${TEMP_DETECT_DESTINATION}" "${DETECT_DESTINATION}"
       if [[ -f ${LOCAL_FILE} ]]; then
         rm "${LOCAL_FILE}"
@@ -171,9 +171,9 @@ get_detect() {
 set_detect_java_path() {
   PATH_SEPARATOR=$(get_path_separator)
 
-  if [ -n "${DETECT_JAVA_PATH}" ]; then
+  if [[ -n "${DETECT_JAVA_PATH}" ]]; then
     echo "Java Source: DETECT_JAVA_PATH=${DETECT_JAVA_PATH}"
-  elif [ -n "${JAVA_HOME}" ]; then
+  elif [[ -n "${JAVA_HOME}" ]]; then
     DETECT_JAVA_PATH="${JAVA_HOME}${PATH_SEPARATOR}bin${PATH_SEPARATOR}java"
     echo "Java Source: JAVA_HOME${PATH_SEPARATOR}bin${PATH_SEPARATOR}java=${DETECT_JAVA_PATH}"
   else
@@ -191,7 +191,7 @@ run_detect() {
   eval "${JAVACMD} ${SCRIPT_ARGS}"
   RESULT=$?
   echo "Result code of ${RESULT}, exiting"
-  exit $RESULT
+  exit ${RESULT}
 }
 
 run
