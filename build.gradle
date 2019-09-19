@@ -22,7 +22,7 @@ plugins {
 }
 
 group = 'com.synopsys.integration'
-version = '2.2.2-SNAPSHOT'
+version = '2.3.0-SNAPSHOT'
 
 apply plugin: 'com.blackducksoftware.integration.simple'
 
