@@ -124,13 +124,8 @@ public class ScriptBuilder {
         final String formattedDate = dateFormat.format(date);
         scriptContents = scriptContents.replaceAll(BUILD_DATE_TOKEN, formattedDate);
 
-        // TODO: Remove oldArtifactoryUrl after 5.3.0 release of Detect
-        final String oldArtifactoryUrl = "https://repo.blackducksoftware.com/artifactory/api/storage/bds-integrations-release/com/blackducksoftware/integration/hub-detect?properties";
-        final String artifactoryUrl = "https://repo.blackducksoftware.com/artifactory/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties";
-        List<String> detectPropertyTags = fetchDetectPropertyTags(artifactoryUrl);
-        if (detectPropertyTags.isEmpty()) {
-            detectPropertyTags = fetchDetectPropertyTags(oldArtifactoryUrl);
-        }
+        final String artifactoryUrl = "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties";
+        final List<String> detectPropertyTags = fetchDetectPropertyTags(artifactoryUrl);
 
         final String majorVersionsCommentBlock = formatDetectPropertyTags(detectPropertyTags);
         scriptContents = scriptContents.replace(MAJOR_VERSIONS_TOKEN, majorVersionsCommentBlock);

@@ -1,15 +1,14 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.synopsys.integration.exception.IntegrationException;
@@ -23,7 +22,6 @@ public class ShellScriptTest extends CommonScriptTest {
     @BeforeAll
     static void setUpBeforeAll() throws IOException, IntegrationException {
         TEST_OUTPUT_DIRECTORY.mkdirs();
-        shellScriptDataDirectory.mkdirs();
 
         final ScriptBuilder scriptBuilder = new ScriptBuilder();
         final List<File> scriptFiles = scriptBuilder.generateScript(TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "something-SNAPSHOT");
@@ -32,18 +30,19 @@ public class ShellScriptTest extends CommonScriptTest {
         shellScript = scriptFiles.get(0);
     }
 
+    @BeforeEach
+    void setupBeforeEach() {
+        shellScriptDataDirectory.mkdirs();
+    }
+
     @AfterEach
     void tearDown() {
-        Arrays.stream(Objects.requireNonNull(shellScriptDataDirectory.listFiles()))
-            .map(File::delete)
-            .forEach(Assert::assertTrue);
+        cleanupFiles(shellScriptDataDirectory);
     }
 
     @AfterAll
     static void tearDownAfterAll() {
-        Arrays.stream(Objects.requireNonNull(TEST_OUTPUT_DIRECTORY.listFiles()))
-            .map(File::delete)
-            .forEach(Assert::assertTrue);
+        cleanupFiles(TEST_OUTPUT_DIRECTORY);
     }
 
     @Override

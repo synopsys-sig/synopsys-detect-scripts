@@ -1,10 +1,8 @@
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
@@ -37,16 +35,12 @@ public class PowershellScriptTest extends CommonScriptTest {
 
     @AfterEach
     void tearDown() {
-        Arrays.stream(Objects.requireNonNull(powershellScriptDataDirectory.listFiles()))
-            .map(File::delete)
-            .forEach(Assert::assertTrue);
+        cleanupFiles(powershellScriptDataDirectory);
     }
 
     @AfterAll
     static void tearDownAfterAll() {
-        Arrays.stream(Objects.requireNonNull(TEST_OUTPUT_DIRECTORY.listFiles()))
-            .map(File::delete)
-            .forEach(Assert::assertTrue);
+        cleanupFiles(TEST_OUTPUT_DIRECTORY);
     }
 
     @Override

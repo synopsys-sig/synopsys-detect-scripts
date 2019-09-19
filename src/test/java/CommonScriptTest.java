@@ -1,5 +1,3 @@
-import static org.junit.jupiter.api.Assertions.fail;
-
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -24,6 +22,31 @@ public abstract class CommonScriptTest {
     public abstract File getOutputDirectory();
 
     public abstract File getScriptFile();
+
+    protected static void cleanupFiles(final File file) {
+        if (file.isDirectory()) {
+            for (final File listFile : file.listFiles()) {
+                cleanupFiles(listFile);
+            }
+        }
+        file.delete();
+    }
+
+    @Test
+    void testBadSourceButLocalCopy() throws IOException, InterruptedException {
+        final Map<String, String> environment = createEnvironment(true, false);
+
+        final Process process = executeScript(environment, new ArrayList<>(), true);
+        waitForProcess(process);
+        Assert.assertEquals(0, process.exitValue());
+        assertJarExists(null);
+
+        environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "");
+        final Process badSourceProcess = executeScript(environment, new ArrayList<>(), true);
+        waitForProcess(badSourceProcess);
+
+        Assert.assertNotEquals(-1, process.exitValue());
+    }
 
     @Test
     void testJarExists() throws IOException, InterruptedException {
@@ -73,25 +96,25 @@ public abstract class CommonScriptTest {
     @Test
     void testDetectVersionVersionKey() throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(true, false);
-        environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_4");
+        environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_5");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
         Assert.assertEquals(0, process.exitValue());
 
-        assertJarExists("4.4.2");
+        assertJarExists("5.6.2");
     }
 
     @Test
     void testDetectSource() throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(true, false);
-        environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://repo.blackducksoftware.com:443/artifactory/bds-integrations-release/com/blackducksoftware/integration/hub-detect/5.2.0/hub-detect-5.2.0.jar");
+        environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/5.1.0/synopsys-detect-5.1.0.jar");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
         Assert.assertEquals(0, process.exitValue());
 
-        assertJarExists("5.2.0");
+        assertJarExists("5.1.0");
     }
 
     @Test
@@ -228,6 +251,11 @@ public abstract class CommonScriptTest {
         processBuilder.environment().clear();
         processBuilder.environment().put("PATH", System.getenv("PATH"));
         processBuilder.environment().putAll(environment);
+
+        System.out.println(String.format("Creating process for '%s' with the following environment.", finalCommand));
+        for (final Map.Entry<String, String> entry : processBuilder.environment().entrySet()) {
+            System.out.println(String.format("    %s=%s", entry.getKey(), entry.getValue()));
+        }
 
         if (inheritIO) {
             // inheritIO to log to console unless the test requires the data from the output streams.
