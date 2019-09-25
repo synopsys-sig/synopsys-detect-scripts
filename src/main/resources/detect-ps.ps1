@@ -72,6 +72,12 @@ $EnvDetectExitCodePassthru = Get-EnvironmentVariable -Key "DETECT_EXIT_CODE_PASS
 $DetectJavaPath = Get-EnvironmentVariable -Key "DETECT_JAVA_PATH" -DefaultValue "";
 $JavaHome = Get-EnvironmentVariable -Key "JAVA_HOME" -DefaultValue "";
 
+# If you only want to download the appropriate jar file set
+# this to 1 in your environment. This can be useful if you
+# want to invoke the jar yourself but do not want to also
+# get and update the jar file when a new version releases.
+$DownloadOnly = Get-EnvironmentVariable -Key "DETECT_DOWNLOAD_ONLY" -DefaultValue "";
+
 # TODO: Mirror the functionality of the shell script
 # and allow Java opts.
 
@@ -113,15 +119,16 @@ function Detect {
     Write-Host "Getting Detect."
     $DetectJarFile = Get-DetectJar -DetectFolder $DetectFolder -DetectSource $EnvDetectSource -DetectVersionKey $EnvDetectVersionKey -DetectVersion $EnvDetectDesiredVersion -ProxyInfo $ProxyInfo
 
-    Write-Host "Executing Detect."
-    $DetectArgs = $args;
-    $DetectExitCode = Invoke-Detect -DetectJar $DetectJarFile -DetectArgs $DetectArgs
+    if ($DownloadOnly -ne "1") {
+        Write-Host "Executing Detect."
+        $DetectArgs = $args;
+        $DetectExitCode = Invoke-Detect -DetectJar $DetectJarFile -DetectArgs $DetectArgs
 
-    if ($EnvDetectExitCodePassthru -eq "1") {
-        return $DetectExitCode
-    }
-    else {
-        exit $DetectExitCode
+        if ($EnvDetectExitCodePassthru -eq "1") {
+            return $DetectExitCode
+        } else {
+            exit $DetectExitCode
+        }
     }
 }
 
