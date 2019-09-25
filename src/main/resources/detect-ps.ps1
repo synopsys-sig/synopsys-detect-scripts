@@ -221,6 +221,8 @@ function Invoke-WebRequestWrapper($Url, $ProxyInfo, $DownloadLocation = $null) {
 }
 
 function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $DetectVersion, $ProxyInfo) {
+    $LastDownloadFile = "$DetectFolder/synopsys-detect-last-downloaded-jar.txt"
+
     if ($DetectSource -eq "") {
         if ($DetectVersion -eq "") {
             $DetectVersionUrl = "https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
@@ -231,19 +233,35 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
         }
     }
 
-    Write-Host "Using Detect source $DetectSource"
+    if ($DetectSource) {
+        Write-Host "Using Detect source $DetectSource"
 
-    $DetectVersion = Parse-Version -DetectSource $DetectSource
+        $DetectVersion = Parse-Version -DetectSource $DetectSource
 
-    Write-Host "Using Detect version $DetectVersion"
+        Write-Host "Using Detect Version $DetectVersion"
 
-    $DetectJarFile = "$DetectFolder/synopsys-detect-$DetectVersion.jar"
+        $DetectJarFile = "$DetectFolder/synopsys-detect-$DetectVersion.jar"
+    } else {
+        Write-Host "Unable to find Detect Source, will attempt to find a last downloaded detect."
+
+        $LastDownloadFileExists = Test-Path $LastDownloadFile
+        Write-Host "Last download exists '$LastDownloadFileExists'"
+
+        if ($LastDownloadFileExists) {
+            $DetectJarFile = Get-Content -Path $LastDownloadFile
+            Write-Host "Using last downloaded detect '$DetectJarFile'"
+        } else {
+            Write-Host "Unable to determine detect version and no downloaded detect found."
+            exit -1
+        }
+    }
+
 
     $DetectJarExists = Test-Path $DetectJarFile
     Write-Host "Detect jar exists '$DetectJarExists'"
 
     if (!$DetectJarExists) {
-        Receive-DetectJar -DetectUrl $DetectSource -DetectJarFile $DetectJarFile -ProxyInfo $ProxyInfo
+        Receive-DetectJar -DetectUrl $DetectSource -DetectJarFile $DetectJarFile -ProxyInfo $ProxyInfo -LastDownloadFile $LastDownloadFile
     }
     else {
         Write-Host "You have already downloaded the latest file, so the local file will be used."
@@ -315,20 +333,27 @@ function Initialize-Folder ($Folder) {
 function Receive-DetectSource ($ProxyInfo, $DetectVersionUrl, $DetectVersionKey) {
     Write-Host "Finding latest Detect version."
     $DetectVersionData = Invoke-WebRequestWrapper -Url $DetectVersionUrl -ProxyInfo $ProxyInfo
+    if (!$DetectVersionData){
+        Write-Host "Failed to get detect version"
+        return $null
+    }
+
     $DetectVersionJson = ConvertFrom-Json -InputObject $DetectVersionData
 
     $Properties = $DetectVersionJson | select -ExpandProperty "properties"
     $DetectVersionUrl = $Properties | select -ExpandProperty $DetectVersionKey
-    Write-Host "Resolved Detect source $DetectVersionUrl"
     return $DetectVersionUrl
 }
 
-function Receive-DetectJar ($DetectUrl, $DetectJarFile, $ProxyInfo) {
+function Receive-DetectJar ($DetectUrl, $DetectJarFile, $LastDownloadFile, $ProxyInfo) {
     Write-Host "You don't have Detect. Downloading now."
     Write-Host "Using url $DetectUrl"
-    $Request = Invoke-WebRequestWrapper -Url $DetectUrl -DownloadLocation $DetectJarFile -ProxyInfo $ProxyInfo
+    $DetectJarTempFile = "$DetectJarFile.tmp"
+    $Request = Invoke-WebRequestWrapper -Url $DetectUrl -DownloadLocation $DetectJarTempFile -ProxyInfo $ProxyInfo
+    Rename-Item -Path $DetectJarTempFile -NewName $DetectJarFile
     $DetectJarExists = Test-Path $DetectJarFile
     Write-Host "Downloaded Detect jar successfully '$DetectJarExists'"
+    Set-Content -Value $DetectJarFile -Path $LastDownloadFile
 }
 
 function Set-ToEscaped ($ArgArray) {

@@ -110,7 +110,7 @@ get_path_separator() {
 get_detect() {
   PATH_SEPARATOR=$(get_path_separator)
   USE_LOCAL=0
-  LOCAL_FILE="${DETECT_JAR_DOWNLOAD_DIR}${PATH_SEPARATOR}synopsys-detect-filename.txt"
+  LOCAL_FILE="${DETECT_JAR_DOWNLOAD_DIR}${PATH_SEPARATOR}synopsys-detect-last-downloaded-jar.txt"
   if [[ -z "${DETECT_SOURCE}" ]]; then
     if [[ -z "${DETECT_RELEASE_VERSION}" ]]; then
       VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" '${DETECT_BINARY_REPO_URL}/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}'"
