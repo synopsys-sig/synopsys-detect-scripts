@@ -81,23 +81,26 @@ public class LandingPageBuilder {
         }
     }
 
-    public List<String> fetchDocumentListing() throws IntegrationException, IOException {
+    public List<String> parseDocumentListing(String jsonText) {
+        final List<String> propertyTags = new ArrayList<>();
+        Gson gson = new Gson();
+        JsonElement json = gson.fromJson(jsonText, JsonElement.class);
+        for (JsonElement entry : json.getAsJsonArray()){
+            String path = entry.getAsJsonObject().get("path").getAsString();
+            propertyTags.add(path);
+        }
+        return propertyTags;
+    }
+
+    private List<String> fetchDocumentListing() throws IntegrationException, IOException {
         final IntHttpClient intHttpClient = new IntHttpClient(logger, 200, true, ProxyInfo.NO_PROXY_INFO);
         final Request request = new Request.Builder().uri("https://api.github.com/repos/blackducksoftware/synopsys-detect/contents?ref=gh-pages").build();
 
-        final List<String> propertyTags = new ArrayList<>();
+
         try (final Response response = intHttpClient.execute(request)) {
             final String responseContent = response.getContentString(StandardCharsets.UTF_8);
-
-            Gson gson = new Gson();
-            JsonElement json = gson.fromJson(responseContent, JsonElement.class);
-            for (JsonElement entry : json.getAsJsonArray()){
-                String path = entry.getAsJsonObject().get("path").getAsString();
-                propertyTags.add(path);
-            }
+            return parseDocumentListing(responseContent);
         }
-
-        return propertyTags;
     }
 
     public DetectVersionSet sortVersion(List<DetectVersionEntry> entries) {
@@ -130,31 +133,10 @@ public class LandingPageBuilder {
         if (path.startsWith("synopsys-detect-") && path.endsWith("-help.html")) {
             String version = path.replaceAll("synopsys-detect-", "").replaceAll("-help.html", "");
             String url = base + path;
-            return Optional.of(new DetectVersionEntry(version, url, Semver.FromVersion(version)));
-        } else if (StringUtils.countMatches(path, ".") == 2) { //potential semver, has "X.Y.Z"
-            //we will check that X and Y are purely numeric and that Z is numeric before it's first dash and contains only one dash.
-            List<String> mustBeNumeric = new ArrayList<>();
-            String[] pieces = path.split(Pattern.quote("."));
-            mustBeNumeric.add(pieces[0]);
-            mustBeNumeric.add(pieces[1]);
-            String finalPiece = pieces[2];
-            if (finalPiece.contains("-")) {
-                if (StringUtils.countMatches(finalPiece, "-") != 1) {
-                    return Optional.empty();
-                } else {
-                    String[] finalPieces = finalPiece.split(Pattern.quote("-"));
-                    mustBeNumeric.add(finalPieces[0]);
-                }
-            } else {
-                mustBeNumeric.add(finalPiece);
-            }
-            if (mustBeNumeric.stream().allMatch(StringUtils::isNumeric)) {
-                return Optional.of(new DetectVersionEntry(path, base + path, Semver.FromVersion(path)));
-            } else {
-                return Optional.empty();
-            }
+            return Optional.of(new DetectVersionEntry(version, url, Semver.TryParse(version).get()));
         } else {
-            return Optional.empty();
+            Optional<Semver> semver = Semver.TryParse(path);
+            return semver.map(version -> new DetectVersionEntry(path, base + path, version));
         }
     }
 }

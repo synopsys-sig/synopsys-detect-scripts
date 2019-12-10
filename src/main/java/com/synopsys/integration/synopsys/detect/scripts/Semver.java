@@ -22,8 +22,13 @@
  */
 package com.synopsys.integration.synopsys.detect.scripts;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang3.StringUtils;
 
 public class Semver implements Comparable<Semver>{
     private int major;
@@ -31,16 +36,37 @@ public class Semver implements Comparable<Semver>{
     private int patch;
     private String special;
 
-    public static Semver FromVersion(String version) {
+    public static Optional<Semver> TryParse(String version) {
+        //we will check that X and Y are purely numeric and that Z is numeric before it's first dash and contains only one dash.
+        List<String> mustBeNumeric = new ArrayList<>();
         String[] pieces = version.split(Pattern.quote("."));
-        int major = Integer.parseInt(pieces[0]);
-        int minor = Integer.parseInt(pieces[1]);
-        String finale = pieces[2];
-        if (finale.contains("-")) {
-            String[] finalePieces = finale.split("-");
-            return new Semver(major, minor, Integer.parseInt(finalePieces[0]), finalePieces[1]);
+        if (pieces.length != 3) {
+            return Optional.empty();
+        }
+        mustBeNumeric.add(pieces[0]);
+        mustBeNumeric.add(pieces[1]);
+        String finalPiece = pieces[2];
+        String patchPiece;
+        String special = "";
+        if (finalPiece.contains("-")) {
+            if (StringUtils.countMatches(finalPiece, "-") != 1) {
+                return Optional.empty();
+            } else {
+                String[] finalPieces = finalPiece.split(Pattern.quote("-"));
+                patchPiece = finalPieces[0];
+                special = finalPieces[1];
+            }
         } else {
-            return new Semver(major, minor, Integer.parseInt(finale), "");
+            patchPiece = finalPiece;
+        }
+        mustBeNumeric.add(patchPiece);
+        if (mustBeNumeric.stream().allMatch(StringUtils::isNumeric)) {
+            int major = Integer.parseInt(pieces[0]);
+            int minor = Integer.parseInt(pieces[1]);
+            int patch = Integer.parseInt(patchPiece);
+            return Optional.of(new Semver(major, minor, patch, special));
+        } else {
+            return Optional.empty();
         }
     }
 
