@@ -69,17 +69,6 @@ import com.synopsys.integration.util.ResourceUtil;
  * under the License.
  */
 public class ScriptBuilder {
-    public static void main(final String[] args) throws IOException, IntegrationException {
-        if (args.length != 1) {
-            throw new IllegalArgumentException("Please provide the output directory of the scripts.");
-        }
-        final String outputDirectoryPath = args[0];
-        final ScriptBuilder scriptBuilder = new ScriptBuilder();
-        final File outputDirectory = new File(outputDirectoryPath);
-        outputDirectory.mkdirs();
-        scriptBuilder.generateScripts(outputDirectory);
-    }
-
     private final IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
 
     public void generateScripts(final File outputDirectory) throws IOException, IntegrationException {

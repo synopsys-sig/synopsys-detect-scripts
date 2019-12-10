@@ -28,7 +28,7 @@ apply plugin: 'com.blackducksoftware.integration.simple'
 
 jar {
     manifest {
-        attributes 'Main-Class': 'com.synopsys.integration.synopsys.detect.scripts.ScriptBuilder'
+        attributes 'Main-Class': 'com.synopsys.integration.synopsys.detect.scripts.Application'
     }
 }
 
@@ -40,7 +40,8 @@ shadowJar {
 jar.finalizedBy shadowJar
 
 build.dependsOn.add("generateVersionFile")
-build.dependsOn.add("runJar")
+build.dependsOn.add("generateScripts")
+build.dependsOn.add("generateLandings")
 
 task generateVersionFile {
     final File versionFile = new File(project.projectDir, "src/main/resources/version.txt")
@@ -48,14 +49,20 @@ task generateVersionFile {
     versionFile << version
 }
 
-task runJar(type: JavaExec) {
+task generateScripts(type: JavaExec) {
     main = "-jar"
-    args(jar.getArchiveFile().get().asFile, "${project.buildDir}/libs/")
+    args(jar.getArchiveFile().get().asFile, "scripts", "${project.buildDir}/libs/")
+}
+
+task generateLandings(type: JavaExec) {
+    main = "-jar"
+    args(jar.getArchiveFile().get().asFile, "landing", "${project.buildDir}/libs/")
 }
 
 dependencies {
     implementation 'com.blackducksoftware.integration:common-gradle-plugin:0.0.+'
     implementation 'com.blackducksoftware.integration:blackduck-common:+'
+    implementation 'org.freemarker:freemarker:2.3.26-incubating'
 
     runtimeClasspath 'com.blackducksoftware.integration:common-gradle-plugin:0.0.+'
     runtimeClasspath 'com.blackducksoftware.integration:blackduck-common:+'
