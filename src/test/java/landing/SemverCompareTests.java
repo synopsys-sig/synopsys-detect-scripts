@@ -1,9 +1,9 @@
-import java.util.Optional;
+package landing;
 
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
-import com.synopsys.integration.synopsys.detect.scripts.Semver;
+import com.synopsys.integration.synopsys.detect.scripts.landing.Semver;
 
 public class SemverCompareTests {
     @Test

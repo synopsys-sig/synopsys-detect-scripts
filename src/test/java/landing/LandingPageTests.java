@@ -1,16 +1,16 @@
+package landing;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 
-import com.synopsys.integration.synopsys.detect.scripts.DetectVersionEntry;
-import com.synopsys.integration.synopsys.detect.scripts.DetectVersionSet;
-import com.synopsys.integration.synopsys.detect.scripts.LandingPageBuilder;
-import com.synopsys.integration.synopsys.detect.scripts.Semver;
+import com.synopsys.integration.synopsys.detect.scripts.landing.DetectVersionEntry;
+import com.synopsys.integration.synopsys.detect.scripts.landing.DetectVersionSet;
+import com.synopsys.integration.synopsys.detect.scripts.landing.LandingPageBuilder;
+import com.synopsys.integration.synopsys.detect.scripts.landing.Semver;
 
 public class LandingPageTests {
     @Test

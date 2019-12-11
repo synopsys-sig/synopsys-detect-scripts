@@ -1,4 +1,4 @@
-package com.synopsys.integration.synopsys.detect.scripts; /**
+package com.synopsys.integration.synopsys.detect.scripts.scripts; /**
  * synopsys-detect-scripts
  *
  * Copyright (c) 2019 Synopsys, Inc.

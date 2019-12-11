@@ -20,7 +20,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package com.synopsys.integration.synopsys.detect.scripts;
+package com.synopsys.integration.synopsys.detect.scripts.landing;
 
 import java.util.List;
 

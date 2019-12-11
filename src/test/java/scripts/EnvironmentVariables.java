@@ -1,3 +1,5 @@
+package scripts;
+
 public enum EnvironmentVariables {
     DETECT_LATEST_RELEASE_VERSION,
     DETECT_VERSION_KEY,

@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.IOException;
 
 import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.synopsys.detect.scripts.landing.LandingPageBuilder;
+import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
