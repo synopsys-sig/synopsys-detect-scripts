@@ -1,6 +1,6 @@
 # Detect Powershell Script
 # Recommended Invocation: powershell "irm https://detect.synopsys.com/detect.ps1?$(Get-Random) | iex; detect"
-
+$ProgressPreference = 'SilentlyContinue'
 function Get-EnvironmentVariable($Key, $DefaultValue) { if (-not (Test-Path Env:$Key)) { return $DefaultValue; }else { return (Get-ChildItem Env:$Key).Value; } }
 
 # DETECT_LATEST_RELEASE_VERSION should be set in your
