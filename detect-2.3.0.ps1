@@ -87,7 +87,7 @@ $DownloadOnly = Get-EnvironmentVariable -Key "DETECT_DOWNLOAD_ONLY" -DefaultValu
 # heap size, you would set DETECT_JAVA_OPTS=-Xmx6G.
 # $DetectJavaOpts = Get-EnvironmentVariable -Key "DETECT_JAVA_OPTS" -DefaultValue "";
 
-$Version = "2.3.0-SNAPSHOT"
+$Version = "2.3.0"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 #Enable TLS2
 

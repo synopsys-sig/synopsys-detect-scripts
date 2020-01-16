@@ -10,9 +10,9 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-08-14, the
+# urls for the detect jar file. As of 2020-01-16, the
 # available DETECT_VERSION_KEY values are:
-# DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
+#
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
 DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST}
@@ -27,7 +27,7 @@ DETECT_SOURCE=${DETECT_SOURCE:-}
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
 # DETECT_JAR_DOWNLOAD_DIR.
-if [ -z "${DETECT_JAR_DOWNLOAD_DIR}" ]; then
+if [[ -z "${DETECT_JAR_DOWNLOAD_DIR}" ]]; then
 	# If new name not set: Try old name for backward compatibility
     DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_PATH:-/tmp}
 fi
@@ -64,7 +64,12 @@ DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
 SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
-echo "Detect Shell Script 2.2.1"
+# This provides a way to get the script version (via, say, grep/sed). Do not change.
+SCRIPT_VERSION=2.3.0
+
+echo "Detect Shell Script ${SCRIPT_VERSION}"
+
+DETECT_BINARY_REPO_URL=https://sig-repo.synopsys.com
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
@@ -88,43 +93,73 @@ done
 
 run() {
   get_detect
-  if [ $DETECT_DOWNLOAD_ONLY -eq 0 ]; then
+  if [[ ${DETECT_DOWNLOAD_ONLY} -eq 0 ]]; then
     run_detect
   fi
 }
 
+get_path_separator() {
+  # Performs a check to see if the system is Windows based.
+  if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
+    echo "\\"
+  else
+    echo "/"
+  fi
+}
+
 get_detect() {
-  if [ -z "${DETECT_SOURCE}" ]; then
-    if [ -z "${DETECT_RELEASE_VERSION}" ]; then
-      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" 'https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}' | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
-      DETECT_SOURCE=$(eval $VERSION_CURL_CMD)
+  PATH_SEPARATOR=$(get_path_separator)
+  USE_LOCAL=0
+  LOCAL_FILE="${DETECT_JAR_DOWNLOAD_DIR}${PATH_SEPARATOR}synopsys-detect-last-downloaded-jar.txt"
+  if [[ -z "${DETECT_SOURCE}" ]]; then
+    if [[ -z "${DETECT_RELEASE_VERSION}" ]]; then
+      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" '${DETECT_BINARY_REPO_URL}/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}'"
+      VERSION_EXTRACT_CMD="${VERSION_CURL_CMD} | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
+      DETECT_SOURCE=$(eval ${VERSION_EXTRACT_CMD})
+      if [[ -z "${DETECT_SOURCE}" ]]; then
+        echo "Unable to derive the location of ${DETECT_VERSION_KEY} from response to: ${VERSION_CURL_CMD}"
+        USE_LOCAL=1
+      fi
     else
-      DETECT_SOURCE="https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/${DETECT_RELEASE_VERSION}/synopsys-detect-${DETECT_RELEASE_VERSION}.jar"
+      DETECT_SOURCE="${DETECT_BINARY_REPO_URL}/bds-integrations-release/com/synopsys/integration/synopsys-detect/${DETECT_RELEASE_VERSION}/synopsys-detect-${DETECT_RELEASE_VERSION}.jar"
     fi
   fi
 
-  if [ -z "${DETECT_SOURCE}" ]; then
-    echo "DETECT_SOURCE was not set or computed correctly, please check your configuration and environment."
-    exit -1
+  if [[ USE_LOCAL -eq 0 ]]; then
+    echo "Will look for : ${DETECT_SOURCE}"
+  else
+    echo "Will look for : ${LOCAL_FILE}"
   fi
 
-  echo "will look for : ${DETECT_SOURCE}"
-
-  DETECT_FILENAME=${DETECT_FILENAME:-$(awk -F "/" '{print $NF}' <<< $DETECT_SOURCE)}
-  DETECT_DESTINATION="${DETECT_JAR_DOWNLOAD_DIR}/${DETECT_FILENAME}"
+  if [[ USE_LOCAL -eq 1 ]] && [[ -f "${LOCAL_FILE}" ]]; then
+    echo "Found local file ${LOCAL_FILE}"
+    DETECT_FILENAME=`cat ${LOCAL_FILE}`
+  elif [[ USE_LOCAL -eq 1 ]]; then
+    echo "${LOCAL_FILE} is missing and unable to communicate with a Detect source."
+    exit -1
+  else
+    DETECT_FILENAME=${DETECT_FILENAME:-$(awk -F "/" '{print $NF}' <<< $DETECT_SOURCE)}
+  fi
+  DETECT_DESTINATION="${DETECT_JAR_DOWNLOAD_DIR}${PATH_SEPARATOR}${DETECT_FILENAME}"
 
   USE_REMOTE=1
-  if [ ! -f "${DETECT_DESTINATION}" ]; then
+  if [[ USE_LOCAL -ne 1 ]] && [[ ! -f "${DETECT_DESTINATION}" ]]; then
     echo "You don't have the current file, so it will be downloaded."
   else
     echo "You have already downloaded the latest file, so the local file will be used."
     USE_REMOTE=0
   fi
 
-  if [ $USE_REMOTE -eq 1 ]; then
+  if [ ${USE_REMOTE} -eq 1 ]; then
     echo "getting ${DETECT_SOURCE} from remote"
-    curlReturn=$(curl $DETECT_CURL_OPTS --silent -w "%{http_code}" -L -o "${DETECT_DESTINATION}" "${DETECT_SOURCE}")
-    if [ 200 -eq $curlReturn ]; then
+    TEMP_DETECT_DESTINATION="${DETECT_DESTINATION}-temp"
+    curlReturn=$(curl ${DETECT_CURL_OPTS} --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" "${DETECT_SOURCE}")
+    if [[ 200 -eq ${curlReturn} ]]; then
+      mv "${TEMP_DETECT_DESTINATION}" "${DETECT_DESTINATION}"
+      if [[ -f ${LOCAL_FILE} ]]; then
+        rm "${LOCAL_FILE}"
+      fi
+      echo "${DETECT_FILENAME}" >> "${LOCAL_FILE}"
       echo "saved ${DETECT_SOURCE} to ${DETECT_DESTINATION}"
     else
       echo "The curl response was ${curlReturn}, which is not successful - please check your configuration and environment."
@@ -134,11 +169,13 @@ get_detect() {
 }
 
 set_detect_java_path() {
-if [ -n "${DETECT_JAVA_PATH}" ]; then
+  PATH_SEPARATOR=$(get_path_separator)
+
+  if [[ -n "${DETECT_JAVA_PATH}" ]]; then
     echo "Java Source: DETECT_JAVA_PATH=${DETECT_JAVA_PATH}"
-  elif [ -n "${JAVA_HOME}" ]; then
-    DETECT_JAVA_PATH="${JAVA_HOME}/bin/java"
-     echo "Java Source: JAVA_HOME/bin/java=${DETECT_JAVA_PATH}"
+  elif [[ -n "${JAVA_HOME}" ]]; then
+    DETECT_JAVA_PATH="${JAVA_HOME}${PATH_SEPARATOR}bin${PATH_SEPARATOR}java"
+    echo "Java Source: JAVA_HOME${PATH_SEPARATOR}bin${PATH_SEPARATOR}java=${DETECT_JAVA_PATH}"
   else
     echo "Java Source: PATH"
     DETECT_JAVA_PATH="java"
@@ -154,7 +191,7 @@ run_detect() {
   eval "${JAVACMD} ${SCRIPT_ARGS}"
   RESULT=$?
   echo "Result code of ${RESULT}, exiting"
-  exit $RESULT
+  exit ${RESULT}
 }
 
 run

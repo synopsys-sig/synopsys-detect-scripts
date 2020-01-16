@@ -1,6 +1,6 @@
 # Detect Powershell Script
 # Recommended Invocation: powershell "irm https://detect.synopsys.com/detect.ps1?$(Get-Random) | iex; detect"
-
+$ProgressPreference = 'SilentlyContinue'
 function Get-EnvironmentVariable($Key, $DefaultValue) { if (-not (Test-Path Env:$Key)) { return $DefaultValue; }else { return (Get-ChildItem Env:$Key).Value; } }
 
 # DETECT_LATEST_RELEASE_VERSION should be set in your
@@ -13,9 +13,9 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2019-08-14, the
+# urls for the detect jar file. As of 2020-01-16, the
 # available DETECT_VERSION_KEY values are:
-# DETECT_LATEST, DETECT_LATEST_4, DETECT_LATEST_5
+#
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
 $EnvDetectVersionKey = Get-EnvironmentVariable -Key "DETECT_VERSION_KEY" -DefaultValue "DETECT_LATEST";
@@ -72,6 +72,12 @@ $EnvDetectExitCodePassthru = Get-EnvironmentVariable -Key "DETECT_EXIT_CODE_PASS
 $DetectJavaPath = Get-EnvironmentVariable -Key "DETECT_JAVA_PATH" -DefaultValue "";
 $JavaHome = Get-EnvironmentVariable -Key "JAVA_HOME" -DefaultValue "";
 
+# If you only want to download the appropriate jar file set
+# this to 1 in your environment. This can be useful if you
+# want to invoke the jar yourself but do not want to also
+# get and update the jar file when a new version releases.
+$DownloadOnly = Get-EnvironmentVariable -Key "DETECT_DOWNLOAD_ONLY" -DefaultValue "";
+
 # TODO: Mirror the functionality of the shell script
 # and allow Java opts.
 
@@ -81,7 +87,7 @@ $JavaHome = Get-EnvironmentVariable -Key "JAVA_HOME" -DefaultValue "";
 # heap size, you would set DETECT_JAVA_OPTS=-Xmx6G.
 # $DetectJavaOpts = Get-EnvironmentVariable -Key "DETECT_JAVA_OPTS" -DefaultValue "";
 
-$Version = "2.2.1"
+$Version = "2.3.0"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 #Enable TLS2
 
@@ -113,15 +119,16 @@ function Detect {
     Write-Host "Getting Detect."
     $DetectJarFile = Get-DetectJar -DetectFolder $DetectFolder -DetectSource $EnvDetectSource -DetectVersionKey $EnvDetectVersionKey -DetectVersion $EnvDetectDesiredVersion -ProxyInfo $ProxyInfo
 
-    Write-Host "Executing Detect."
-    $DetectArgs = $args;
-    $DetectExitCode = Invoke-Detect -DetectJar $DetectJarFile -DetectArgs $DetectArgs
+    if ($DownloadOnly -ne "1") {
+        Write-Host "Executing Detect."
+        $DetectArgs = $args;
+        $DetectExitCode = Invoke-Detect -DetectJar $DetectJarFile -DetectArgs $DetectArgs
 
-    if ($EnvDetectExitCodePassthru -eq "1") {
-        return $DetectExitCode
-    }
-    else {
-        exit $DetectExitCode
+        if ($EnvDetectExitCodePassthru -eq "1") {
+            return $DetectExitCode
+        } else {
+            exit $DetectExitCode
+        }
     }
 }
 
@@ -221,6 +228,8 @@ function Invoke-WebRequestWrapper($Url, $ProxyInfo, $DownloadLocation = $null) {
 }
 
 function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $DetectVersion, $ProxyInfo) {
+    $LastDownloadFile = "$DetectFolder/synopsys-detect-last-downloaded-jar.txt"
+
     if ($DetectSource -eq "") {
         if ($DetectVersion -eq "") {
             $DetectVersionUrl = "https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
@@ -231,19 +240,35 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
         }
     }
 
-    Write-Host "Using Detect source $DetectSource"
+    if ($DetectSource) {
+        Write-Host "Using Detect source $DetectSource"
 
-    $DetectVersion = Parse-Version -DetectSource $DetectSource
+        $DetectVersion = Parse-Version -DetectSource $DetectSource
 
-    Write-Host "Using Detect version $DetectVersion"
+        Write-Host "Using Detect Version $DetectVersion"
 
-    $DetectJarFile = "$DetectFolder/synopsys-detect-$DetectVersion.jar"
+        $DetectJarFile = "$DetectFolder/synopsys-detect-$DetectVersion.jar"
+    } else {
+        Write-Host "Unable to find Detect Source, will attempt to find a last downloaded detect."
+
+        $LastDownloadFileExists = Test-Path $LastDownloadFile
+        Write-Host "Last download exists '$LastDownloadFileExists'"
+
+        if ($LastDownloadFileExists) {
+            $DetectJarFile = Get-Content -Path $LastDownloadFile
+            Write-Host "Using last downloaded detect '$DetectJarFile'"
+        } else {
+            Write-Host "Unable to determine detect version and no downloaded detect found."
+            exit -1
+        }
+    }
+
 
     $DetectJarExists = Test-Path $DetectJarFile
     Write-Host "Detect jar exists '$DetectJarExists'"
 
     if (!$DetectJarExists) {
-        Receive-DetectJar -DetectUrl $DetectSource -DetectJarFile $DetectJarFile -ProxyInfo $ProxyInfo
+        Receive-DetectJar -DetectUrl $DetectSource -DetectJarFile $DetectJarFile -ProxyInfo $ProxyInfo -LastDownloadFile $LastDownloadFile
     }
     else {
         Write-Host "You have already downloaded the latest file, so the local file will be used."
@@ -315,20 +340,27 @@ function Initialize-Folder ($Folder) {
 function Receive-DetectSource ($ProxyInfo, $DetectVersionUrl, $DetectVersionKey) {
     Write-Host "Finding latest Detect version."
     $DetectVersionData = Invoke-WebRequestWrapper -Url $DetectVersionUrl -ProxyInfo $ProxyInfo
+    if (!$DetectVersionData){
+        Write-Host "Failed to get detect version"
+        return $null
+    }
+
     $DetectVersionJson = ConvertFrom-Json -InputObject $DetectVersionData
 
     $Properties = $DetectVersionJson | select -ExpandProperty "properties"
     $DetectVersionUrl = $Properties | select -ExpandProperty $DetectVersionKey
-    Write-Host "Resolved Detect source $DetectVersionUrl"
     return $DetectVersionUrl
 }
 
-function Receive-DetectJar ($DetectUrl, $DetectJarFile, $ProxyInfo) {
+function Receive-DetectJar ($DetectUrl, $DetectJarFile, $LastDownloadFile, $ProxyInfo) {
     Write-Host "You don't have Detect. Downloading now."
     Write-Host "Using url $DetectUrl"
-    $Request = Invoke-WebRequestWrapper -Url $DetectUrl -DownloadLocation $DetectJarFile -ProxyInfo $ProxyInfo
+    $DetectJarTempFile = "$DetectJarFile.tmp"
+    $Request = Invoke-WebRequestWrapper -Url $DetectUrl -DownloadLocation $DetectJarTempFile -ProxyInfo $ProxyInfo
+    Rename-Item -Path $DetectJarTempFile -NewName $DetectJarFile
     $DetectJarExists = Test-Path $DetectJarFile
     Write-Host "Downloaded Detect jar successfully '$DetectJarExists'"
+    Set-Content -Value $DetectJarFile -Path $LastDownloadFile
 }
 
 function Set-ToEscaped ($ArgArray) {
