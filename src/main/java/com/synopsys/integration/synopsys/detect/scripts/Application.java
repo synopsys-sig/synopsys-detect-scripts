@@ -24,6 +24,7 @@ package com.synopsys.integration.synopsys.detect.scripts;
 
 import java.io.File;
 import java.io.IOException;
+import org.apache.commons.io.FileUtils;
 
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.synopsys.detect.scripts.landing.LandingPageBuilder;
@@ -53,6 +54,10 @@ public class Application {
         } else if (operation.equals("scripts")) {
             ScriptBuilder scriptBuilder = new ScriptBuilder();
             scriptBuilder.generateScripts(outputDirectory);
+        } else if (operation.equals("cert")) {
+            final File certSource = new File("src/main/resources/jar_verification.crt");
+            final File certDestination = new File(outputDirectory, "jar_verification.crt");
+            FileUtils.copyFile(certSource, certDestination);
         } else {
             throw new IllegalArgumentException("Unknown operation. Must be 'landing' or 'scripts': " + operation);
         }
