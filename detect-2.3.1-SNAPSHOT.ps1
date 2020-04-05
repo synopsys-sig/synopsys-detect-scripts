@@ -13,7 +13,7 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2020-04-04, the
+# urls for the detect jar file. As of 2020-04-05, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
