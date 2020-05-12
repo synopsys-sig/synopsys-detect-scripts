@@ -1,5 +1,16 @@
 #!/bin/bash
 
+echo "Detect Shell Script ${SCRIPT_VERSION}"
+
+get_path_separator() {
+  # Performs a check to see if the system is Windows based.
+  if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
+    echo "\\"
+  else
+    echo "/"
+  fi
+}
+
 # DETECT_LATEST_RELEASE_VERSION should be set in your
 # environment if you wish to use a version different
 # from LATEST.
@@ -10,7 +21,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2020-05-11, the
+# urls for the detect jar file. As of 2020-05-12, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
@@ -27,11 +38,12 @@ DETECT_SOURCE=${DETECT_SOURCE:-}
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
 # DETECT_JAR_DOWNLOAD_DIR.
+DEFAULT_DETECT_JAR_DOWNLOAD_DIR="${HOME}$(get_path_separator)synopsys-detect$(get_path_separator)download"
 if [[ -z "${DETECT_JAR_DOWNLOAD_DIR}" ]]; then
 	# If new name not set: Try old name for backward compatibility
-    DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_PATH:-/tmp}
+    DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_PATH:-${DEFAULT_DETECT_JAR_DOWNLOAD_DIR}}
 fi
-DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_DOWNLOAD_DIR:-/tmp}
+DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_DOWNLOAD_DIR:-${DEFAULT_DETECT_JAR_DOWNLOAD_DIR}}
 
 # To control which java detect will use to run, specify
 # the path in in DETECT_JAVA_PATH or JAVA_HOME in your
@@ -98,15 +110,6 @@ run() {
   fi
 }
 
-get_path_separator() {
-  # Performs a check to see if the system is Windows based.
-  if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
-    echo "\\"
-  else
-    echo "/"
-  fi
-}
-
 get_detect() {
   PATH_SEPARATOR=$(get_path_separator)
   USE_LOCAL=0
@@ -153,7 +156,7 @@ get_detect() {
   if [ ${USE_REMOTE} -eq 1 ]; then
     echo "getting ${DETECT_SOURCE} from remote"
     TEMP_DETECT_DESTINATION="${DETECT_DESTINATION}-temp"
-    curlReturn=$(curl ${DETECT_CURL_OPTS} --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" "${DETECT_SOURCE}")
+    curlReturn=$(curl ${DETECT_CURL_OPTS} --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" --create-dirs "${DETECT_SOURCE}")
     if [[ 200 -eq ${curlReturn} ]]; then
       mv "${TEMP_DETECT_DESTINATION}" "${DETECT_DESTINATION}"
       if [[ -f ${LOCAL_FILE} ]]; then
