@@ -1,5 +1,9 @@
 package scripts;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -10,10 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
-import org.junit.platform.commons.util.StringUtils;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class CommonScriptTest {
     protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
@@ -40,14 +41,14 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        Assert.assertEquals(0, process.exitValue());
+        assertEquals(0, process.exitValue());
         assertJarExists(null);
 
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "");
         final Process badSourceProcess = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(badSourceProcess);
 
-        Assert.assertNotEquals(-1, process.exitValue());
+        assertNotEquals(-1, process.exitValue());
     }
 
     @Test
@@ -56,7 +57,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        Assert.assertNotEquals(0, process.exitValue());
+        assertNotEquals(0, process.exitValue());
 
         assertJarExists(null);
     }
@@ -67,7 +68,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        Assert.assertNotEquals(0, process.exitValue());
+        assertNotEquals(0, process.exitValue());
 
         assertJarExists(null);
     }
@@ -78,7 +79,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        Assert.assertEquals(0, process.exitValue());
+        assertEquals(0, process.exitValue());
 
         assertJarExists(null);
     }
@@ -90,7 +91,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        Assert.assertEquals(0, process.exitValue());
+        assertEquals(0, process.exitValue());
 
         assertJarExists("5.3.2");
     }
@@ -102,7 +103,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        Assert.assertEquals(0, process.exitValue());
+        assertEquals(0, process.exitValue());
 
         assertJarExists("5.6.2");
     }
@@ -114,7 +115,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        Assert.assertEquals(0, process.exitValue());
+        assertEquals(0, process.exitValue());
 
         assertJarExists("5.1.0");
     }
@@ -122,13 +123,13 @@ public abstract class CommonScriptTest {
     @Test
     void testEscapingSpacesOuter() throws IOException, InterruptedException {
         final boolean success = testEscapingSpaces("--detect.project.name=\"Synopsys Detect\"");
-        Assert.assertTrue(success);
+        assertTrue(success);
     }
 
     @Test
     void testEscapingSpacesInvalid() throws IOException, InterruptedException {
         final boolean success = testEscapingSpaces("--detect.project.name=Synopsys Detect");
-        Assert.assertFalse(success);
+        assertFalse(success);
     }
 
     @Test
@@ -138,10 +139,10 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
         waitForProcess(process);
-        Assert.assertEquals(127, process.exitValue());
+        assertEquals(127, process.exitValue());
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-        Assert.assertTrue(output.contains("Java Source: JAVA_HOME/bin/java=test/java/home/bin/java"));
+        assertTrue(output.contains("Java Source: JAVA_HOME/bin/java=test/java/home/bin/java"));
     }
 
     @Test
@@ -152,10 +153,10 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
         waitForProcess(process);
-        Assert.assertEquals(127, process.exitValue());
+        assertEquals(127, process.exitValue());
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-        Assert.assertTrue(output.contains("Java Source: DETECT_JAVA_PATH=test/java/home/java"));
+        assertTrue(output.contains("Java Source: DETECT_JAVA_PATH=test/java/home/java"));
     }
 
     @Test
@@ -164,10 +165,10 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
         waitForProcess(process);
-        Assert.assertEquals(7, process.exitValue());
+        assertEquals(7, process.exitValue());
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
-        Assert.assertTrue(output.contains("Java Source: PATH"));
+        assertTrue(output.contains("Java Source: PATH"));
     }
 
     @Test
@@ -181,7 +182,7 @@ public abstract class CommonScriptTest {
         waitForProcess(process);
 
         final File detectJarFile = assertJarExists(directoryWithSpaces, null);
-        Assert.assertTrue(detectJarFile.delete());
+        assertTrue(detectJarFile.delete());
     }
 
     protected boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
@@ -191,7 +192,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, arguments, false);
         waitForProcess(process);
-        Assert.assertNotEquals(0, process.exitValue());
+        assertNotEquals(0, process.exitValue());
         final String standardOutput = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
         IOUtils.copy(process.getErrorStream(), System.err);
         System.out.println(standardOutput);
@@ -206,7 +207,7 @@ public abstract class CommonScriptTest {
     protected File assertJarExists(final File searchDirectory, final String detectVersion) {
         final FilenameFilter filenameFilter = (path, fileName) -> fileName.endsWith(".jar");
         final File[] jarFiles = searchDirectory.listFiles(filenameFilter);
-        Assert.assertNotNull(jarFiles);
+        assertNotNull(jarFiles);
 
         File detectJarFile = null;
         for (final File jarFile : jarFiles) {
@@ -220,8 +221,8 @@ public abstract class CommonScriptTest {
             }
         }
 
-        Assert.assertNotNull(detectJarFile);
-        Assert.assertTrue(detectJarFile.exists());
+        assertNotNull(detectJarFile);
+        assertTrue(detectJarFile.exists());
 
         return detectJarFile;
     }
@@ -244,7 +245,7 @@ public abstract class CommonScriptTest {
 
     private void waitForProcess(final Process process, final long timeout, final TimeUnit timeUnit) throws InterruptedException {
         final boolean processHitTimeout = !process.waitFor(timeout, timeUnit);
-        Assert.assertFalse(processHitTimeout);
+        assertFalse(processHitTimeout);
     }
 
     protected Process createProcess(final List<String> finalCommand, final Map<String, String> environment, final boolean inheritIO) throws IOException {
@@ -267,4 +268,5 @@ public abstract class CommonScriptTest {
         // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
         return processBuilder.start();
     }
+
 }

@@ -1,9 +1,8 @@
 package landing;
 
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
-
 import com.synopsys.integration.synopsys.detect.scripts.landing.Semver;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class SemverCompareTests {
     @Test
@@ -33,4 +32,5 @@ public class SemverCompareTests {
         Semver higher = new Semver(1, 2, 4, "");
         Assertions.assertEquals(1, higher.compareTo(lower));
     }
+
 }

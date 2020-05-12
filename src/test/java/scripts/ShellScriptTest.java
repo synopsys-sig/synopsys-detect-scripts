@@ -1,20 +1,17 @@
 package scripts;
 
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
+import org.junit.jupiter.api.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ShellScriptTest extends CommonScriptTest {
     private static final File shellScriptDataDirectory = new File(TEST_OUTPUT_DIRECTORY, "shellScriptData");
@@ -27,7 +24,7 @@ public class ShellScriptTest extends CommonScriptTest {
 
         final ScriptBuilder scriptBuilder = new ScriptBuilder();
         final List<File> scriptFiles = scriptBuilder.generateScript(TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "something-SNAPSHOT");
-        Assert.assertEquals(1, scriptFiles.size());
+        assertEquals(1, scriptFiles.size());
 
         shellScript = scriptFiles.get(0);
     }
@@ -69,6 +66,7 @@ public class ShellScriptTest extends CommonScriptTest {
     @Test
     void testEscapingSpacesInner() throws IOException, InterruptedException {
         final boolean success = testEscapingSpaces("--detect.project.name=Synopsys\\ Detect");
-        Assert.assertTrue(success);
+        assertTrue(success);
     }
+
 }

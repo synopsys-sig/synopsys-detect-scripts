@@ -1,16 +1,15 @@
 package landing;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
-
 import com.synopsys.integration.synopsys.detect.scripts.landing.DetectVersionEntry;
 import com.synopsys.integration.synopsys.detect.scripts.landing.DetectVersionSet;
 import com.synopsys.integration.synopsys.detect.scripts.landing.LandingPageBuilder;
 import com.synopsys.integration.synopsys.detect.scripts.landing.Semver;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class LandingPageTests {
     @Test
@@ -73,9 +72,9 @@ public class LandingPageTests {
     public void sortsSnapshotRC() {
         LandingPageBuilder landingPageBuilder = new LandingPageBuilder();
         List<DetectVersionEntry> entries = new ArrayList<>();
-        entries.add(new DetectVersionEntry("5.6.0", "", new Semver(5,6,0,"")));
-        entries.add(new DetectVersionEntry("6.0.0-SNAPSHOT", "", new Semver(6,0,0,"SNAPSHOT")));
-        entries.add(new DetectVersionEntry("7.0.0-RC1", "", new Semver(7,0,0,"RC1")));
+        entries.add(new DetectVersionEntry("5.6.0", "", new Semver(5, 6, 0, "")));
+        entries.add(new DetectVersionEntry("6.0.0-SNAPSHOT", "", new Semver(6, 0, 0, "SNAPSHOT")));
+        entries.add(new DetectVersionEntry("7.0.0-RC1", "", new Semver(7, 0, 0, "RC1")));
         DetectVersionSet set = landingPageBuilder.sortVersion(entries);
         Assertions.assertEquals(1, set.getReleased().size());
         Assertions.assertEquals(2, set.getSnapshot().size());
@@ -85,13 +84,14 @@ public class LandingPageTests {
     public void latestBuildFirst() {
         LandingPageBuilder landingPageBuilder = new LandingPageBuilder();
         List<DetectVersionEntry> entries = new ArrayList<>();
-        entries.add(new DetectVersionEntry("5.6.0", "", new Semver(5,6,0,"")));
-        entries.add(new DetectVersionEntry("7.6.0", "", new Semver(5,6,0,"")));
-        entries.add(new DetectVersionEntry("7.7.0", "", new Semver(5,6,0,"")));
+        entries.add(new DetectVersionEntry("5.6.0", "", new Semver(5, 6, 0, "")));
+        entries.add(new DetectVersionEntry("7.6.0", "", new Semver(5, 6, 0, "")));
+        entries.add(new DetectVersionEntry("7.7.0", "", new Semver(5, 6, 0, "")));
         DetectVersionSet set = landingPageBuilder.sortVersion(entries);
         Assertions.assertEquals(3, set.getReleased().size());
         Assertions.assertEquals("7.7.0", set.getReleased().get(0).getVersion());
         Assertions.assertEquals("7.6.0", set.getReleased().get(1).getVersion());
         Assertions.assertEquals("5.6.0", set.getReleased().get(2).getVersion());
     }
+
 }

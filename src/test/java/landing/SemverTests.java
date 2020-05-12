@@ -1,11 +1,10 @@
 package landing;
 
-import java.util.Optional;
-
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
-
 import com.synopsys.integration.synopsys.detect.scripts.landing.Semver;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 public class SemverTests {
     @Test
@@ -52,4 +51,5 @@ public class SemverTests {
         Assertions.assertEquals(patch, semver.getPatch());
         Assertions.assertEquals(special, semver.getSpecial());
     }
+
 }

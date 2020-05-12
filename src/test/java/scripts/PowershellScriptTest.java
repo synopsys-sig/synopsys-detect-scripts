@@ -1,24 +1,17 @@
 package scripts;
 
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Assert;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
-
-import scripts.CommonScriptTest;
-import scripts.EnvironmentVariables;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // TODO: Implement the download only capability in powershell then remove tests that have this message. If the script cannot download only, it will try to run detect, and get the wrong exit codes for the test.
 public class PowershellScriptTest extends CommonScriptTest {
@@ -33,7 +26,7 @@ public class PowershellScriptTest extends CommonScriptTest {
 
         final ScriptBuilder scriptBuilder = new ScriptBuilder();
         final List<File> scriptFiles = scriptBuilder.generateScript(TEST_OUTPUT_DIRECTORY, "detect-ps.ps1", "ps1", "something-SNAPSHOT");
-        Assert.assertEquals(1, scriptFiles.size());
+        assertEquals(1, scriptFiles.size());
 
         powershellScript = scriptFiles.get(0);
     }
@@ -81,7 +74,7 @@ public class PowershellScriptTest extends CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        // Assert.assertEquals(0, process.exitValue());
+        // assertEquals(0, process.exitValue());
 
         assertJarExists("4.4.2");
     }
@@ -95,7 +88,7 @@ public class PowershellScriptTest extends CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        // Assert.assertEquals(0, process.exitValue());
+        // assertEquals(0, process.exitValue());
 
         assertJarExists("5.2.0");
     }
@@ -109,7 +102,7 @@ public class PowershellScriptTest extends CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         waitForProcess(process);
-        // Assert.assertEquals(0, process.exitValue());
+        // assertEquals(0, process.exitValue());
 
         assertJarExists("5.3.2");
     }
