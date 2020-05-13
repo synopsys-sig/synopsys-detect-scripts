@@ -72,45 +72,6 @@ public class PowershellScriptTest extends CommonScriptTest {
 
     @Override
     @Test
-    void testDetectVersionVersionKey() throws IOException, InterruptedException {
-        // TODO: Implement the download only capability in powershell then remove this test
-        final Map<String, String> environment = createEnvironment(true, false);
-        environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_4");
-
-        executeScript(environment, new ArrayList<>(), true);
-        // assertEquals(0, process.exitValue());
-
-        assertJarExists("4.4.2");
-    }
-
-    @Override
-    @Test
-    void testDetectSource() throws IOException, InterruptedException {
-        // TODO: Implement the download only capability in powershell then remove this test
-        final Map<String, String> environment = createEnvironment(true, false);
-        environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://repo.blackducksoftware.com:443/artifactory/bds-integrations-release/com/blackducksoftware/integration/hub-detect/5.2.0/hub-detect-5.2.0.jar");
-
-        executeScript(environment, new ArrayList<>(), true);
-        // assertEquals(0, process.exitValue());
-
-        assertJarExists("5.2.0");
-    }
-
-    @Override
-    @Test
-    void testDetectReleaseVersion() throws IOException, InterruptedException {
-        // TODO: Implement the download only capability in powershell then remove this test
-        final Map<String, String> environment = createEnvironment(true, false);
-        environment.put(EnvironmentVariables.DETECT_LATEST_RELEASE_VERSION.name(), "5.3.2");
-
-        executeScript(environment, new ArrayList<>(), true);
-        // assertEquals(0, process.exitValue());
-
-        assertJarExists("5.3.2");
-    }
-
-    @Override
-    @Test
     @Disabled
     void testDownloadOnly() {
         // TODO: Implement the download only capability in powershell then remove this test
