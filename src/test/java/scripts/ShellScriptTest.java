@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,13 +41,13 @@ public class ShellScriptTest extends CommonScriptTest {
     }
 
     @AfterEach
-    void tearDown() {
-        cleanupFiles(shellScriptDataDirectory);
+    void tearDown() throws IOException {
+        FileUtils.deleteDirectory(shellScriptDataDirectory);
     }
 
     @AfterAll
-    static void tearDownAfterAll() {
-        cleanupFiles(TEST_OUTPUT_DIRECTORY);
+    static void tearDownAfterAll() throws IOException {
+        FileUtils.deleteDirectory(TEST_OUTPUT_DIRECTORY);
     }
 
     @Override

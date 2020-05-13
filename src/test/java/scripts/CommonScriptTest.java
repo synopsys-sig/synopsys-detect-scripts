@@ -32,16 +32,6 @@ public abstract class CommonScriptTest {
 
     public abstract File getScriptFile();
 
-    protected static void cleanupFiles(final File file) {
-
-        if (file.isDirectory()) {
-            for (final File listFile : file.listFiles()) {
-                cleanupFiles(listFile);
-            }
-        }
-        file.delete();
-    }
-
     @Test
     void testBadSourceButLocalCopy() throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(true);
@@ -263,5 +253,4 @@ public abstract class CommonScriptTest {
 
         return process;
     }
-
 }
