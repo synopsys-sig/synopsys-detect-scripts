@@ -1,8 +1,7 @@
 package scripts;
 
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
-import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 
 public class ShellScriptTest extends CommonScriptTest {
     private static final File shellScriptDataDirectory = new File(TEST_OUTPUT_DIRECTORY, "shellScriptData");
@@ -45,7 +50,7 @@ public class ShellScriptTest extends CommonScriptTest {
     }
 
     @Override
-    public Process executeScript(final Map<String, String> environment, final List<String> args, final boolean inheritIO) throws IOException {
+    public Process executeScript(final Map<String, String> environment, final List<String> args, final boolean inheritIO) throws IOException, InterruptedException {
         final List<String> command = new ArrayList<>();
         command.add(getScriptFile().getAbsolutePath());
         command.addAll(args);

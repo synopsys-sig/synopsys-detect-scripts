@@ -1,9 +1,6 @@
 package scripts;
 
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+
+import com.synopsys.integration.exception.IntegrationException;
+import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 
 // TODO: Implement the download only capability in powershell then remove tests that have this message. If the script cannot download only, it will try to run detect, and get the wrong exit codes for the test.
 public class PowershellScriptTest extends CommonScriptTest {
@@ -42,7 +47,7 @@ public class PowershellScriptTest extends CommonScriptTest {
     }
 
     @Override
-    public Process executeScript(final Map<String, String> environment, final List<String> args, final boolean inheritIO) throws IOException {
+    public Process executeScript(final Map<String, String> environment, final List<String> args, final boolean inheritIO) throws IOException, InterruptedException {
         final List<String> command = new ArrayList<>();
         command.add("pwsh");
         command.add("-Command");
@@ -72,8 +77,7 @@ public class PowershellScriptTest extends CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true, false);
         environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_4");
 
-        final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
+        executeScript(environment, new ArrayList<>(), true);
         // assertEquals(0, process.exitValue());
 
         assertJarExists("4.4.2");
@@ -86,8 +90,7 @@ public class PowershellScriptTest extends CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true, false);
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://repo.blackducksoftware.com:443/artifactory/bds-integrations-release/com/blackducksoftware/integration/hub-detect/5.2.0/hub-detect-5.2.0.jar");
 
-        final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
+        executeScript(environment, new ArrayList<>(), true);
         // assertEquals(0, process.exitValue());
 
         assertJarExists("5.2.0");
@@ -100,8 +103,7 @@ public class PowershellScriptTest extends CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true, false);
         environment.put(EnvironmentVariables.DETECT_LATEST_RELEASE_VERSION.name(), "5.3.2");
 
-        final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
+        executeScript(environment, new ArrayList<>(), true);
         // assertEquals(0, process.exitValue());
 
         assertJarExists("5.3.2");

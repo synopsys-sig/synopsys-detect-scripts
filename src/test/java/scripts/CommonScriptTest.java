@@ -1,8 +1,10 @@
 package scripts;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -14,13 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
 
 public abstract class CommonScriptTest {
     protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
     protected static final File TEST_OUTPUT_DIRECTORY = new File(WORKING_DIRECTORY, "build/tmp/scripts/");
 
-    public abstract Process executeScript(final Map<String, String> environment, final List<String> args, final boolean inheritIO) throws IOException;
+    public abstract Process executeScript(final Map<String, String> environment, final List<String> args, final boolean inheritIO) throws IOException, InterruptedException;
 
     public abstract File getOutputDirectory();
 
@@ -40,13 +44,11 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true, false);
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
         assertEquals(0, process.exitValue());
         assertJarExists(null);
 
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "");
         final Process badSourceProcess = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(badSourceProcess);
 
         assertNotEquals(-1, process.exitValue());
     }
@@ -56,7 +58,6 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(false, false);
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
         assertNotEquals(0, process.exitValue());
 
         assertJarExists(null);
@@ -67,7 +68,6 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(false, true);
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
         assertNotEquals(0, process.exitValue());
 
         assertJarExists(null);
@@ -78,7 +78,6 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true, false);
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
         assertEquals(0, process.exitValue());
 
         assertJarExists(null);
@@ -90,7 +89,6 @@ public abstract class CommonScriptTest {
         environment.put(EnvironmentVariables.DETECT_LATEST_RELEASE_VERSION.name(), "5.3.2");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
         assertEquals(0, process.exitValue());
 
         assertJarExists("5.3.2");
@@ -102,7 +100,6 @@ public abstract class CommonScriptTest {
         environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_5");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
         assertEquals(0, process.exitValue());
 
         assertJarExists("5.6.2");
@@ -114,7 +111,6 @@ public abstract class CommonScriptTest {
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/5.1.0/synopsys-detect-5.1.0.jar");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
         assertEquals(0, process.exitValue());
 
         assertJarExists("5.1.0");
@@ -138,7 +134,6 @@ public abstract class CommonScriptTest {
         environment.put(EnvironmentVariables.JAVA_HOME.name(), "test/java/home");
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
-        waitForProcess(process);
         assertEquals(127, process.exitValue());
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
@@ -152,7 +147,6 @@ public abstract class CommonScriptTest {
         environment.put(EnvironmentVariables.DETECT_JAVA_PATH.name(), "test/java/home/java");
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
-        waitForProcess(process);
         assertEquals(127, process.exitValue());
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
@@ -164,7 +158,6 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(false, false);
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
-        waitForProcess(process);
         assertEquals(7, process.exitValue());
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
@@ -178,8 +171,7 @@ public abstract class CommonScriptTest {
         directoryWithSpaces.mkdirs();
         environment.put(EnvironmentVariables.DETECT_JAR_DOWNLOAD_DIR.name(), directoryWithSpaces.getAbsolutePath());
 
-        final Process process = executeScript(environment, new ArrayList<>(), true);
-        waitForProcess(process);
+        executeScript(environment, new ArrayList<>(), true);
 
         final File detectJarFile = assertJarExists(directoryWithSpaces, null);
         assertTrue(detectJarFile.delete());
@@ -191,8 +183,8 @@ public abstract class CommonScriptTest {
         arguments.add(escapedProjectName);
 
         final Process process = executeScript(environment, arguments, false);
-        waitForProcess(process);
         assertNotEquals(0, process.exitValue());
+
         final String standardOutput = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
         IOUtils.copy(process.getErrorStream(), System.err);
         System.out.println(standardOutput);
@@ -239,16 +231,7 @@ public abstract class CommonScriptTest {
         return environment;
     }
 
-    protected void waitForProcess(final Process process) throws InterruptedException {
-        waitForProcess(process, 100, TimeUnit.SECONDS);
-    }
-
-    private void waitForProcess(final Process process, final long timeout, final TimeUnit timeUnit) throws InterruptedException {
-        final boolean processHitTimeout = !process.waitFor(timeout, timeUnit);
-        assertFalse(processHitTimeout);
-    }
-
-    protected Process createProcess(final List<String> finalCommand, final Map<String, String> environment, final boolean inheritIO) throws IOException {
+    protected Process createProcess(final List<String> finalCommand, final Map<String, String> environment, final boolean inheritIO) throws IOException, InterruptedException {
         final ProcessBuilder processBuilder = new ProcessBuilder();
         processBuilder.command(finalCommand);
         processBuilder.environment().clear();
@@ -266,7 +249,12 @@ public abstract class CommonScriptTest {
         }
 
         // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
-        return processBuilder.start();
+        final Process process = processBuilder.start();
+
+        final boolean processHitTimeout = !process.waitFor(100, TimeUnit.SECONDS);
+        assertFalse(processHitTimeout);
+
+        return process;
     }
 
 }
