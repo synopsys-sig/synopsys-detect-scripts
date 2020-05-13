@@ -48,7 +48,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         assertExitCode(process, 0);
-        assertJarExists(null);
+        assertAnyJarExists();
 
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "");
         final Process badSourceProcess = executeScript(environment, new ArrayList<>(), true);
@@ -79,7 +79,7 @@ public abstract class CommonScriptTest {
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         assertExitCode(process, 0);
-        assertJarExists(null);
+        assertAnyJarExists();
     }
 
     @Test
