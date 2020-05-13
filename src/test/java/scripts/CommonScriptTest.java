@@ -187,7 +187,7 @@ public abstract class CommonScriptTest {
         arguments.add(escapedProjectName);
 
         final Process process = executeScript(environment, arguments, false);
-        assertNotEquals(0, process.exitValue());
+        assertNotExitCode(process, 0);
 
         final String standardOutput = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
         IOUtils.copy(process.getErrorStream(), System.err);
