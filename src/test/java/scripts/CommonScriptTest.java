@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,7 @@ public abstract class CommonScriptTest {
     public abstract File getScriptFile();
 
     protected static void cleanupFiles(final File file) {
+
         if (file.isDirectory()) {
             for (final File listFile : file.listFiles()) {
                 cleanupFiles(listFile);
@@ -44,13 +47,12 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true, false);
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        assertEquals(0, process.exitValue());
+        assertExitCode(process, 0);
         assertJarExists(null);
 
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "");
         final Process badSourceProcess = executeScript(environment, new ArrayList<>(), true);
-
-        assertNotEquals(-1, process.exitValue());
+        assertNotExitCode(badSourceProcess, -1);
     }
 
     @Test
@@ -58,9 +60,8 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(false, false);
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        assertNotEquals(0, process.exitValue());
-
-        assertJarExists(null);
+        assertNotExitCode(process, 0);
+        assertAnyJarExists();
     }
 
     @Test
@@ -68,9 +69,8 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(false, true);
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        assertNotEquals(0, process.exitValue());
-
-        assertJarExists(null);
+        assertNotExitCode(process, 0);
+        assertAnyJarExists();
     }
 
     @Test
@@ -78,8 +78,7 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(true, false);
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        assertEquals(0, process.exitValue());
-
+        assertExitCode(process, 0);
         assertJarExists(null);
     }
 
@@ -89,8 +88,7 @@ public abstract class CommonScriptTest {
         environment.put(EnvironmentVariables.DETECT_LATEST_RELEASE_VERSION.name(), "5.3.2");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        assertEquals(0, process.exitValue());
-
+        assertExitCode(process, 0);
         assertJarExists("5.3.2");
     }
 
@@ -100,8 +98,7 @@ public abstract class CommonScriptTest {
         environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_5");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        assertEquals(0, process.exitValue());
-
+        assertExitCode(process, 0);
         assertJarExists("5.6.2");
     }
 
@@ -111,8 +108,7 @@ public abstract class CommonScriptTest {
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/5.1.0/synopsys-detect-5.1.0.jar");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
-        assertEquals(0, process.exitValue());
-
+        assertExitCode(process, 0);
         assertJarExists("5.1.0");
     }
 
@@ -134,7 +130,7 @@ public abstract class CommonScriptTest {
         environment.put(EnvironmentVariables.JAVA_HOME.name(), "test/java/home");
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
-        assertEquals(127, process.exitValue());
+        assertExitCode(process, 127);
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
         assertTrue(output.contains("Java Source: JAVA_HOME/bin/java=test/java/home/bin/java"));
@@ -147,7 +143,7 @@ public abstract class CommonScriptTest {
         environment.put(EnvironmentVariables.DETECT_JAVA_PATH.name(), "test/java/home/java");
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
-        assertEquals(127, process.exitValue());
+        assertExitCode(process, 127);
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
         assertTrue(output.contains("Java Source: DETECT_JAVA_PATH=test/java/home/java"));
@@ -158,7 +154,7 @@ public abstract class CommonScriptTest {
         final Map<String, String> environment = createEnvironment(false, false);
 
         final Process process = executeScript(environment, new ArrayList<>(), false);
-        assertEquals(7, process.exitValue());
+        assertExitCode(process, 7);
 
         final String output = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
         assertTrue(output.contains("Java Source: PATH"));
@@ -177,6 +173,14 @@ public abstract class CommonScriptTest {
         assertTrue(detectJarFile.delete());
     }
 
+    protected void assertExitCode(final Process process, final int exitCode) {
+        assertEquals(exitCode, process.exitValue(), "Unexpected exit code was returned.");
+    }
+
+    protected void assertNotExitCode(final Process process, final int exitCode) {
+        assertNotEquals(exitCode, process.exitValue(), String.format("Expected an exit code other than %d to be returned.", exitCode));
+    }
+
     protected boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(false, false);
         final List<String> arguments = new ArrayList<>();
@@ -192,11 +196,15 @@ public abstract class CommonScriptTest {
         return standardOutput.contains("detect.project.name = Synopsys Detect");
     }
 
-    protected File assertJarExists(final String detectVersion) {
-        return assertJarExists(getOutputDirectory(), detectVersion);
+    protected void assertAnyJarExists() {
+        assertJarExists(null);
     }
 
-    protected File assertJarExists(final File searchDirectory, final String detectVersion) {
+    protected void assertJarExists(@Nullable final String detectVersion) {
+        assertJarExists(getOutputDirectory(), detectVersion);
+    }
+
+    protected File assertJarExists(final File searchDirectory, @Nullable final String detectVersion) {
         final FilenameFilter filenameFilter = (path, fileName) -> fileName.endsWith(".jar");
         final File[] jarFiles = searchDirectory.listFiles(filenameFilter);
         assertNotNull(jarFiles);
