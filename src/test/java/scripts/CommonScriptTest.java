@@ -84,7 +84,7 @@ public abstract class CommonScriptTest {
     }
 
     @Test
-    void testDetectVersionVersionKey() throws IOException, InterruptedException {
+    void testDetectVersionKey() throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_VERSION_KEY.name(), "DETECT_LATEST_5");
 
@@ -101,18 +101,6 @@ public abstract class CommonScriptTest {
         final Process process = executeScript(environment, new ArrayList<>(), true);
         assertExitCode(process, 0);
         assertJarExists("5.1.0");
-    }
-
-    @Test
-    void testEscapingSpacesOuter() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=\"Synopsys Detect\"");
-        assertTrue(success);
-    }
-
-    @Test
-    void testEscapingSpacesInvalid() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys Detect");
-        assertFalse(success);
     }
 
     @Test
@@ -152,6 +140,18 @@ public abstract class CommonScriptTest {
     }
 
     @Test
+    void testEscapingSpacesOuter() throws IOException, InterruptedException {
+        final boolean success = testEscapingSpaces("--detect.project.name=\"Synopsys Detect\"");
+        assertTrue(success);
+    }
+
+    @Test
+    void testEscapingSpacesInvalid() throws IOException, InterruptedException {
+        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys Detect");
+        assertFalse(success);
+    }
+
+    @Test
     void testSpacesInDownloadDir() throws IOException, InterruptedException {
         final Map<String, String> environment = new HashMap<>();
         final File directoryWithSpaces = new File(getOutputDirectory(), "directory with spaces");
@@ -162,14 +162,6 @@ public abstract class CommonScriptTest {
 
         final File detectJarFile = assertJarExists(directoryWithSpaces, null);
         assertTrue(detectJarFile.delete());
-    }
-
-    protected void assertExitCode(final Process process, final int exitCode) {
-        assertEquals(exitCode, process.exitValue(), "Unexpected exit code was returned.");
-    }
-
-    protected void assertNotExitCode(final Process process, final int exitCode) {
-        assertNotEquals(exitCode, process.exitValue(), String.format("Expected an exit code other than %d to be returned.", exitCode));
     }
 
     protected boolean testEscapingSpaces(final String escapedProjectName) throws IOException, InterruptedException {
@@ -185,6 +177,14 @@ public abstract class CommonScriptTest {
         System.out.println(standardOutput);
 
         return standardOutput.contains("detect.project.name = Synopsys Detect");
+    }
+
+    protected void assertExitCode(final Process process, final int exitCode) {
+        assertEquals(exitCode, process.exitValue(), "Unexpected exit code was returned.");
+    }
+
+    protected void assertNotExitCode(final Process process, final int exitCode) {
+        assertNotEquals(exitCode, process.exitValue(), String.format("Expected an exit code other than %d to be returned.", exitCode));
     }
 
     protected void assertAnyJarExists() {
