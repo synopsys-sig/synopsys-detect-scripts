@@ -13,7 +13,7 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2020-05-14, the
+# urls for the detect jar file. As of 2020-05-15, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
@@ -243,11 +243,9 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
     if ($DetectSource) {
         Write-Host "Using Detect source $DetectSource"
 
-        $DetectVersion = Parse-Version -DetectSource $DetectSource
+        $DetectFileName = Parse-Detect-File-Name -DetectSource $DetectSource
 
-        Write-Host "Using Detect Version $DetectVersion"
-
-        $DetectJarFile = "$DetectFolder/synopsys-detect-$DetectVersion.jar"
+        $DetectJarFile = "$DetectFolder/$DetectFileName"
     } else {
         Write-Host "Unable to find Detect Source, will attempt to find a last downloaded detect."
 
@@ -277,13 +275,10 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
     return $DetectJarFile
 }
 
-function Parse-Version($DetectSource) {
+function Parse-Detect-File-Name($DetectSource) {
     $SlashParts = $DetectSource.Split("/")
     $LastPart = $SlashParts[$SlashParts.Length - 1]
-    $DashParts = $LastPart.Split("-")
-    $VersionJar = $DashParts[$DashParts.Length - 1]
-    $Version = $VersionJar.TrimEnd(".jar")
-    return $Version
+    return $LastPart
 }
 
 function Invoke-Detect ($DetectJarFile, $DetectArgs) {
