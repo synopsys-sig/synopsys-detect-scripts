@@ -77,7 +77,7 @@ SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
 # This provides a way to get the script version (via, say, grep/sed). Do not change.
-SCRIPT_VERSION=2.3.1-SNAPSHOT
+SCRIPT_VERSION=2.4.0-SNAPSHOT
 
 echo "Detect Shell Script ${SCRIPT_VERSION}"
 
