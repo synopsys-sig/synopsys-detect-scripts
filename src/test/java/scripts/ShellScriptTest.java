@@ -29,7 +29,7 @@ public class ShellScriptTest extends CommonScriptTest {
         TEST_OUTPUT_DIRECTORY.mkdirs();
 
         final ScriptBuilder scriptBuilder = new ScriptBuilder();
-        final List<File> scriptFiles = scriptBuilder.generateScript(TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "something-SNAPSHOT");
+        final List<File> scriptFiles = scriptBuilder.generateScript(TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "version-SNAPSHOT");
         assertEquals(1, scriptFiles.size());
 
         shellScript = scriptFiles.get(0);

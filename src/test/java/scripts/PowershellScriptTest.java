@@ -31,7 +31,7 @@ public class PowershellScriptTest extends CommonScriptTest {
         powershellScriptDataDirectory.mkdirs();
 
         final ScriptBuilder scriptBuilder = new ScriptBuilder();
-        final List<File> scriptFiles = scriptBuilder.generateScript(TEST_OUTPUT_DIRECTORY, "detect-ps.ps1", "ps1", "something-SNAPSHOT");
+        final List<File> scriptFiles = scriptBuilder.generateScript(TEST_OUTPUT_DIRECTORY, "detect-ps.ps1", "ps1", "version-SNAPSHOT");
         assertEquals(1, scriptFiles.size());
 
         powershellScript = scriptFiles.get(0);
