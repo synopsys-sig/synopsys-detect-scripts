@@ -108,6 +108,7 @@ public abstract class CommonScriptTest {
 
     @Test
     void testDetectQASource() throws IOException, InterruptedException {
+        // This test requires the system running it to be on the internal network.
         final Map<String, String> environment = createEnvironment(true);
         environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://artifactory.internal.synopsys.com/artifactory/bds-integrations-test/com/synopsys/integration/synopsys-detect/6.3.0-SIGQA1/synopsys-detect-6.3.0-SIGQA1.jar");
 
@@ -253,7 +254,7 @@ public abstract class CommonScriptTest {
         // We could tell the process builder to inheritIO to log to console, but some tests may need data from the process output streams.
         final Process process = processBuilder.start();
 
-        final boolean processHitTimeout = !process.waitFor(100, TimeUnit.SECONDS);
+        final boolean processHitTimeout = !process.waitFor(10, TimeUnit.MINUTES);
         assertFalse(processHitTimeout);
 
         return process;
