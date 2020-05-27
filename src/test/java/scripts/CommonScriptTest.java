@@ -20,9 +20,11 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
+@Tag("integration")
 public abstract class CommonScriptTest {
     protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
     protected static final File TEST_OUTPUT_DIRECTORY = new File(WORKING_DIRECTORY, "build/tmp/scripts/");
