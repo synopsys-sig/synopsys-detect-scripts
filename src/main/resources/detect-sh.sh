@@ -33,7 +33,7 @@ DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST}
 # (this is mainly for QA purposes only)
 DETECT_SOURCE=${DETECT_SOURCE:-}
 
-# To override the default location of /tmp, specify
+# To override the default location of $HOME/synopsys-detect, specify
 # your own DETECT_JAR_DOWNLOAD_DIR in your environment and
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
