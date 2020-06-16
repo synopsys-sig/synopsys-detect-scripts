@@ -20,6 +20,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
@@ -34,6 +35,11 @@ public abstract class CommonScriptTest {
     public abstract File getOutputDirectory();
 
     public abstract File getScriptFile();
+
+    @Test
+    void testThatShouldFail(){
+        Assertions.fail("This should cause the build to fail.");
+    }
 
     @Test
     void testBadSourceButLocalCopy() throws IOException, InterruptedException {
