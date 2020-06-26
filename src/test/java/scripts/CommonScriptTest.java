@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,7 +23,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.AssertionFailedError;
 
 @Tag("integration")
 public abstract class CommonScriptTest {
@@ -201,15 +201,15 @@ public abstract class CommonScriptTest {
         assertNotEquals(exitCode, process.exitValue(), String.format("Expected an exit code other than %d to be returned.", exitCode));
     }
 
-    protected void assertAnyJarExists() throws IOException, AssertionFailedError {
+    protected void assertAnyJarExists() throws IOException {
         assertJarExists(null);
     }
 
-    protected void assertJarExists(@Nullable final String detectVersion) throws IOException, AssertionFailedError {
+    protected void assertJarExists(@Nullable final String detectVersion) throws IOException {
         assertJarExists(getOutputDirectory(), detectVersion);
     }
 
-    protected File assertJarExists(final File searchDirectory, @Nullable final String detectVersion) throws IOException, AssertionFailedError {
+    protected File assertJarExists(final File searchDirectory, @Nullable final String detectVersion) throws IOException {
         return Files.walk(searchDirectory.toPath())
                                  .filter(filePath -> {
                                      final String fileName = filePath.toFile().getName();
@@ -221,7 +221,7 @@ public abstract class CommonScriptTest {
                                  })
                                  .findFirst()
                                  .map(Path::toFile)
-                                 .orElseThrow(() -> new AssertionFailedError("Expected to find a .jar file."));
+                                 .orElseThrow(() -> new FileNotFoundException("Expected to find a .jar file."));
     }
 
     protected Map<String, String> createEnvironment(final boolean downloadOnly) {
