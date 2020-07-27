@@ -27,7 +27,6 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.synopsys.detect.scripts.landing.LandingPageBuilder;
 import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 
 import freemarker.template.Configuration;
@@ -43,15 +42,7 @@ public class Application {
         final File outputDirectory = new File(outputDirectoryPath);
         outputDirectory.mkdirs();
 
-        if (operation.equals("landing")) {
-            final Configuration configuration = new Configuration(Configuration.VERSION_2_3_26);
-            configuration.setClassForTemplateLoading(Application.class, "/");
-            configuration.setDefaultEncoding("UTF-8");
-            configuration.setLogTemplateExceptions(true);
-
-            LandingPageBuilder landingPageBuilder = new LandingPageBuilder();
-            landingPageBuilder.buildLandingPages(outputDirectory, configuration);
-        } else if (operation.equals("scripts")) {
+         if (operation.equals("scripts")) {
             ScriptBuilder scriptBuilder = new ScriptBuilder();
             scriptBuilder.generateScripts(outputDirectory);
         } else if (operation.equals("cert")) {
@@ -59,7 +50,7 @@ public class Application {
             final File certDestination = new File(outputDirectory, "jar_verification.crt");
             FileUtils.copyFile(certSource, certDestination);
         } else {
-            throw new IllegalArgumentException("Unknown operation. Must be 'landing' or 'scripts': " + operation);
+            throw new IllegalArgumentException("Unknown operation. Must be 'scripts' or 'certs': " + operation);
         }
 
     }
