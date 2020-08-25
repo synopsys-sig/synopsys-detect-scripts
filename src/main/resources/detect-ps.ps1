@@ -186,7 +186,7 @@ function Get-ProxyInfo () {
                 $ProxyInfoProperties.Credentials = $ProxyCredentials;
             }
 
-            Write-Host "Successfully setup proxy."
+            Write-Host "Proxy has been configured."
         }
 
     }
