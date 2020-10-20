@@ -21,7 +21,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2020-05-27, the
+# urls for the detect jar file. As of 2020-10-20, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
@@ -33,7 +33,7 @@ DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST}
 # (this is mainly for QA purposes only)
 DETECT_SOURCE=${DETECT_SOURCE:-}
 
-# To override the default location of /tmp, specify
+# To override the default location of $HOME/synopsys-detect, specify
 # your own DETECT_JAR_DOWNLOAD_DIR in your environment and
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
@@ -77,7 +77,7 @@ SCRIPT_ARGS="$@"
 LOGGABLE_SCRIPT_ARGS=""
 
 # This provides a way to get the script version (via, say, grep/sed). Do not change.
-SCRIPT_VERSION=2.4.0
+SCRIPT_VERSION=2.4.1
 
 echo "Detect Shell Script ${SCRIPT_VERSION}"
 
