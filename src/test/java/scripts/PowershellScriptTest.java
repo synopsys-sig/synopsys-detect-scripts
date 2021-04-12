@@ -23,7 +23,8 @@ import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 public class PowershellScriptTest extends CommonScriptTest {
     private static final File powershellScriptDataDirectory = new File(TEST_OUTPUT_DIRECTORY, "powershellScriptData");
 
-    private static File powershellScript;
+    private static File powershellScriptDetect6;
+    private static File powershellScriptDetect7;
 
     @BeforeAll
     static void setUpBeforeAll() throws IOException, IntegrationException {
@@ -31,10 +32,14 @@ public class PowershellScriptTest extends CommonScriptTest {
         powershellScriptDataDirectory.mkdirs();
 
         final ScriptBuilder scriptBuilder = new ScriptBuilder();
-        final List<File> scriptFiles = scriptBuilder.generateScript(TEST_OUTPUT_DIRECTORY, "detect-ps.ps1", "ps1", "version-SNAPSHOT");
+        final List<File> scriptFiles = new ArrayList<>();
+        scriptBuilder.generateScript(scriptFiles, TEST_OUTPUT_DIRECTORY, "detect-ps.ps1", "ps1", "version-SNAPSHOT", 6);
         assertEquals(1, scriptFiles.size());
+        scriptBuilder.generateScript(scriptFiles, TEST_OUTPUT_DIRECTORY, "detect-ps.ps1", "ps1", "version-SNAPSHOT", 7);
+        assertEquals(2, scriptFiles.size());
 
-        powershellScript = scriptFiles.get(0);
+        powershellScriptDetect6 = scriptFiles.get(0);
+        powershellScriptDetect7 = scriptFiles.get(1);
     }
 
     @AfterEach
@@ -68,7 +73,7 @@ public class PowershellScriptTest extends CommonScriptTest {
 
     @Override
     public File getScriptFile() {
-        return powershellScript;
+        return powershellScriptDetect6;
     }
 
     @Override

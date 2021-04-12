@@ -79,38 +79,63 @@ public class ScriptBuilder {
     private final IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
 
     public void generateScripts(final File outputDirectory) throws IOException, IntegrationException {
-        final String version = ResourceUtil.getResourceAsString(this.getClass(), "/version.txt", StandardCharsets.UTF_8);
-        final List<File> shellScriptFiles = generateScript(outputDirectory, "detect-sh.sh", "sh", version);
-        final List<File> powershellScriptFiles = generateScript(outputDirectory, "detect-ps.ps1", "ps1", version);
+        final String scriptVersion = ResourceUtil.getResourceAsString(this.getClass(), "/version.txt", StandardCharsets.UTF_8);
+        final List<File> scriptFiles = new ArrayList<>();
+        generateScript(scriptFiles, outputDirectory, "detect-sh.sh", "sh", scriptVersion, 6);
+        generateScript(scriptFiles, outputDirectory, "detect-sh.sh", "sh", scriptVersion, 7);
+        generateScript(scriptFiles, outputDirectory, "detect-ps.ps1", "ps1", scriptVersion, 6);
+        generateScript(scriptFiles, outputDirectory, "detect-ps.ps1", "ps1", scriptVersion, 7);
 
-        shellScriptFiles.forEach(this::logFileLocation);
-        powershellScriptFiles.forEach(this::logFileLocation);
+        scriptFiles.forEach(this::logFileLocation);
     }
 
     private void logFileLocation(final File file) {
         logger.info(String.format("Generated script at: %s", file.getAbsolutePath()));
     }
 
-    public List<File> generateScript(final File outputDirectory, final String templateFileName, final String scriptExtension, final String scriptVersion) throws IOException, IntegrationException {
-        final File shellScriptFile = new File(outputDirectory, String.format("detect.%s", scriptExtension));
-        final File shellScriptVersionedFile = new File(outputDirectory, String.format("detect-%s.%s", scriptVersion, scriptExtension));
-        final List<File> createdFiles = new ArrayList<>();
+    public void generateScript(List<File> scriptFiles, final File outputDirectory, final String templateFileName, final String scriptExtension, final String scriptVersion, int detectMajorVersion) throws IOException, IntegrationException {
+        final File shellScriptFile = new File(outputDirectory, generateScriptFilename(scriptExtension, detectMajorVersion));
+        final File shellScriptVersionedFile = new File(outputDirectory, generatedVersionedScriptFilename(scriptVersion, scriptExtension, detectMajorVersion));
 
+        String detectVersionPropertyName = generateDetectVersionPropertyName(detectMajorVersion);
         if (!scriptVersion.contains("-SNAPSHOT")) {
-            final File createdFile = buildScript(templateFileName, shellScriptFile, scriptVersion);
-            createdFiles.add(createdFile);
+            final File createdFile = buildScript(templateFileName, shellScriptFile, scriptVersion, detectVersionPropertyName);
+            scriptFiles.add(createdFile);
         }
 
-        final File createdFile = buildScript(templateFileName, shellScriptVersionedFile, scriptVersion);
-        createdFiles.add(createdFile);
-
-        return createdFiles;
+        final File createdFile = buildScript(templateFileName, shellScriptVersionedFile, scriptVersion, detectVersionPropertyName);
+        scriptFiles.add(createdFile);
     }
 
-    private File buildScript(final String scriptTemplateFileName, final File outputFile, final String scriptVersion) throws IOException, IntegrationException {
+    private String generateDetectVersionPropertyName(final int detectMajorVersion) {
+        return String.format("DETECT_LATEST_%s", detectMajorVersion);
+    }
+
+    private String generateScriptFilename(final String scriptExtension, int detectMajorVersion) {
+        if (detectMajorVersion == 6) {
+            // The original scripts must stay on Detect 6 forever
+            return String.format("detect.%s", scriptExtension);
+        } else {
+            // Newer script versions have name that match their Detect major version number
+            return String.format("detect%d.%s", detectMajorVersion, scriptExtension);
+        }
+    }
+
+    private String generatedVersionedScriptFilename(String scriptVersion, String scriptExtension, int detectMajorVersion) {
+        if (detectMajorVersion == 6) {
+            // The original scripts must stay on Detect 6 forever
+            return String.format("detect-%s.%s", scriptVersion, scriptExtension);
+        } else {
+            // Newer script versions have name that match their Detect major version number
+            return String.format("detect%d-%s.%s", detectMajorVersion, scriptVersion, scriptExtension);
+        }
+    }
+
+    private File buildScript(final String scriptTemplateFileName, final File outputFile, final String scriptVersion, final String detectVersionPropertyName) throws IOException, IntegrationException {
         final String VERSION_TOKEN = "//SCRIPT_VERSION//";
         final String BUILD_DATE_TOKEN = "//BUILD_DATE//";
         final String MAJOR_VERSIONS_TOKEN = "//DETECT_MAJOR_VERSIONS//";
+        final String DEFAULT_VERSION_KEY_TOKEN = "//DEFAULT_DETECT_VERSION_KEY//";
 
         String scriptContents = ResourceUtil.getResourceAsString(this.getClass(), "/" + scriptTemplateFileName, StandardCharsets.UTF_8);
         scriptContents = scriptContents.replaceAll(VERSION_TOKEN, scriptVersion);
@@ -125,6 +150,9 @@ public class ScriptBuilder {
 
         final String majorVersionsCommentBlock = formatDetectPropertyTags(detectPropertyTags);
         scriptContents = scriptContents.replace(MAJOR_VERSIONS_TOKEN, majorVersionsCommentBlock);
+
+        // Lock this script's default artifactory property name to the given Detect major version
+        scriptContents = scriptContents.replace(DEFAULT_VERSION_KEY_TOKEN, detectVersionPropertyName);
 
         outputFile.delete();
         FileUtils.write(outputFile, scriptContents, StandardCharsets.UTF_8);
