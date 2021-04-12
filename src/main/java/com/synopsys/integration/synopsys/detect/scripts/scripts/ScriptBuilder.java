@@ -14,11 +14,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,13 +39,13 @@ public class ScriptBuilder {
     private final int getDetectMajorVersionLatest = 7;
 
     // This should stay unchanged for as long as we want to support this version
-    private final int detectMajorVersionOrigScriptIsLockedTo = 6;
+    private final int detectMajorVersionOrigScriptMustInvoke = 6;
     private final IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
 
     public void generateScripts(final File outputDirectory) throws IOException, IntegrationException {
         final String scriptVersion = ResourceUtil.getResourceAsString(this.getClass(), "/version.txt", StandardCharsets.UTF_8);
         final List<File> scriptFiles = new ArrayList<>();
-        for (int majorVersion = detectMajorVersionOrigScriptIsLockedTo; majorVersion <= getDetectMajorVersionLatest; majorVersion++) {
+        for (int majorVersion = detectMajorVersionOrigScriptMustInvoke; majorVersion <= getDetectMajorVersionLatest; majorVersion++) {
             generateScript(scriptFiles, outputDirectory, "detect-sh.sh", "sh", scriptVersion, majorVersion);
             generateScript(scriptFiles, outputDirectory, "detect-ps.ps1", "ps1", scriptVersion, majorVersion);
         }
@@ -56,12 +57,12 @@ public class ScriptBuilder {
     }
 
     public void generateScript(List<File> scriptFiles, final File outputDirectory, final String templateFileName, final String scriptExtension, final String scriptVersion, int detectMajorVersion) throws IOException, IntegrationException {
-        final File shellScriptFile = new File(outputDirectory, generateScriptFilename(scriptExtension, detectMajorVersion));
-        final File shellScriptVersionedFile = new File(outputDirectory, generatedVersionedScriptFilename(scriptVersion, scriptExtension, detectMajorVersion));
+        final File shellScriptVersionlessFile = new File(outputDirectory, generateVersionlessScriptFilename(scriptExtension, detectMajorVersion));
+        final File shellScriptVersionedFile = new File(outputDirectory, generateVersionedScriptFilename(scriptVersion, scriptExtension, detectMajorVersion));
 
         String detectVersionPropertyName = generateDetectVersionPropertyName(detectMajorVersion);
         if (!scriptVersion.contains("-SNAPSHOT")) {
-            final File createdFile = buildScript(templateFileName, shellScriptFile, scriptVersion, detectVersionPropertyName);
+            final File createdFile = buildScript(templateFileName, shellScriptVersionlessFile, scriptVersion, detectVersionPropertyName);
             scriptFiles.add(createdFile);
         }
 
@@ -73,24 +74,27 @@ public class ScriptBuilder {
         return String.format("DETECT_LATEST_%s", detectMajorVersion);
     }
 
-    private String generateScriptFilename(final String scriptExtension, int detectMajorVersion) {
-        if (detectMajorVersion == detectMajorVersionOrigScriptIsLockedTo) {
-            // The original (Detect-version-less) scripts must stay on Detect 6 forever
-            return String.format("detect.%s", scriptExtension);
-        } else {
-            // Newer script versions have name that match their Detect major version number
-            return String.format("detect%d.%s", detectMajorVersion, scriptExtension);
-        }
+    private String generateVersionlessScriptFilename(final String scriptExtension, int detectMajorVersion) {
+        return generateScriptFilename(detectMajorVersion, scriptExtension, null);
     }
 
-    private String generatedVersionedScriptFilename(String scriptVersion, String scriptExtension, int detectMajorVersion) {
-        if (detectMajorVersion == detectMajorVersionOrigScriptIsLockedTo) {
-            // The original (Detect-version-less) scripts must stay on Detect 6 forever
-            return String.format("detect-%s.%s", scriptVersion, scriptExtension);
-        } else {
-            // Newer script versions have name that match their Detect major version number
-            return String.format("detect%d-%s.%s", detectMajorVersion, scriptVersion, scriptExtension);
+    private String generateVersionedScriptFilename(String scriptVersion, String scriptExtension, int detectMajorVersion) {
+        return generateScriptFilename(detectMajorVersion, scriptExtension, scriptVersion);
+    }
+
+    private String generateScriptFilename(int detectMajorVersion, String scriptExtension, @Nullable String scriptVersion) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("detect");
+        if (detectMajorVersion != detectMajorVersionOrigScriptMustInvoke) {
+            sb.append(detectMajorVersion);
         }
+        if (scriptVersion != null) {
+            sb.append("-");
+            sb.append(scriptVersion);
+        }
+        sb.append(".");
+        sb.append(scriptExtension);
+        return sb.toString();
     }
 
     private File buildScript(final String scriptTemplateFileName, final File outputFile, final String scriptVersion, final String detectVersionPropertyName) throws IOException, IntegrationException {
