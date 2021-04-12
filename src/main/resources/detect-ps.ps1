@@ -18,7 +18,7 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 //DETECT_MAJOR_VERSIONS//
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
-$EnvDetectVersionKey = Get-EnvironmentVariable -Key "DETECT_VERSION_KEY" -DefaultValue "DETECT_LATEST";
+$EnvDetectVersionKey = Get-EnvironmentVariable -Key "DETECT_VERSION_KEY" -DefaultValue "//DEFAULT_DETECT_VERSION_KEY//";
 
 # If you want to skip the test for java
 # DETECT_SKIP_JAVA_TEST=1

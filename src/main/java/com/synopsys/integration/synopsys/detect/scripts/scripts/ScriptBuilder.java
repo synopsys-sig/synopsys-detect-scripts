@@ -1,47 +1,11 @@
-/**
+/*
  * synopsys-detect-scripts
  *
- * Copyright (c) 2020 Synopsys, Inc.
+ * Copyright (c) 2021 Synopsys, Inc.
  *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
+ * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
-package com.synopsys.integration.synopsys.detect.scripts.scripts; /**
- * synopsys-detect-scripts
- *
- * Copyright (c) 2019 Synopsys, Inc.
- *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+package com.synopsys.integration.synopsys.detect.scripts.scripts;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +18,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.annotation.Nullable;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -68,64 +34,74 @@ import com.synopsys.integration.rest.request.Request;
 import com.synopsys.integration.rest.request.Response;
 import com.synopsys.integration.util.ResourceUtil;
 
-/**
- * synopsys-detect-scripts
- *
- * Copyright (c) 2019 Synopsys, Inc.
- *
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements. See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership. The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License. You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
 public class ScriptBuilder {
+    // To add a new Detect Major version (to generate scripts for), just increment getDetectMajorVersionLatest:
+    private final int getDetectMajorVersionLatest = 7;
+
+    // This should stay unchanged for as long as we want to support this version
+    private final int detectMajorVersionOrigScriptMustInvoke = 6;
     private final IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
 
     public void generateScripts(final File outputDirectory) throws IOException, IntegrationException {
-        final String version = ResourceUtil.getResourceAsString(this.getClass(), "/version.txt", StandardCharsets.UTF_8);
-        final List<File> shellScriptFiles = generateScript(outputDirectory, "detect-sh.sh", "sh", version);
-        final List<File> powershellScriptFiles = generateScript(outputDirectory, "detect-ps.ps1", "ps1", version);
-
-        shellScriptFiles.forEach(this::logFileLocation);
-        powershellScriptFiles.forEach(this::logFileLocation);
+        final String scriptVersion = ResourceUtil.getResourceAsString(this.getClass(), "/version.txt", StandardCharsets.UTF_8);
+        final List<File> scriptFiles = new ArrayList<>();
+        for (int majorVersion = detectMajorVersionOrigScriptMustInvoke; majorVersion <= getDetectMajorVersionLatest; majorVersion++) {
+            generateScript(scriptFiles, outputDirectory, "detect-sh.sh", "sh", scriptVersion, majorVersion);
+            generateScript(scriptFiles, outputDirectory, "detect-ps.ps1", "ps1", scriptVersion, majorVersion);
+        }
+        scriptFiles.forEach(this::logFileLocation);
     }
 
     private void logFileLocation(final File file) {
         logger.info(String.format("Generated script at: %s", file.getAbsolutePath()));
     }
 
-    public List<File> generateScript(final File outputDirectory, final String templateFileName, final String scriptExtension, final String scriptVersion) throws IOException, IntegrationException {
-        final File shellScriptFile = new File(outputDirectory, String.format("detect.%s", scriptExtension));
-        final File shellScriptVersionedFile = new File(outputDirectory, String.format("detect-%s.%s", scriptVersion, scriptExtension));
-        final List<File> createdFiles = new ArrayList<>();
+    public void generateScript(List<File> scriptFiles, final File outputDirectory, final String templateFileName, final String scriptExtension, final String scriptVersion, int detectMajorVersion) throws IOException, IntegrationException {
+        final File shellScriptVersionlessFile = new File(outputDirectory, generateVersionlessScriptFilename(scriptExtension, detectMajorVersion));
+        final File shellScriptVersionedFile = new File(outputDirectory, generateVersionedScriptFilename(scriptVersion, scriptExtension, detectMajorVersion));
 
+        String detectVersionPropertyName = generateDetectVersionPropertyName(detectMajorVersion);
         if (!scriptVersion.contains("-SNAPSHOT")) {
-            final File createdFile = buildScript(templateFileName, shellScriptFile, scriptVersion);
-            createdFiles.add(createdFile);
+            final File createdFile = buildScript(templateFileName, shellScriptVersionlessFile, scriptVersion, detectVersionPropertyName);
+            scriptFiles.add(createdFile);
         }
 
-        final File createdFile = buildScript(templateFileName, shellScriptVersionedFile, scriptVersion);
-        createdFiles.add(createdFile);
-
-        return createdFiles;
+        final File createdFile = buildScript(templateFileName, shellScriptVersionedFile, scriptVersion, detectVersionPropertyName);
+        scriptFiles.add(createdFile);
     }
 
-    private File buildScript(final String scriptTemplateFileName, final File outputFile, final String scriptVersion) throws IOException, IntegrationException {
+    private String generateDetectVersionPropertyName(final int detectMajorVersion) {
+        return String.format("DETECT_LATEST_%s", detectMajorVersion);
+    }
+
+    private String generateVersionlessScriptFilename(final String scriptExtension, int detectMajorVersion) {
+        return generateScriptFilename(detectMajorVersion, scriptExtension, null);
+    }
+
+    private String generateVersionedScriptFilename(String scriptVersion, String scriptExtension, int detectMajorVersion) {
+        return generateScriptFilename(detectMajorVersion, scriptExtension, scriptVersion);
+    }
+
+    private String generateScriptFilename(int detectMajorVersion, String scriptExtension, @Nullable String scriptVersion) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("detect");
+        if (detectMajorVersion != detectMajorVersionOrigScriptMustInvoke) {
+            sb.append(detectMajorVersion);
+        }
+        if (scriptVersion != null) {
+            sb.append("-");
+            sb.append(scriptVersion);
+        }
+        sb.append(".");
+        sb.append(scriptExtension);
+        return sb.toString();
+    }
+
+    private File buildScript(final String scriptTemplateFileName, final File outputFile, final String scriptVersion, final String detectVersionPropertyName) throws IOException, IntegrationException {
         final String VERSION_TOKEN = "//SCRIPT_VERSION//";
         final String BUILD_DATE_TOKEN = "//BUILD_DATE//";
         final String MAJOR_VERSIONS_TOKEN = "//DETECT_MAJOR_VERSIONS//";
+        final String DEFAULT_VERSION_KEY_TOKEN = "//DEFAULT_DETECT_VERSION_KEY//";
 
         String scriptContents = ResourceUtil.getResourceAsString(this.getClass(), "/" + scriptTemplateFileName, StandardCharsets.UTF_8);
         scriptContents = scriptContents.replaceAll(VERSION_TOKEN, scriptVersion);
@@ -140,6 +116,9 @@ public class ScriptBuilder {
 
         final String majorVersionsCommentBlock = formatDetectPropertyTags(detectPropertyTags);
         scriptContents = scriptContents.replace(MAJOR_VERSIONS_TOKEN, majorVersionsCommentBlock);
+
+        // Lock this script's default artifactory property name to the given Detect major version
+        scriptContents = scriptContents.replace(DEFAULT_VERSION_KEY_TOKEN, detectVersionPropertyName);
 
         outputFile.delete();
         FileUtils.write(outputFile, scriptContents, StandardCharsets.UTF_8);

@@ -22,17 +22,23 @@ import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 public class ShellScriptTest extends CommonScriptTest {
     private static final File shellScriptDataDirectory = new File(TEST_OUTPUT_DIRECTORY, "shellScriptData");
 
-    private static File shellScript;
+    private static File shellScriptDetect6;
+    private static File shellScriptDetect7;
 
     @BeforeAll
     static void setUpBeforeAll() throws IOException, IntegrationException {
         TEST_OUTPUT_DIRECTORY.mkdirs();
 
         final ScriptBuilder scriptBuilder = new ScriptBuilder();
-        final List<File> scriptFiles = scriptBuilder.generateScript(TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "version-SNAPSHOT");
+        final List<File> scriptFiles = new ArrayList<>();
+        scriptBuilder.generateScript(scriptFiles, TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "version-SNAPSHOT", 6);
         assertEquals(1, scriptFiles.size());
 
-        shellScript = scriptFiles.get(0);
+        scriptBuilder.generateScript(scriptFiles, TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "version-SNAPSHOT", 7);
+        assertEquals(2, scriptFiles.size());
+
+        shellScriptDetect6 = scriptFiles.get(0);
+        shellScriptDetect7 = scriptFiles.get(1);
     }
 
     @BeforeEach
@@ -66,7 +72,7 @@ public class ShellScriptTest extends CommonScriptTest {
 
     @Override
     public File getScriptFile() {
-        return shellScript;
+        return shellScriptDetect6;
     }
 
     @Test
