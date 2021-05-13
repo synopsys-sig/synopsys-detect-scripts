@@ -13,12 +13,12 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2020-10-20, the
+# urls for the detect jar file. As of 2021-05-13, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
-$EnvDetectVersionKey = Get-EnvironmentVariable -Key "DETECT_VERSION_KEY" -DefaultValue "DETECT_LATEST";
+$EnvDetectVersionKey = Get-EnvironmentVariable -Key "DETECT_VERSION_KEY" -DefaultValue "DETECT_LATEST_6";
 
 # If you want to skip the test for java
 # DETECT_SKIP_JAVA_TEST=1
@@ -87,7 +87,7 @@ $DownloadOnly = Get-EnvironmentVariable -Key "DETECT_DOWNLOAD_ONLY" -DefaultValu
 # heap size, you would set DETECT_JAVA_OPTS=-Xmx6G.
 # $DetectJavaOpts = Get-EnvironmentVariable -Key "DETECT_JAVA_OPTS" -DefaultValue "";
 
-$Version = "2.4.1"
+$Version = "2.5.0"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 #Enable TLS2
 
