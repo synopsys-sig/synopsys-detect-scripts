@@ -224,7 +224,7 @@ function Invoke-WebRequestWrapper($Url, $ProxyInfo, $DownloadLocation = $null) {
         Write-Host ("  Reason: {0}" -f $_.Exception.StackTrace);
     }
 
-    return Invoke-WebRequest $Url -UseBasicParsing @parameters
+    return Invoke-WebRequest $Url -UseBasicParsing @parameters -UserAgent "PowerShell" # Workaround for https://www.jfrog.com/jira/si/jira.issueviews:issue-html/RTFACT-26216/RTFACT-26216.html
 }
 
 function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $DetectVersion, $ProxyInfo) {
