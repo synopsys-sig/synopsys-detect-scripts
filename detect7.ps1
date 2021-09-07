@@ -13,7 +13,7 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2021-05-13, the
+# urls for the detect jar file. As of 2021-09-07, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
@@ -87,7 +87,7 @@ $DownloadOnly = Get-EnvironmentVariable -Key "DETECT_DOWNLOAD_ONLY" -DefaultValu
 # heap size, you would set DETECT_JAVA_OPTS=-Xmx6G.
 # $DetectJavaOpts = Get-EnvironmentVariable -Key "DETECT_JAVA_OPTS" -DefaultValue "";
 
-$Version = "2.5.0"
+$Version = "2.5.1"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 #Enable TLS2
 
@@ -224,7 +224,7 @@ function Invoke-WebRequestWrapper($Url, $ProxyInfo, $DownloadLocation = $null) {
         Write-Host ("  Reason: {0}" -f $_.Exception.StackTrace);
     }
 
-    return Invoke-WebRequest $Url -UseBasicParsing @parameters
+    return Invoke-WebRequest $Url -UseBasicParsing @parameters -UserAgent "PowerShell" # Workaround for https://www.jfrog.com/jira/si/jira.issueviews:issue-html/RTFACT-26216/RTFACT-26216.html
 }
 
 function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $DetectVersion, $ProxyInfo) {
