@@ -8,10 +8,10 @@ Synopsys Detect scripts to invoke Detect.
 ## Where can I get the latest release? ##
 
 *Available from GitHub for Linux by running:*  
-bash <(curl -s -L https://detect.synopsys.com/detect.sh)
+bash <(curl -s -L https://detect.synopsys.com/detect7.sh)
 
 *Available from GitHub for Windows by running:*  
-powershell "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; irm https://detect.synopsys.com/detect.ps1?$(Get-Random) | iex; detect"
+powershell "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; irm https://detect.synopsys.com/detect7.ps1?$(Get-Random) | iex; detect"
 
 ## Documentation
 
