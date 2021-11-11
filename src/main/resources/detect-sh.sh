@@ -156,7 +156,7 @@ get_detect() {
   if [ ${USE_REMOTE} -eq 1 ]; then
     echo "getting ${DETECT_SOURCE} from remote"
     TEMP_DETECT_DESTINATION="${DETECT_DESTINATION}-temp"
-    curlReturn=$(curl ${DETECT_CURL_OPTS} --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" --create-dirs "${DETECT_SOURCE}")
+    curlReturn=$(curl ${DETECT_CURL_OPTS} --retry --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" --create-dirs "${DETECT_SOURCE}")
     if [[ 200 -eq ${curlReturn} ]]; then
       mv "${TEMP_DETECT_DESTINATION}" "${DETECT_DESTINATION}"
       if [[ -f ${LOCAL_FILE} ]]; then
