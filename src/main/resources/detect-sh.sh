@@ -61,6 +61,11 @@ DETECT_JAVA_PATH=${DETECT_JAVA_PATH:-}
 # heap size, you would set DETECT_JAVA_OPTS=-Xmx6G.
 DETECT_JAVA_OPTS=${DETECT_JAVA_OPTS:-}
 
+# If you want to configure different curl-based retry behavior, 
+# specify DETECT_CURL_RETRY_OPTS in your environment.
+# Setting this variable to blank will disable retrying entirely
+DETECT_CURL_RETRY_OPTS=${DETECT_CURL_RETRY_OPTS:-"--retry 3 --retry-delay 5 --retry-max-time 30"}
+
 # If you want to pass any additional options to
 # curl, specify DETECT_CURL_OPTS in your environment.
 # For example, to specify a proxy, you would set
@@ -156,7 +161,7 @@ get_detect() {
   if [ ${USE_REMOTE} -eq 1 ]; then
     echo "getting ${DETECT_SOURCE} from remote"
     TEMP_DETECT_DESTINATION="${DETECT_DESTINATION}-temp"
-    curlReturn=$(curl ${DETECT_CURL_OPTS} --retry 3 --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" --create-dirs "${DETECT_SOURCE}")
+    curlReturn=$(curl ${DETECT_CURL_OPTS} ${DETECT_CURL_RETRY_OPTS} --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" --create-dirs "${DETECT_SOURCE}")
     if [[ 200 -eq ${curlReturn} ]]; then
       mv "${TEMP_DETECT_DESTINATION}" "${DETECT_DESTINATION}"
       if [[ -f ${LOCAL_FILE} ]]; then
