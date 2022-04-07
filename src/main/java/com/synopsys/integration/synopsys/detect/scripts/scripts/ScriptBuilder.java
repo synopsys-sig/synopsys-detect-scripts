@@ -1,7 +1,7 @@
 /*
  * synopsys-detect-scripts
  *
- * Copyright (c) 2021 Synopsys, Inc.
+ * Copyright (c) 2022 Synopsys, Inc.
  *
  * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
@@ -25,13 +25,15 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
+import com.google.gson.Gson;
 import com.synopsys.integration.exception.IntegrationException;
 import com.synopsys.integration.log.IntLogger;
 import com.synopsys.integration.log.Slf4jIntLogger;
+import com.synopsys.integration.rest.HttpUrl;
 import com.synopsys.integration.rest.client.IntHttpClient;
 import com.synopsys.integration.rest.proxy.ProxyInfo;
 import com.synopsys.integration.rest.request.Request;
-import com.synopsys.integration.rest.request.Response;
+import com.synopsys.integration.rest.response.Response;
 import com.synopsys.integration.util.ResourceUtil;
 
 public class ScriptBuilder {
@@ -158,8 +160,8 @@ public class ScriptBuilder {
     }
 
     private List<String> fetchDetectPropertyTags(final String artifactoryUrl) throws IOException, IntegrationException {
-        final IntHttpClient intHttpClient = new IntHttpClient(logger, 200, true, ProxyInfo.NO_PROXY_INFO);
-        final Request request = new Request.Builder().uri(artifactoryUrl).build();
+        final IntHttpClient intHttpClient = new IntHttpClient(logger, new Gson(), 200, true, ProxyInfo.NO_PROXY_INFO);
+        final Request request = new Request.Builder(new HttpUrl(artifactoryUrl)).build();
 
         final List<String> propertyTags = new ArrayList<>();
         try (final Response response = intHttpClient.execute(request)) {
