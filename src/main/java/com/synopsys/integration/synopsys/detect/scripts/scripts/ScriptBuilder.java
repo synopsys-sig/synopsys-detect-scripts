@@ -54,11 +54,9 @@ public class ScriptBuilder {
             generateScript(scriptFiles, outputDirectory, "detect-sh.sh", "sh", scriptVersion, majorVersion);
             generateScript(scriptFiles, outputDirectory, "detect-ps.ps1", "ps1", scriptVersion, majorVersion);
         }
-        
+
         File dir = new File("src/main/resources/earlierversions");
-        System.out.println(("*** earlierversions dir: " + dir.getAbsolutePath()));
         for (File nextFile : dir.listFiles()) {
-            System.out.println("*** copy file: " + nextFile.getName());
             FileUtils.copyFileToDirectory(nextFile, outputDirectory);
         }
         scriptFiles.forEach(this::logFileLocation);
