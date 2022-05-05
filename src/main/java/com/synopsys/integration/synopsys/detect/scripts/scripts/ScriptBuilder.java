@@ -41,10 +41,12 @@ import com.synopsys.integration.util.ResourceUtil;
 
 public class ScriptBuilder {
     // ScriptBuilder will generate scripts from the current templates for each Detect major version in this range:
-    // (There should be no breaking script changes within this range.)
-    // When there is a breaking script change, previous versions of scripts (not templates) should be preserved in src/main/resources/earlierversions
+    // (There should be no breaking script changes across versions within this range.)
+    // When there is a breaking script change in either script, earlier versions (before the breaking change) of both scripts (not templates)
+    // must be preserved in src/main/resources/earlierversions.
     private final int DetectMajorVersionRangeEnd = 8;
     private final int DetectMajorVersionRangeStart = 8;
+
     private final IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
 
     public void generateScripts(final File outputDirectory) throws IOException, IntegrationException, URISyntaxException {
