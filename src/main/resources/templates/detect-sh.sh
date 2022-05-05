@@ -73,7 +73,12 @@ DETECT_CURL_OPTS=${DETECT_CURL_OPTS:-}
 # get and update the jar file when a new version releases.
 DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
 
-SCRIPT_ARGS="$@"
+SCRIPT_ARGS=""
+for var in "$@"
+do
+    SCRIPT_ARGS+="\"${var}\" "
+done
+
 LOGGABLE_SCRIPT_ARGS=""
 
 # This provides a way to get the script version (via, say, grep/sed). Do not change.
