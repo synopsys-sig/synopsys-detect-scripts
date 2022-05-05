@@ -9,6 +9,8 @@ package com.synopsys.integration.synopsys.detect.scripts;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+
 import org.apache.commons.io.FileUtils;
 
 import com.synopsys.integration.exception.IntegrationException;
@@ -18,7 +20,7 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 
 public class Application {
-    public static void main(final String[] args) throws IOException, IntegrationException, TemplateException {
+    public static void main(final String[] args) throws IOException, IntegrationException, TemplateException, URISyntaxException {
         if (args.length != 2) {
             throw new IllegalArgumentException("Please provide two arguments, the operation and the output directory of the scripts.");
         }

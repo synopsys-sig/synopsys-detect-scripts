@@ -9,6 +9,9 @@ package com.synopsys.integration.synopsys.detect.scripts.scripts;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -37,19 +40,26 @@ import com.synopsys.integration.rest.response.Response;
 import com.synopsys.integration.util.ResourceUtil;
 
 public class ScriptBuilder {
-    // To add a new Detect Major version (to generate scripts for), just increment getDetectMajorVersionLatest:
-    private final int getDetectMajorVersionLatest = 7;
-
-    // This should stay unchanged for as long as we want to support this version
-    private final int detectMajorVersionOrigScriptMustInvoke = 6;
+    // ScriptBuilder will generate scripts from the current templates for each Detect major version in this range:
+    // (There should be no breaking script changes within this range.)
+    // When there is a breaking script change, previous versions of scripts (not templates) should be preserved in src/main/resources/earlierversions
+    private final int DetectMajorVersionRangeEnd = 8;
+    private final int DetectMajorVersionRangeStart = 8;
     private final IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
 
-    public void generateScripts(final File outputDirectory) throws IOException, IntegrationException {
+    public void generateScripts(final File outputDirectory) throws IOException, IntegrationException, URISyntaxException {
         final String scriptVersion = ResourceUtil.getResourceAsString(this.getClass(), "/version.txt", StandardCharsets.UTF_8);
         final List<File> scriptFiles = new ArrayList<>();
-        for (int majorVersion = detectMajorVersionOrigScriptMustInvoke; majorVersion <= getDetectMajorVersionLatest; majorVersion++) {
+        for (int majorVersion = DetectMajorVersionRangeStart; majorVersion <= DetectMajorVersionRangeEnd; majorVersion++) {
             generateScript(scriptFiles, outputDirectory, "detect-sh.sh", "sh", scriptVersion, majorVersion);
             generateScript(scriptFiles, outputDirectory, "detect-ps.ps1", "ps1", scriptVersion, majorVersion);
+        }
+        
+        File dir = new File("src/main/resources/earlierversions");
+        System.out.println(("*** earlierversions dir: " + dir.getAbsolutePath()));
+        for (File nextFile : dir.listFiles()) {
+            System.out.println("*** copy file: " + nextFile.getName());
+            FileUtils.copyFileToDirectory(nextFile, outputDirectory);
         }
         scriptFiles.forEach(this::logFileLocation);
     }
@@ -87,9 +97,7 @@ public class ScriptBuilder {
     private String generateScriptFilename(int detectMajorVersion, String scriptExtension, @Nullable String scriptVersion) {
         StringBuilder sb = new StringBuilder();
         sb.append("detect");
-        if (detectMajorVersion != detectMajorVersionOrigScriptMustInvoke) {
-            sb.append(detectMajorVersion);
-        }
+        sb.append(detectMajorVersion);
         if (scriptVersion != null) {
             sb.append("-");
             sb.append(scriptVersion);
@@ -105,7 +113,7 @@ public class ScriptBuilder {
         final String MAJOR_VERSIONS_TOKEN = "//DETECT_MAJOR_VERSIONS//";
         final String DEFAULT_VERSION_KEY_TOKEN = "//DEFAULT_DETECT_VERSION_KEY//";
 
-        String scriptContents = ResourceUtil.getResourceAsString(this.getClass(), "/" + scriptTemplateFileName, StandardCharsets.UTF_8);
+        String scriptContents = ResourceUtil.getResourceAsString(this.getClass(), "/templates/" + scriptTemplateFileName, StandardCharsets.UTF_8);
         scriptContents = scriptContents.replaceAll(VERSION_TOKEN, scriptVersion);
 
         final Date date = Date.from(Instant.now());
