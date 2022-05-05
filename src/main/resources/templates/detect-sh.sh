@@ -74,9 +74,9 @@ DETECT_CURL_OPTS=${DETECT_CURL_OPTS:-}
 DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
 
 SCRIPT_ARGS=""
-for var in "$@"
+for NEXT_ARG in "$@"
 do
-    SCRIPT_ARGS+="\"${var}\" "
+    SCRIPT_ARGS+="\"${NEXT_ARG}\" "
 done
 
 LOGGABLE_SCRIPT_ARGS=""
