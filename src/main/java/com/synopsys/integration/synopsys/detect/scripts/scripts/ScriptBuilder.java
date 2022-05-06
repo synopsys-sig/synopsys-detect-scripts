@@ -9,9 +9,6 @@ package com.synopsys.integration.synopsys.detect.scripts.scripts;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -44,12 +41,12 @@ public class ScriptBuilder {
     // (There should be no breaking script changes across versions within this range.)
     // When there is a breaking script change in either script, earlier versions (before the breaking change) of both scripts (not templates)
     // must be preserved in src/main/resources/earlierversions.
-    private final int DetectMajorVersionRangeEnd = 8;
-    private final int DetectMajorVersionRangeStart = 8;
+    private static final int DetectMajorVersionRangeEnd = 8;
+    private static final int DetectMajorVersionRangeStart = 8;
 
     private final IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
 
-    public void generateScripts(final File outputDirectory) throws IOException, IntegrationException, URISyntaxException {
+    public void generateScripts(final File outputDirectory) throws IOException, IntegrationException {
         final String scriptVersion = ResourceUtil.getResourceAsString(this.getClass(), "/version.txt", StandardCharsets.UTF_8);
         final List<File> scriptFiles = new ArrayList<>();
         for (int majorVersion = DetectMajorVersionRangeStart; majorVersion <= DetectMajorVersionRangeEnd; majorVersion++) {
