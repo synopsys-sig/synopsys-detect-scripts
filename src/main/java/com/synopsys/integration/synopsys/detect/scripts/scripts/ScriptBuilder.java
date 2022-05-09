@@ -37,22 +37,18 @@ import com.synopsys.integration.rest.response.Response;
 import com.synopsys.integration.util.ResourceUtil;
 
 public class ScriptBuilder {
-    // ScriptBuilder will generate scripts from the current templates for each Detect major version in this range:
-    // (There should be no breaking script changes across versions within this range.)
-    // When there is a breaking script change in either script, earlier versions (before the breaking change) of both scripts (not templates)
-    // must be preserved in src/main/resources/earlierversions.
-    private static final int DetectMajorVersionRangeEnd = 8;
-    private static final int DetectMajorVersionRangeStart = 8;
+    // When moving to a new Detect major version:
+    // 1. Add the pair of scripts (.sh and .ps1) for the CURRENT major to src/main/resources/earlierversions
+    // 2. Update DETECT_MAJOR_VERSION to the NEW major version.
+    private static final int DETECT_MAJOR_VERSION = 8;
 
     private final IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
 
     public void generateScripts(final File outputDirectory) throws IOException, IntegrationException {
         final String scriptVersion = ResourceUtil.getResourceAsString(this.getClass(), "/version.txt", StandardCharsets.UTF_8);
         final List<File> scriptFiles = new ArrayList<>();
-        for (int majorVersion = DetectMajorVersionRangeStart; majorVersion <= DetectMajorVersionRangeEnd; majorVersion++) {
-            generateScript(scriptFiles, outputDirectory, "detect-sh.sh", "sh", scriptVersion, majorVersion);
-            generateScript(scriptFiles, outputDirectory, "detect-ps.ps1", "ps1", scriptVersion, majorVersion);
-        }
+        generateScript(scriptFiles, outputDirectory, "detect-sh.sh", "sh", scriptVersion, DETECT_MAJOR_VERSION);
+        generateScript(scriptFiles, outputDirectory, "detect-ps.ps1", "ps1", scriptVersion, DETECT_MAJOR_VERSION);
 
         File dir = new File("src/main/resources/earlierversions");
         for (File nextFile : dir.listFiles()) {
