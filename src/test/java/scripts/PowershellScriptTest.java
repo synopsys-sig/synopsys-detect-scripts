@@ -1,6 +1,7 @@
 package scripts;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,8 +24,7 @@ import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 public class PowershellScriptTest extends CommonScriptTest {
     private static final File powershellScriptDataDirectory = new File(TEST_OUTPUT_DIRECTORY, "powershellScriptData");
 
-    private static File powershellScriptDetect6;
-    private static File powershellScriptDetect7;
+    private static File powershellScriptDetect;
 
     @BeforeAll
     static void setUpBeforeAll() throws IOException, IntegrationException {
@@ -33,13 +33,10 @@ public class PowershellScriptTest extends CommonScriptTest {
 
         final ScriptBuilder scriptBuilder = new ScriptBuilder();
         final List<File> scriptFiles = new ArrayList<>();
-        scriptBuilder.generateScript(scriptFiles, TEST_OUTPUT_DIRECTORY, "detect-ps.ps1", "ps1", "version-SNAPSHOT", 6);
+        scriptBuilder.generateScript(scriptFiles, TEST_OUTPUT_DIRECTORY, "detect-ps.ps1", "ps1", "version-SNAPSHOT", DETECT_LATEST_VERSION);
         assertEquals(1, scriptFiles.size());
-        scriptBuilder.generateScript(scriptFiles, TEST_OUTPUT_DIRECTORY, "detect-ps.ps1", "ps1", "version-SNAPSHOT", 7);
-        assertEquals(2, scriptFiles.size());
 
-        powershellScriptDetect6 = scriptFiles.get(0);
-        powershellScriptDetect7 = scriptFiles.get(1);
+        powershellScriptDetect = scriptFiles.get(0);
     }
 
     @AfterEach
@@ -73,7 +70,19 @@ public class PowershellScriptTest extends CommonScriptTest {
 
     @Override
     public File getScriptFile() {
-        return powershellScriptDetect6;
+        return powershellScriptDetect;
+    }
+
+    @Test
+    void testEscapedSpace() throws IOException, InterruptedException {
+        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys` Detect");
+        assertTrue(success);
+    }
+
+    @Test
+    void testEscapingSpacesOuter() throws IOException, InterruptedException {
+        final boolean success = testEscapingSpaces("--detect.project.name=\"Synopsys Detect\"");
+        assertTrue(success);
     }
 
     @Override

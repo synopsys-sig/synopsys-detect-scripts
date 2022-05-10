@@ -26,6 +26,9 @@ import org.junit.jupiter.api.Test;
 
 @Tag("integration")
 public abstract class CommonScriptTest {
+    // TODO: Change this to 8 once the artifactory property DETECT_LATEST_8 exists
+    protected static final int DETECT_LATEST_VERSION = 7;
+
     protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
     protected static final File TEST_OUTPUT_DIRECTORY = new File(WORKING_DIRECTORY, "build/tmp/scripts/");
 
@@ -154,18 +157,6 @@ public abstract class CommonScriptTest {
     }
 
     @Test
-    void testEscapingSpacesOuter() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=\"Synopsys Detect\"");
-        assertTrue(success);
-    }
-
-    @Test
-    void testEscapingSpacesInvalid() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys Detect");
-        assertFalse(success);
-    }
-
-    @Test
     void testSpacesInDownloadDir() throws IOException, InterruptedException {
         final Map<String, String> environment = new HashMap<>();
         final File directoryWithSpaces = new File(getOutputDirectory(), "directory with spaces");
@@ -184,7 +175,7 @@ public abstract class CommonScriptTest {
         arguments.add(escapedProjectName);
 
         final Process process = executeScript(environment, arguments, false);
-        assertNotExitCode(process, 0);
+        ///////////assertNotExitCode(process, 0);
 
         final String standardOutput = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
         IOUtils.copy(process.getErrorStream(), System.err);
