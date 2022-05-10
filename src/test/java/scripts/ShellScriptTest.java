@@ -22,8 +22,8 @@ import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 public class ShellScriptTest extends CommonScriptTest {
     private static final File shellScriptDataDirectory = new File(TEST_OUTPUT_DIRECTORY, "shellScriptData");
 
-    private static File shellScriptDetect6;
-    private static File shellScriptDetect7;
+    private static File shellScriptDetect;
+
 
     @BeforeAll
     static void setUpBeforeAll() throws IOException, IntegrationException {
@@ -31,14 +31,10 @@ public class ShellScriptTest extends CommonScriptTest {
 
         final ScriptBuilder scriptBuilder = new ScriptBuilder();
         final List<File> scriptFiles = new ArrayList<>();
-        scriptBuilder.generateScript(scriptFiles, TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "version-SNAPSHOT", 6);
+        scriptBuilder.generateScript(scriptFiles, TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "version-SNAPSHOT", DETECT_LATEST_VERSION);
         assertEquals(1, scriptFiles.size());
 
-        scriptBuilder.generateScript(scriptFiles, TEST_OUTPUT_DIRECTORY, "detect-sh.sh", "sh", "version-SNAPSHOT", 7);
-        assertEquals(2, scriptFiles.size());
-
-        shellScriptDetect6 = scriptFiles.get(0);
-        shellScriptDetect7 = scriptFiles.get(1);
+        shellScriptDetect = scriptFiles.get(0);
     }
 
     @BeforeEach
@@ -72,13 +68,12 @@ public class ShellScriptTest extends CommonScriptTest {
 
     @Override
     public File getScriptFile() {
-        return shellScriptDetect6;
+        return shellScriptDetect;
     }
 
     @Test
-    void testEscapingSpacesInner() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys\\ Detect");
+    void testInnerSpaces() throws IOException, InterruptedException {
+        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys Detect");
         assertTrue(success);
     }
-
 }
