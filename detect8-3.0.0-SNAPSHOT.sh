@@ -21,12 +21,12 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2022-04-07, the
+# urls for the detect jar file. As of 2022-05-10, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
-DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST_6}
+DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST_8}
 
 # You can specify your own download url from
 # artifactory which can bypass using the property keys
@@ -73,11 +73,16 @@ DETECT_CURL_OPTS=${DETECT_CURL_OPTS:-}
 # get and update the jar file when a new version releases.
 DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
 
-SCRIPT_ARGS="$@"
+SCRIPT_ARGS=""
+for NEXT_ARG in "$@"
+do
+    SCRIPT_ARGS+="\"${NEXT_ARG}\" "
+done
+
 LOGGABLE_SCRIPT_ARGS=""
 
 # This provides a way to get the script version (via, say, grep/sed). Do not change.
-SCRIPT_VERSION=2.5.2-SNAPSHOT
+SCRIPT_VERSION=3.0.0-SNAPSHOT
 
 echo "Detect Shell Script ${SCRIPT_VERSION}"
 
