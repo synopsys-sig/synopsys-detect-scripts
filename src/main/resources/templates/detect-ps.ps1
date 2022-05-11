@@ -285,10 +285,10 @@ function Invoke-Detect ($DetectJarFile, $DetectArgs) {
     ${Env:detect.phone.home.passthrough.powershell.version} = $Version
     $JavaArgs = @("-jar", $DetectJarFile)
     $AllArgs = $JavaArgs + $DetectArgs
-    $DetectArgString = Set-ToEscaped($AllArgs)
-    Write-Host "Running Detect: $DetectArgString"
+    Set-ToEscaped($AllArgs)
+    Write-Host "Running Detect: $AllArgs"
     $JavaCommand = Determine-Java($JavaHome, $DetectJavaPath)
-    $DetectProcess = Start-Process $JavaCommand -ArgumentList $DetectArgString -NoNewWindow -PassThru
+    $DetectProcess = Start-Process $JavaCommand -ArgumentList $AllArgs -NoNewWindow -PassThru
     Wait-Process -InputObject $DetectProcess -ErrorAction SilentlyContinue
     $DetectExitCode = $DetectProcess.ExitCode;
     Write-Host "Result code of $DetectExitCode, exiting"
@@ -359,11 +359,10 @@ function Receive-DetectJar ($DetectUrl, $DetectJarFile, $LastDownloadFile, $Prox
 }
 
 function Set-ToEscaped ($ArgArray) {
-    $DetectArgString=""
     for ($i = 0; $i -lt $ArgArray.Count ; $i++) {
-        $DetectArgString=$DetectArgString + " """ + $($ArgArray[$i]) + """"
+        $Value = $ArgArray[$i]
+        $ArgArray[$i] = """$Value"""
     }
-    return $DetectArgString
 }
 
 function Test-JavaNotAvailable() {
