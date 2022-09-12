@@ -19,7 +19,7 @@ plugins {
 }
 
 group = 'com.synopsys.integration'
-version = '3.0.0-SNAPSHOT'
+version = '3.0.0'
 
 apply plugin: 'com.synopsys.integration.simple'
 
