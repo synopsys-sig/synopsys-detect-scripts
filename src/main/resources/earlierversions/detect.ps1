@@ -1,5 +1,17 @@
 # Detect Powershell Script
 # Recommended Invocation: powershell "irm https://detect.synopsys.com/detect.ps1?$(Get-Random) | iex; detect"
+
+function Write-DeprecationMsg() {
+	Write-Host "***"
+	Write-Host "***"
+	Write-Host "*** Warning: Detect 6 is no longer supported and from 1st February 2023 this script will be removed and will no longer be accessible."
+	Write-Host "*** For full details, please see the community announcement https://community.synopsys.com/s/question/0D52H00006B7jH8SAJ/end-of-support-notice-for-detect-6-and-removal-of-detectsh-detectps1-files"
+	Write-Host "***"
+	Write-Host "***"
+}
+
+Write-DeprecationMsg
+
 $ProgressPreference = 'SilentlyContinue'
 function Get-EnvironmentVariable($Key, $DefaultValue) { if (-not (Test-Path Env:$Key)) { return $DefaultValue; }else { return (Get-ChildItem Env:$Key).Value; } }
 
@@ -123,6 +135,8 @@ function Detect {
         Write-Host "Executing Detect."
         $DetectArgs = $args;
         $DetectExitCode = Invoke-Detect -DetectJar $DetectJarFile -DetectArgs $DetectArgs
+
+	Write-DeprecationMsg
 
         if ($EnvDetectExitCodePassthru -eq "1") {
             return $DetectExitCode
