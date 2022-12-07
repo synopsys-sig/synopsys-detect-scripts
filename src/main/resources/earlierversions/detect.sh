@@ -2,6 +2,17 @@
 
 echo "Detect Shell Script ${SCRIPT_VERSION}"
 
+write_deprecation_msg() {
+	echo "***"
+	echo "***"
+	echo "*** Warning: Detect 6 is no longer supported and from 1st February 2023 this script will be removed and will no longer be accessible."
+	echo "*** For full details, please see the community announcement https://community.synopsys.com/s/question/0D52H00006B7jH8SAJ/end-of-support-notice-for-detect-6-and-removal-of-detectsh-detectps1-files"
+	echo "***"
+	echo "***"
+}
+
+write_deprecation_msg
+
 get_path_separator() {
   # Performs a check to see if the system is Windows based.
   if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
@@ -80,6 +91,7 @@ LOGGABLE_SCRIPT_ARGS=""
 SCRIPT_VERSION=2.5.1
 
 echo "Detect Shell Script ${SCRIPT_VERSION}"
+
 
 DETECT_BINARY_REPO_URL=https://sig-repo.synopsys.com
 
@@ -193,6 +205,7 @@ run_detect() {
 
   eval "${JAVACMD} ${SCRIPT_ARGS}"
   RESULT=$?
+  write_deprecation_msg
   echo "Result code of ${RESULT}, exiting"
   exit ${RESULT}
 }
