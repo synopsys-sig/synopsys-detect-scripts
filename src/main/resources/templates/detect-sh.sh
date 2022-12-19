@@ -4,7 +4,7 @@ echo "Detect Shell Script ${SCRIPT_VERSION}"
 
 get_path_separator() {
   # Performs a check to see if the system is Windows based.
-  if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
+  if [[ $(uname) == *"NT"* ]] || [[ $(uname) == *"UWIN"* ]]; then
     echo "\\"
   else
     echo "/"
@@ -88,7 +88,7 @@ echo "Detect Shell Script ${SCRIPT_VERSION}"
 
 DETECT_BINARY_REPO_URL=https://sig-repo.synopsys.com
 
-for i in $*; do
+for i in "$@"; do
   if [[ $i == --blackduck.hub.password=* ]]; then
     LOGGABLE_SCRIPT_ARGS="$LOGGABLE_SCRIPT_ARGS --blackduck.hub.password=<redacted>"
   elif [[ $i == --blackduck.hub.proxy.password=* ]]; then
@@ -123,7 +123,7 @@ get_detect() {
     if [[ -z "${DETECT_RELEASE_VERSION}" ]]; then
       VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" '${DETECT_BINARY_REPO_URL}/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}'"
       VERSION_EXTRACT_CMD="${VERSION_CURL_CMD} | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
-      DETECT_SOURCE=$(eval ${VERSION_EXTRACT_CMD})
+      DETECT_SOURCE=$(eval "${VERSION_EXTRACT_CMD}")
       if [[ -z "${DETECT_SOURCE}" ]]; then
         echo "Unable to derive the location of ${DETECT_VERSION_KEY} from response to: ${VERSION_CURL_CMD}"
         USE_LOCAL=1
@@ -141,12 +141,12 @@ get_detect() {
 
   if [[ USE_LOCAL -eq 1 ]] && [[ -f "${LOCAL_FILE}" ]]; then
     echo "Found local file ${LOCAL_FILE}"
-    DETECT_FILENAME=`cat ${LOCAL_FILE}`
+    DETECT_FILENAME=$(cat "${LOCAL_FILE}")
   elif [[ USE_LOCAL -eq 1 ]]; then
     echo "${LOCAL_FILE} is missing and unable to communicate with a Detect source."
-    exit -1
+    exit 1
   else
-    DETECT_FILENAME=${DETECT_FILENAME:-$(awk -F "/" '{print $NF}' <<< $DETECT_SOURCE)}
+    DETECT_FILENAME=${DETECT_FILENAME:-$(awk -F "/" '{print $NF}' <<< "$DETECT_SOURCE")}
   fi
   DETECT_DESTINATION="${DETECT_JAR_DOWNLOAD_DIR}${PATH_SEPARATOR}${DETECT_FILENAME}"
 
@@ -161,7 +161,7 @@ get_detect() {
   if [ ${USE_REMOTE} -eq 1 ]; then
     echo "getting ${DETECT_SOURCE} from remote"
     TEMP_DETECT_DESTINATION="${DETECT_DESTINATION}-temp"
-    curlReturn=$(curl ${DETECT_CURL_OPTS} --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" --create-dirs "${DETECT_SOURCE}")
+    curlReturn=$(curl "${DETECT_CURL_OPTS}" --silent -w "%{http_code}" -L -o "${TEMP_DETECT_DESTINATION}" --create-dirs "${DETECT_SOURCE}")
     if [[ 200 -eq ${curlReturn} ]]; then
       mv "${TEMP_DETECT_DESTINATION}" "${DETECT_DESTINATION}"
       if [[ -f ${LOCAL_FILE} ]]; then
@@ -171,7 +171,7 @@ get_detect() {
       echo "saved ${DETECT_SOURCE} to ${DETECT_DESTINATION}"
     else
       echo "The curl response was ${curlReturn}, which is not successful - please check your configuration and environment."
-      exit -1
+      exit 1
     fi
   fi
 }
