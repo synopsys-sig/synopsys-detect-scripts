@@ -5,8 +5,8 @@ echo "Detect Shell Script ${SCRIPT_VERSION}"
 write_deprecation_msg() {
 	echo "***"
 	echo "***"
-	echo "*** Warning: Detect 7 is End of Service from 1st March 2024, this script will be removed and will no longer be accessible."
-	echo "*** For full details, please see the community announcement https://sig-product-docs.synopsys.com/bundle/blackduck-compatibility/page/topics/Support-and-Service-Schedule.html"
+	echo "*** Warning: Detect 7 will reach End of Service from 1st March 2024, this script will be removed and this script will no longer be available."
+	echo "*** For details, please see the community announcement https://sig-product-docs.synopsys.com/bundle/blackduck-compatibility/page/topics/Support-and-Service-Schedule.html"
 	echo "***"
 	echo "***"
 }

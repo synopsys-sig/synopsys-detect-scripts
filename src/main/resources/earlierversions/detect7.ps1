@@ -4,8 +4,8 @@
 function Write-DeprecationMsg() {
 	Write-Host "***"
 	Write-Host "***"
-	Write-Host "*** Warning: Detect 7 is End of Service from 1st March 2024, this script will be removed and will no longer be accessible."
-	Write-Host "*** For full details, please see the community announcement https://sig-product-docs.synopsys.com/bundle/blackduck-compatibility/page/topics/Support-and-Service-Schedule.html"
+	Write-Host "*** Warning: Detect 7 will reach End of Service from 1st March 2024, this script will be removed and this script will no longer be available."
+	Write-Host "*** For details, please see the community announcement https://sig-product-docs.synopsys.com/bundle/blackduck-compatibility/page/topics/Support-and-Service-Schedule.html"
 	Write-Host "***"
 	Write-Host "***"
 }
