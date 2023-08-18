@@ -1,5 +1,17 @@
 # Detect Powershell Script
 # Recommended Invocation: powershell "irm https://detect.synopsys.com/detect.ps1?$(Get-Random) | iex; detect"
+
+function Write-DeprecationMsg() {
+	Write-Host "***"
+	Write-Host "***"
+	Write-Host "*** Warning: Detect 7 will reach End of Service from 1st March 2024, this script will be removed and this script will no longer be available."
+	Write-Host "*** For details, please see the community announcement https://sig-product-docs.synopsys.com/bundle/blackduck-compatibility/page/topics/Support-and-Service-Schedule.html"
+	Write-Host "***"
+	Write-Host "***"
+}
+
+Write-DeprecationMsg
+
 $ProgressPreference = 'SilentlyContinue'
 function Get-EnvironmentVariable($Key, $DefaultValue) { if (-not (Test-Path Env:$Key)) { return $DefaultValue; }else { return (Get-ChildItem Env:$Key).Value; } }
 
@@ -123,6 +135,8 @@ function Detect {
         Write-Host "Executing Detect."
         $DetectArgs = $args;
         $DetectExitCode = Invoke-Detect -DetectJar $DetectJarFile -DetectArgs $DetectArgs
+
+        Write-DeprecationMsg
 
         if ($EnvDetectExitCodePassthru -eq "1") {
             return $DetectExitCode

@@ -2,6 +2,17 @@
 
 echo "Detect Shell Script ${SCRIPT_VERSION}"
 
+write_deprecation_msg() {
+	echo "***"
+	echo "***"
+	echo "*** Warning: Detect 7 will reach End of Service from 1st March 2024, this script will be removed and this script will no longer be available."
+	echo "*** For details, please see the community announcement https://sig-product-docs.synopsys.com/bundle/blackduck-compatibility/page/topics/Support-and-Service-Schedule.html"
+	echo "***"
+	echo "***"
+}
+
+write_deprecation_msg
+
 get_path_separator() {
   # Performs a check to see if the system is Windows based.
   if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
@@ -193,6 +204,7 @@ run_detect() {
 
   eval "${JAVACMD} ${SCRIPT_ARGS}"
   RESULT=$?
+  write_deprecation_msg
   echo "Result code of ${RESULT}, exiting"
   exit ${RESULT}
 }
