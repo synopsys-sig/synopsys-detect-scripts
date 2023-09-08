@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "Detect Shell Script ${SCRIPT_VERSION}"
-
 get_path_separator() {
   # Performs a check to see if the system is Windows based.
   if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
