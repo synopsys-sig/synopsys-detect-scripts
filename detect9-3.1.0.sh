@@ -1,18 +1,5 @@
 #!/bin/bash
 
-echo "Detect Shell Script ${SCRIPT_VERSION}"
-
-write_deprecation_msg() {
-	echo "***"
-	echo "***"
-	echo "*** Warning: Detect 7 will reach End of Service from 1st March 2024, this script will be removed and this script will no longer be available."
-	echo "*** For details, please see the community announcement https://sig-product-docs.synopsys.com/bundle/blackduck-compatibility/page/topics/Support-and-Service-Schedule.html"
-	echo "***"
-	echo "***"
-}
-
-write_deprecation_msg
-
 get_path_separator() {
   # Performs a check to see if the system is Windows based.
   if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
@@ -32,12 +19,12 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2021-09-07, the
+# urls for the detect jar file. As of 2023-09-12, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
-DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST_7}
+DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST_9}
 
 # You can specify your own download url from
 # artifactory which can bypass using the property keys
@@ -84,11 +71,16 @@ DETECT_CURL_OPTS=${DETECT_CURL_OPTS:-}
 # get and update the jar file when a new version releases.
 DETECT_DOWNLOAD_ONLY=${DETECT_DOWNLOAD_ONLY:-0}
 
-SCRIPT_ARGS="$@"
+SCRIPT_ARGS=""
+for NEXT_ARG in "$@"
+do
+    SCRIPT_ARGS+="\"${NEXT_ARG}\" "
+done
+
 LOGGABLE_SCRIPT_ARGS=""
 
 # This provides a way to get the script version (via, say, grep/sed). Do not change.
-SCRIPT_VERSION=2.5.1
+SCRIPT_VERSION=3.1.0
 
 echo "Detect Shell Script ${SCRIPT_VERSION}"
 
@@ -204,7 +196,6 @@ run_detect() {
 
   eval "${JAVACMD} ${SCRIPT_ARGS}"
   RESULT=$?
-  write_deprecation_msg
   echo "Result code of ${RESULT}, exiting"
   exit ${RESULT}
 }
