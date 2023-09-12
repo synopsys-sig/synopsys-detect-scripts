@@ -1,5 +1,5 @@
 ## Overview ##
-Synopsys Detect scripts to invoke Detect. 
+Synopsys Detect scripts used to invoke Detect. 
 
 ## Build ##
 
@@ -15,4 +15,4 @@ powershell "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; irm https://d
 
 ## Documentation
 
-All Detect documentation can be found on our [Confluence](https://synopsys.atlassian.net/wiki/spaces/INTDOCS/pages/62423113/Synopsys+Detect)
+Synopsys Detect documentation can be found on our [documentation portal](https://sig-product-docs.synopsys.com/bundle/integrations-detect/page/introduction.html)
