@@ -16,8 +16,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.blackduck.integration.blackduck.detect.scripts.scripts.ScriptBuilder;
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 
 public class ShellScriptTest extends CommonScriptTest {
     private static final File shellScriptDataDirectory = new File(TEST_OUTPUT_DIRECTORY, "shellScriptData");
@@ -73,7 +73,7 @@ public class ShellScriptTest extends CommonScriptTest {
 
     @Test
     void testInnerSpaces() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys Detect");
+        final boolean success = testEscapingSpaces("--detect.project.name=Blackduck Detect");
         assertTrue(success);
     }
 }

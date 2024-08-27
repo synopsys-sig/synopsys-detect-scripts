@@ -5,7 +5,7 @@
  *
  * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
-package com.synopsys.integration.synopsys.detect.scripts.scripts;
+package com.blackduck.integration.blackduck.detect.scripts.scripts;
 
 import java.io.File;
 import java.io.IOException;
@@ -114,7 +114,7 @@ public class ScriptBuilder {
         final String formattedDate = dateFormat.format(date);
         scriptContents = scriptContents.replaceAll(BUILD_DATE_TOKEN, formattedDate);
 
-        final String artifactoryUrl = "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties";
+        final String artifactoryUrl = "https://repo.blackduck.com/bds-integrations-release/com/blackduck/integration/detect?properties";
         final List<String> detectPropertyTags = fetchDetectPropertyTags(artifactoryUrl);
 
         final String majorVersionsCommentBlock = formatDetectPropertyTags(detectPropertyTags);
