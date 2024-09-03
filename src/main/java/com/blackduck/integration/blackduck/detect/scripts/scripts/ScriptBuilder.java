@@ -40,7 +40,7 @@ public class ScriptBuilder {
     // When moving to a new Detect major version:
     // 1. Add the pair of scripts (.sh and .ps1) for the CURRENT major to src/main/resources/earlierversions
     // 2. Update DETECT_MAJOR_VERSION to the NEW major version.
-    private static final int DETECT_MAJOR_VERSION = 9;
+    private static final int DETECT_MAJOR_VERSION = 10;
 
     private final IntLogger logger = new Slf4jIntLogger(LoggerFactory.getLogger(this.getClass()));
 
