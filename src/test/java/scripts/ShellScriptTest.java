@@ -73,7 +73,7 @@ public class ShellScriptTest extends CommonScriptTest {
 
     @Test
     void testInnerSpaces() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=Blackduck Detect");
+        final boolean success = testEscapingSpaces("--detect.project.name=Black Duck Detect");
         assertTrue(success);
     }
 }

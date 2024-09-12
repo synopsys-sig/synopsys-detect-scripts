@@ -75,13 +75,13 @@ public class PowershellScriptTest extends CommonScriptTest {
 
     @Test
     void testEscapedSpace() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=Blackduck` Detect");
+        final boolean success = testEscapingSpaces("--detect.project.name=Black` Duck` Detect");
         assertTrue(success);
     }
 
     @Test
     void testEscapingSpacesOuter() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=\"Blackduck Detect\"");
+        final boolean success = testEscapingSpaces("--detect.project.name=\"Black Duck Detect\"");
         assertTrue(success);
     }
 
