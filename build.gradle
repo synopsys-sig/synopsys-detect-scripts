@@ -22,7 +22,7 @@ plugins {
 
 def internalRepoHost = System.getenv('SNPS_INTERNAL_ARTIFACTORY')
 
-apply from: 'https://raw.githubusercontent.com/blackducksoftware/integration-resources/master/gradle_common/buildscript-repositories.gradle'
+apply from: 'https://raw.githubusercontent.com/blackducksoftware/integration-resources/6b0f809c99b4689dcf24f28e57c4d8664a8883db/gradle_common/buildscript-repositories.gradle'
 
 repositories {
     maven { url "${internalRepoHost}/artifactory/jcenter" }
