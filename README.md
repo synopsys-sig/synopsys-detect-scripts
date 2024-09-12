@@ -1,5 +1,5 @@
 ## Overview ##
-Scripts used to invoke Detect. 
+Scripts used to invoke Black Duck Detect. 
 
 ## Build ##
 
@@ -15,4 +15,4 @@ powershell "[Net.ServicePointManager]::SecurityProtocol = 'tls12'; irm https://d
 
 ## Documentation
 
-Detect documentation can be found on our [documentation portal](https://sig-product-docs.synopsys.com/bundle/integrations-detect/page/introduction.html)
+Black Duck Detect documentation can be found on our [documentation portal](https://documentation.blackduck.com/bundle/detect/page/introduction.html)
