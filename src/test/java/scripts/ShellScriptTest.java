@@ -16,7 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.blackduck.integration.blackduck.detect.scripts.scripts.ScriptBuilder;
+import com.blackduck.integration.detect.scripts.scripts.ScriptBuilder;
 import com.synopsys.integration.exception.IntegrationException;
 
 public class ShellScriptTest extends CommonScriptTest {

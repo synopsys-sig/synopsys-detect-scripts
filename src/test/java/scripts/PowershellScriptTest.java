@@ -17,7 +17,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import com.blackduck.integration.blackduck.detect.scripts.scripts.ScriptBuilder;
+import com.blackduck.integration.detect.scripts.scripts.ScriptBuilder;
 import com.synopsys.integration.exception.IntegrationException;
 
 // TODO: Implement the download only capability in powershell then remove tests that have this message. If the script cannot download only, it will try to run detect, and get the wrong exit codes for the test.
