@@ -181,7 +181,7 @@ public abstract class CommonScriptTest {
         IOUtils.copy(process.getErrorStream(), System.err);
         System.out.println(standardOutput);
 
-        return standardOutput.contains("detect.project.name = Synopsys Detect");
+        return standardOutput.contains("detect.project.name = Black Duck Detect");
     }
 
     protected void assertExitCode(final Process process, final int exitCode) {

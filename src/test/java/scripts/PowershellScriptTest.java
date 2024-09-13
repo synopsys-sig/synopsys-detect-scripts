@@ -17,8 +17,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import com.blackduck.integration.detect.scripts.scripts.ScriptBuilder;
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 
 // TODO: Implement the download only capability in powershell then remove tests that have this message. If the script cannot download only, it will try to run detect, and get the wrong exit codes for the test.
 public class PowershellScriptTest extends CommonScriptTest {
@@ -75,13 +75,13 @@ public class PowershellScriptTest extends CommonScriptTest {
 
     @Test
     void testEscapedSpace() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=Synopsys` Detect");
+        final boolean success = testEscapingSpaces("--detect.project.name=Black` Duck` Detect");
         assertTrue(success);
     }
 
     @Test
     void testEscapingSpacesOuter() throws IOException, InterruptedException {
-        final boolean success = testEscapingSpaces("--detect.project.name=\"Synopsys Detect\"");
+        final boolean success = testEscapingSpaces("--detect.project.name=\"Black Duck Detect\"");
         assertTrue(success);
     }
 

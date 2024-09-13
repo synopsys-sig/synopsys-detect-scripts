@@ -1,17 +1,5 @@
 # Detect Powershell Script
 # Recommended Invocation: powershell "irm https://detect.synopsys.com/detect.ps1?$(Get-Random) | iex; detect"
-
-function Write-DeprecationMsg() {
-	Write-Host "***"
-	Write-Host "***"
-	Write-Host "*** Warning: Detect 7 will reach End of Service from 1st March 2024, this script will be removed and this script will no longer be available."
-	Write-Host "*** For details, please see the community announcement https://sig-product-docs.synopsys.com/bundle/blackduck-compatibility/page/topics/Support-and-Service-Schedule.html"
-	Write-Host "***"
-	Write-Host "***"
-}
-
-Write-DeprecationMsg
-
 $ProgressPreference = 'SilentlyContinue'
 function Get-EnvironmentVariable($Key, $DefaultValue) { if (-not (Test-Path Env:$Key)) { return $DefaultValue; }else { return (Get-ChildItem Env:$Key).Value; } }
 
@@ -25,12 +13,12 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2021-09-07, the
+# urls for the detect jar file. As of 2023-09-12, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
-$EnvDetectVersionKey = Get-EnvironmentVariable -Key "DETECT_VERSION_KEY" -DefaultValue "DETECT_LATEST_7";
+$EnvDetectVersionKey = Get-EnvironmentVariable -Key "DETECT_VERSION_KEY" -DefaultValue "DETECT_LATEST_9";
 
 # If you want to skip the test for java
 # DETECT_SKIP_JAVA_TEST=1
@@ -99,7 +87,7 @@ $DownloadOnly = Get-EnvironmentVariable -Key "DETECT_DOWNLOAD_ONLY" -DefaultValu
 # heap size, you would set DETECT_JAVA_OPTS=-Xmx6G.
 # $DetectJavaOpts = Get-EnvironmentVariable -Key "DETECT_JAVA_OPTS" -DefaultValue "";
 
-$Version = "2.5.1"
+$Version = "3.1.0"
 
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 #Enable TLS2
 
@@ -135,8 +123,6 @@ function Detect {
         Write-Host "Executing Detect."
         $DetectArgs = $args;
         $DetectExitCode = Invoke-Detect -DetectJar $DetectJarFile -DetectArgs $DetectArgs
-
-        Write-DeprecationMsg
 
         if ($EnvDetectExitCodePassthru -eq "1") {
             return $DetectExitCode
@@ -246,11 +232,11 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
 
     if ($DetectSource -eq "") {
         if ($DetectVersion -eq "") {
-            $DetectVersionUrl = "https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
+            $DetectVersionUrl = "https://repo.blackduck.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
             $DetectSource = Receive-DetectSource -ProxyInfo $ProxyInfo -DetectVersionUrl $DetectVersionUrl -DetectVersionKey $DetectVersionKey
         }
         else {
-            $DetectSource = "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/" + $DetectVersion + "/synopsys-detect-" + $DetectVersion + ".jar"
+            $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/" + $DetectVersion + "/synopsys-detect-" + $DetectVersion + ".jar"
         }
     }
 

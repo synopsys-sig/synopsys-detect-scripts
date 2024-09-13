@@ -1,5 +1,5 @@
 # Detect Powershell Script
-# Recommended Invocation: powershell "irm https://detect.synopsys.com/detect.ps1?$(Get-Random) | iex; detect"
+# Recommended Invocation: powershell "irm https://detect.blackduck.com/detect.ps1?$(Get-Random) | iex; detect"
 $ProgressPreference = 'SilentlyContinue'
 function Get-EnvironmentVariable($Key, $DefaultValue) { if (-not (Test-Path Env:$Key)) { return $DefaultValue; }else { return (Get-ChildItem Env:$Key).Value; } }
 
@@ -228,15 +228,15 @@ function Invoke-WebRequestWrapper($Url, $ProxyInfo, $DownloadLocation = $null) {
 }
 
 function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $DetectVersion, $ProxyInfo) {
-    $LastDownloadFile = "$DetectFolder/synopsys-detect-last-downloaded-jar.txt"
+    $LastDownloadFile = "$DetectFolder/detect-last-downloaded-jar.txt"
 
     if ($DetectSource -eq "") {
         if ($DetectVersion -eq "") {
-            $DetectVersionUrl = "https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
+            $DetectVersionUrl = "https://repo.blackduck.com/api/storage/bds-integrations-release/com/blackduck/integration/detect?properties=" + $DetectVersionKey
             $DetectSource = Receive-DetectSource -ProxyInfo $ProxyInfo -DetectVersionUrl $DetectVersionUrl -DetectVersionKey $DetectVersionKey
         }
         else {
-            $DetectSource = "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/" + $DetectVersion + "/synopsys-detect-" + $DetectVersion + ".jar"
+            $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/blackduck/integration/detect/" + $DetectVersion + "/detect-" + $DetectVersion + ".jar"
         }
     }
 

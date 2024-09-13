@@ -1,11 +1,11 @@
 /*
  * synopsys-detect-scripts
  *
- * Copyright (c) 2022 Synopsys, Inc.
+ * Copyright (c) 2024 Black Duck Software, Inc.
  *
- * Use subject to the terms and conditions of the Synopsys End User Software License and Maintenance Agreement. All rights reserved worldwide.
+ * Use subject to the terms and conditions of the Black Duck Software End User Software License and Maintenance Agreement. All rights reserved worldwide.
  */
-package com.synopsys.integration.synopsys.detect.scripts;
+package com.blackduck.integration.detect.scripts;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,10 +13,9 @@ import java.net.URISyntaxException;
 
 import org.apache.commons.io.FileUtils;
 
+import com.blackduck.integration.detect.scripts.scripts.ScriptBuilder;
 import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.synopsys.detect.scripts.scripts.ScriptBuilder;
 
-import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 
 public class Application {
