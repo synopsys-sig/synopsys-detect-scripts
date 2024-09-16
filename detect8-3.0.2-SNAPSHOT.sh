@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "Detect Shell Script ${SCRIPT_VERSION}"
+
 get_path_separator() {
   # Performs a check to see if the system is Windows based.
   if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
@@ -19,12 +21,12 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2024-09-13, the
+# urls for the detect jar file. As of 2024-09-16, the
 # available DETECT_VERSION_KEY values are:
 #
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
-DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST_9}
+DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST_8}
 
 # You can specify your own download url from
 # artifactory which can bypass using the property keys
@@ -80,7 +82,7 @@ done
 LOGGABLE_SCRIPT_ARGS=""
 
 # This provides a way to get the script version (via, say, grep/sed). Do not change.
-SCRIPT_VERSION=3.2.0-SNAPSHOT
+SCRIPT_VERSION=3.0.2-SNAPSHOT
 
 echo "Detect Shell Script ${SCRIPT_VERSION}"
 
