@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "Detect Shell Script ${SCRIPT_VERSION}"
-
 get_path_separator() {
   # Performs a check to see if the system is Windows based.
   if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
@@ -21,24 +19,24 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2024-09-17, the
+# urls for the detect jar file. As of 2024-09-18, the
 # available DETECT_VERSION_KEY values are:
-#
+# DETECT_LATEST_10
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
-DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST_8}
+DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-DETECT_LATEST_10}
 
 # You can specify your own download url from
 # artifactory which can bypass using the property keys
 # (this is mainly for QA purposes only)
 DETECT_SOURCE=${DETECT_SOURCE:-}
 
-# To override the default location of $HOME/synopsys-detect, specify
+# To override the default location of $HOME/detect, specify
 # your own DETECT_JAR_DOWNLOAD_DIR in your environment and
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
 # DETECT_JAR_DOWNLOAD_DIR.
-DEFAULT_DETECT_JAR_DOWNLOAD_DIR="${HOME}$(get_path_separator)synopsys-detect$(get_path_separator)download"
+DEFAULT_DETECT_JAR_DOWNLOAD_DIR="${HOME}$(get_path_separator)detect$(get_path_separator)download"
 if [[ -z "${DETECT_JAR_DOWNLOAD_DIR}" ]]; then
 	# If new name not set: Try old name for backward compatibility
     DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_PATH:-${DEFAULT_DETECT_JAR_DOWNLOAD_DIR}}
@@ -82,11 +80,11 @@ done
 LOGGABLE_SCRIPT_ARGS=""
 
 # This provides a way to get the script version (via, say, grep/sed). Do not change.
-SCRIPT_VERSION=3.0.2-SNAPSHOT
+SCRIPT_VERSION=3.2.0-SNAPSHOT
 
 echo "Detect Shell Script ${SCRIPT_VERSION}"
 
-DETECT_BINARY_REPO_URL=https://sig-repo.synopsys.com
+DETECT_BINARY_REPO_URL=https://repo.blackduck.com
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
@@ -118,10 +116,10 @@ run() {
 get_detect() {
   PATH_SEPARATOR=$(get_path_separator)
   USE_LOCAL=0
-  LOCAL_FILE="${DETECT_JAR_DOWNLOAD_DIR}${PATH_SEPARATOR}synopsys-detect-last-downloaded-jar.txt"
+  LOCAL_FILE="${DETECT_JAR_DOWNLOAD_DIR}${PATH_SEPARATOR}detect-last-downloaded-jar.txt"
   if [[ -z "${DETECT_SOURCE}" ]]; then
     if [[ -z "${DETECT_RELEASE_VERSION}" ]]; then
-      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" '${DETECT_BINARY_REPO_URL}/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=${DETECT_VERSION_KEY}'"
+      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" '${DETECT_BINARY_REPO_URL}/api/storage/bds-integrations-release/com/blackduck/integration/detect?properties=${DETECT_VERSION_KEY}'"
       VERSION_EXTRACT_CMD="${VERSION_CURL_CMD} | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
       DETECT_SOURCE=$(eval ${VERSION_EXTRACT_CMD})
       if [[ -z "${DETECT_SOURCE}" ]]; then
@@ -129,7 +127,7 @@ get_detect() {
         USE_LOCAL=1
       fi
     else
-      DETECT_SOURCE="${DETECT_BINARY_REPO_URL}/bds-integrations-release/com/synopsys/integration/synopsys-detect/${DETECT_RELEASE_VERSION}/synopsys-detect-${DETECT_RELEASE_VERSION}.jar"
+      DETECT_SOURCE="${DETECT_BINARY_REPO_URL}/bds-integrations-release/com/blackduck/integration/detect/${DETECT_RELEASE_VERSION}/detect-${DETECT_RELEASE_VERSION}.jar"
     fi
   fi
 
