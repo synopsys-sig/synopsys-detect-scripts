@@ -86,7 +86,7 @@ SCRIPT_VERSION=3.0.1
 
 echo "Detect Shell Script ${SCRIPT_VERSION}"
 
-DETECT_BINARY_REPO_URL=https://repo.blackduck.com
+DETECT_BINARY_REPO_URL=https://sig-repo.synopsys.com
 
 for i in $*; do
   if [[ $i == --blackduck.hub.password=* ]]; then
