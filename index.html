@@ -3,21 +3,21 @@
 	<head>
 		<title>Black Duck Detect Script downloads</title>
 		<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1">
-			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-				<nav class="Main">
-					<section class="Main-container">
-						<figure class="blackduck-logo-figure">
-							<a href="https://www.blackduck.com/">
-								<!-- TODO, change logo image when ready -->
-								<!-- img class="blackduck-logo" src="https://www.synopsys.com/content/dam/synopsys/logos/synopsys-logo-color.svg" alt="Black Duck Home Page" -->
-							</a>
-						</figure>
-					<div class="header" >
-						<h1>Black Duck Detect - Script downloads</h1>
-					</div>
-				</nav>
-			<style>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<nav class="Main">
+			<section class="Main-container">
+				<figure class="blackduck-logo-figure">
+					<a href="https://www.blackduck.com/">
+						<!-- TODO, change logo image when ready -->
+						<!-- img class="blackduck-logo" src="https://www.synopsys.com/content/dam/synopsys/logos/synopsys-logo-color.svg" alt="Black Duck Home Page" -->
+					</a>
+				</figure>
+			<div class="header" >
+				<h1>Black Duck Detect - Script Downloads</h1>
+			</div>
+		</nav>
+		<style>
 .header {
   text-align: center;
   background: white;
@@ -29,6 +29,15 @@ body {
   background-color: #e6eaed;
   font-family: Arial;
   margin: 0;
+}
+.notice {
+    font-size: 2em;
+    color: red;
+    text-align: center;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
 }
 .Main {
   width: 100%;
@@ -94,9 +103,27 @@ table, th, td {
   max-width: 500px;
   text-align: center;
 }
-			</style>
+		</style>
+		<script>
+			var bdHostname = "detect.blackduck.com";
+
+			if (window.location.hostname != bdHostname) {
+				window.onload = (event) => {
+					document.getElementById("redirection-notice").hidden = false;
+				};
+
+				// Redirect to the new URL after 5 seconds
+				setTimeout(function() {
+					window.location.href = "https://" + bdHostname;
+				}, 5000);
+			}
+		</script>
 	</head>
 		<body>
+				<div hidden id="redirection-notice" class="notice">
+					<p>Important: This URL has changed. You will be redirected to the new URL shortly.</p>
+					<p>If you are not redirected, please click <a href="https://detect.blackduck.com">here</a>.</p>
+				</div>
 				<div class="h2">
 					<h2>Use the following URL(s) to download Shell or PowerShell scripts for Black Duck Detect.<h2>
 				</div>
