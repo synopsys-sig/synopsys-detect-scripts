@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>Synopsys Detect Script downloads</title>
+	<head>		
+		<title>Black Duck Detect Script downloads</title>
 		<meta charset="UTF-8">
-			<meta name="viewport" content="width=device-width, initial-scale=1">
-			<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-				<nav class="Main">
-					<section class="Main-container">
-						<figure class="SIG-synopsys-logo-figure">
-							<a href="https://www.synopsys.com/">
-								<img class="SIG-synopsys-logo" src="https://www.synopsys.com/content/dam/synopsys/logos/synopsys-logo-color.svg" alt="Synopsys Home Page">
-							</a>
-						</figure>
-					<div class="header" >
-						<h1>Synopsys Detect - Script downloads</h1>
-					</div>
-				</nav>
-			<style>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+		<nav class="Main">
+			<section class="Main-container">
+				<figure class="blackduck-logo-figure">
+					<a href="https://www.blackduck.com/">
+						<img class="blackduck-logo" src="./images/BlackDuckLogo.svg" alt="Black Duck Home Page">
+					</a>
+				</figure>
+			<div class="header" >
+				<h1>Black Duck Detect - Script Downloads</h1>
+			</div>
+		</nav>
+		<script>
+			var bdHostname     = "blackduck.com";
+
+			if (!window.location.hostname.endsWith(bdHostname)) {
+				window.location.href = "https://detect." + bdHostname;
+			}
+		</script>
+		<style>
 .header {
   text-align: center;
   background: white;
@@ -45,14 +52,14 @@ body {
   display: table;
   position: relative;
 }
-figure.SIG-synopsys-logo-figure {
+figure.blackduck-logo-figure {
   display: table-cell;
   position: relative;
-  vertical-align: left;
-  width: 150px;
+  vertical-align: middle;
+  width: 205px;
 }
-img.SIG-synopsys-logo {
-  width: 150px;
+img.blackduck-logo {
+  width: 205px;
   vertical-align: middle;
   height: 32px;
 }
@@ -93,15 +100,15 @@ table, th, td {
   max-width: 500px;
   text-align: center;
 }
-			</style>
+		</style>
 	</head>
 		<body>
 				<div class="h2">
-					<h2>Use the following URL(s) to download Shell or PowerShell scripts for Synopsys Detect.<h2>
+					<h2>Use the following URL(s) to download Shell or PowerShell scripts for Black Duck Detect.<h2>
 				</div>
 						<table class="center">
 							<tr>
-								<th>Synopsys Detect</th>
+								<th>Black Duck Detect</th>
 								<th>Shell</th>
 								<th>PowerShell</th>
 							</tr>
@@ -122,11 +129,11 @@ table, th, td {
 								</tr>
 						</table>
 						<div class="globalLinks">
-						<a href="https://sig-product-docs.synopsys.com/bundle/blackduck-compatibility/page/topics/Black-Duck-Release-Compatibility.html" target="_blank">Release Compatibility</a>
-						<a href="https://sig-product-docs.synopsys.com/bundle/blackduck-compatibility/page/topics/Support-and-Service-Schedule.html" target="_blank">Product Maintenance, Support, and Service Schedule</a>
+						<a href="https://documentation.blackduck.com/bundle/blackduck-compatibility/page/topics/Black-Duck-Release-Compatibility.html" target="_blank">Release Compatibility</a>
+						<a href="https://documentation.blackduck.com/bundle/blackduck-compatibility/page/topics/Support-and-Service-Schedule.html" target="_blank">Product Maintenance, Support, and Service Schedule</a>
 						</div>
 							<footer class="site-footer">
-								<div class="copyright">©2023 Synopsys, Inc. All Rights Reserved</div>
+								<div class="copyright">©2024 Black Duck Software, Inc. All Rights Reserved</div>
 							</footer>
 						</div>
 					</body>
