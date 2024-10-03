@@ -201,3 +201,5 @@ run_detect() {
 }
 
 run
+
+# testing pipeline, please remove this line before releasing the script
