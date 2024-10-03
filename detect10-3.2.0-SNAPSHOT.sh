@@ -19,7 +19,7 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2024-09-30, the
+# urls for the detect jar file. As of 2024-10-03, the
 # available DETECT_VERSION_KEY values are:
 # DETECT_LATEST_10
 # Every new major version of detect will have its own
@@ -201,3 +201,5 @@ run_detect() {
 }
 
 run
+
+# testing pipeline, please remove this line before releasing the script
