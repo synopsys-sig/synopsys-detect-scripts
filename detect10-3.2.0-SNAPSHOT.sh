@@ -201,5 +201,3 @@ run_detect() {
 }
 
 run
-# pipeline test
-
