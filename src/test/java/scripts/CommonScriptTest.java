@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 @Tag("integration")
 public abstract class CommonScriptTest {
     // TODO: Change this to 8 once the artifactory property DETECT_LATEST_8 exists
-    protected static final int DETECT_LATEST_VERSION = 7;
+    protected static final int DETECT_LATEST_VERSION = 10;
 
     protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
     protected static final File TEST_OUTPUT_DIRECTORY = new File(WORKING_DIRECTORY, "build/tmp/scripts/");
