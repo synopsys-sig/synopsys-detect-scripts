@@ -102,7 +102,7 @@ public abstract class CommonScriptTest {
     @Test
     void testDetectSource() throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(true);
-        environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/5.1.0/synopsys-detect-5.1.0.jar");
+        environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://repo.blackduck.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/5.1.0/synopsys-detect-5.1.0.jar");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         assertExitCode(process, 0);

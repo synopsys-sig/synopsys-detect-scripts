@@ -4,16 +4,16 @@ buildscript {
     apply from: 'https://raw.githubusercontent.com/blackducksoftware/integration-resources/master/gradle_common/buildscript-cgp-version.gradle'
 
     dependencies {
-        classpath "com.synopsys.integration:common-gradle-plugin:${managedCgpVersion}"
+        classpath "com.blackduck.integration:common-gradle-plugin:${managedCgpVersion}"
     }
 }
 
 version = "1.0.0-SNAPSHOT"
-apply plugin: 'com.synopsys.integration.simple'
+apply plugin: 'com.blackduck.integration.simple'
 
 
 dependencies {
-    implementation("com.synopsys.integration:common-gradle-plugin:${managedCgpVersion}") {
+    implementation("com.blackduck.integration:common-gradle-plugin:${managedCgpVersion}") {
         exclude group: 'org.springframework', module: 'spring-core'
     }
     implementation gradleApi()
