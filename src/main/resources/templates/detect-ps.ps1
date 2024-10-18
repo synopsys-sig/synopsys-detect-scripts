@@ -233,9 +233,9 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
     if ($DetectSource -eq "") {
         if ($DetectVersion -eq "") {
             $lastCharOfKey = $DetectVersionKey[-1]
-#            $versionNumber = [int]$lastCharOfKey
+            $versionNumber = [int][string]$lastCharOfKey
 
-            if($lastCharOfKey/1 -le 9) {
+            if($versionNumber -le 9) {
                 $DetectVersionUrl = "https://repo.blackduck.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
             } else {
                 $DetectVersionUrl = "https://repo.blackduck.com/api/storage/bds-integrations-release/com/blackduck/integration/detect?properties=" + $DetectVersionKey
@@ -244,9 +244,9 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
         }
         else {
             $detectVersionChar = $DetectVersion[0]
-#            $detectVersionNumber = [int]$detectVersionChar
+            $detectVersionNumber = [int][string]$detectVersionChar
 
-            if($detectVersionChar/1 -le 9) {
+            if($detectVersionNumber -le 9) {
                 $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/" + $DetectVersion + "/synopsys-detect-" + $DetectVersion + ".jar"
             } else {
                 $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/blackduck/integration/detect/" + $DetectVersion + "/detect-" + $DetectVersion + ".jar"
