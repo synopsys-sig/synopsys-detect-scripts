@@ -232,11 +232,27 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
 
     if ($DetectSource -eq "") {
         if ($DetectVersion -eq "") {
-            $DetectVersionUrl = "https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
+            $detectVersionKeySplit = $DetectVersionKey.split("_")
+            $detectVersionChar = $detectVersionKeySplit[-1]
+            $detectVersionNumber = [int]$detectVersionChar
+
+            if($detectVersionNumber -le 9) {
+                $DetectVersionUrl = "https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
+            } else {
+                $DetectVersionUrl = "https://sig-repo.synopsys.com/api/storage/bds-integrations-release/com/blackduck/integration/detect?properties=" + $DetectVersionKey
+            }
             $DetectSource = Receive-DetectSource -ProxyInfo $ProxyInfo -DetectVersionUrl $DetectVersionUrl -DetectVersionKey $DetectVersionKey
         }
         else {
-            $DetectSource = "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/" + $DetectVersion + "/synopsys-detect-" + $DetectVersion + ".jar"
+            $detectVersionSplit= $DetectVersion.split(".")
+            $detectVersionChar = $detectVersionSplit[0]
+            $detectVersionNumber = [int]$detectVersionChar
+
+            if($detectVersionNumber -le 9) {
+                $DetectSource = "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/" + $DetectVersion + "/synopsys-detect-" + $DetectVersion + ".jar"
+            } else {
+                $DetectSource = "https://sig-repo.synopsys.com/bds-integrations-release/com/blackduck/integration/detect/" + $DetectVersion + "/detect-" + $DetectVersion + ".jar"
+            }
         }
     }
 

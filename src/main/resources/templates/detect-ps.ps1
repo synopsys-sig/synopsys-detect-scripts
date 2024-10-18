@@ -232,10 +232,11 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
 
     if ($DetectSource -eq "") {
         if ($DetectVersion -eq "") {
-            $lastCharOfKey = $DetectVersionKey[-1]
-            $versionNumber = [int][string]$lastCharOfKey
+            $detectVersionKeySplit = $DetectVersionKey.split("_")
+            $detectVersionChar = $detectVersionKeySplit[-1]
+            $detectVersionNumber = [int]$detectVersionChar
 
-            if($versionNumber -le 9) {
+            if($detectVersionNumber -le 9) {
                 $DetectVersionUrl = "https://repo.blackduck.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
             } else {
                 $DetectVersionUrl = "https://repo.blackduck.com/api/storage/bds-integrations-release/com/blackduck/integration/detect?properties=" + $DetectVersionKey
@@ -243,8 +244,9 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
             $DetectSource = Receive-DetectSource -ProxyInfo $ProxyInfo -DetectVersionUrl $DetectVersionUrl -DetectVersionKey $DetectVersionKey
         }
         else {
-            $detectVersionChar = $DetectVersion[0]
-            $detectVersionNumber = [int][string]$detectVersionChar
+            $detectVersionSplit= $DetectVersion.split(".")
+            $detectVersionChar = $detectVersionSplit[0]
+            $detectVersionNumber = [int]$detectVersionChar
 
             if($detectVersionNumber -le 9) {
                 $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/" + $DetectVersion + "/synopsys-detect-" + $DetectVersion + ".jar"
