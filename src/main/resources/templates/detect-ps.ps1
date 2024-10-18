@@ -245,9 +245,12 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
             $detectVersionChar = $DetectVersion[0]
             $detectVersionNumber = [int]$detectVersionChar
 
+            Write-Host "Detect Version Number '$detectVersionNumber'"
             if($detectVersionNumber -le 9) {
+                Write-Host "Detect 10 space '$detectVersionNumber'"
                 $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/" + $DetectVersion + "/synopsys-detect-" + $DetectVersion + ".jar"
             } else {
+                Write-Host "Detect 9 space '$detectVersionNumber'"
                 $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/blackduck/integration/detect/" + $DetectVersion + "/detect-" + $DetectVersion + ".jar"
             }
 
