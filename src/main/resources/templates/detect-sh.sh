@@ -26,6 +26,36 @@ DETECT_RELEASE_VERSION=${DETECT_LATEST_RELEASE_VERSION}
 # DETECT_LATEST_X key.
 DETECT_VERSION_KEY=${DETECT_VERSION_KEY:-//DEFAULT_DETECT_VERSION_KEY//}
 
+get_org_name() {
+  # Extracts the number after last underscore i.e. DETECT_LATEST_10 -> 10
+  local VERSION_NUMBER_SUBSTRING=${DETECT_VERSION_KEY##*_}
+  # Extracts the number before the first period i.e. 10.2.8 -> 10
+  local DETECT_MAJOR_VERSION_SUBSTRING=${DETECT_RELEASE_VERSION%%.*}
+  local ORG_NAME
+  # Check if the substring is a valid number. If number is less than or equal to 9, assign appropriate result
+  if [[ "$VERSION_NUMBER_SUBSTRING" =~ ^[0-9]+$ && "$VERSION_NUMBER_SUBSTRING" -le 9 ]] || [[ "$DETECT_MAJOR_VERSION_SUBSTRING" =~ ^[0-9]+$ && "$DETECT_MAJOR_VERSION_SUBSTRING" -le 9 ]]; then
+    ORG_NAME="synopsys"
+  else
+    ORG_NAME="blackduck"
+  fi
+  echo "$ORG_NAME"
+}
+
+get_detect_name_prefix() {
+  # Extracts the number after last underscore i.e. DETECT_LATEST_10 -> 10
+  local VERSION_NUMBER_SUBSTRING=${DETECT_VERSION_KEY##*_}
+  # Extracts the number before the first period i.e. 10.2.8 -> 10
+  local DETECT_MAJOR_VERSION_SUBSTRING=${DETECT_RELEASE_VERSION%%.*}
+  local DETECT_NAME_PREFIX
+  # Check if the substring is a valid number. If number is less than or equal to 9, assign appropriate result
+  if [[ "$VERSION_NUMBER_SUBSTRING" =~ ^[0-9]+$ && "$VERSION_NUMBER_SUBSTRING" -le 9 ]] || [[ "$DETECT_MAJOR_VERSION_SUBSTRING" =~ ^[0-9]+$ && "$DETECT_MAJOR_VERSION_SUBSTRING" -le 9 ]]; then
+    DETECT_NAME_PREFIX="synopsys-detect"
+  else
+    DETECT_NAME_PREFIX="detect"
+  fi
+  echo "$DETECT_NAME_PREFIX"
+}
+
 # You can specify your own download url from
 # artifactory which can bypass using the property keys
 # (this is mainly for QA purposes only)
@@ -36,7 +66,7 @@ DETECT_SOURCE=${DETECT_SOURCE:-}
 # *that* location will be used.
 # *NOTE* We currently do not support spaces in the
 # DETECT_JAR_DOWNLOAD_DIR.
-DEFAULT_DETECT_JAR_DOWNLOAD_DIR="${HOME}$(get_path_separator)detect$(get_path_separator)download"
+DEFAULT_DETECT_JAR_DOWNLOAD_DIR="${HOME}$(get_path_separator)$(get_detect_name_prefix)$(get_path_separator)download"
 if [[ -z "${DETECT_JAR_DOWNLOAD_DIR}" ]]; then
 	# If new name not set: Try old name for backward compatibility
     DETECT_JAR_DOWNLOAD_DIR=${DETECT_JAR_PATH:-${DEFAULT_DETECT_JAR_DOWNLOAD_DIR}}
@@ -119,7 +149,7 @@ get_detect() {
   LOCAL_FILE="${DETECT_JAR_DOWNLOAD_DIR}${PATH_SEPARATOR}detect-last-downloaded-jar.txt"
   if [[ -z "${DETECT_SOURCE}" ]]; then
     if [[ -z "${DETECT_RELEASE_VERSION}" ]]; then
-      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" '${DETECT_BINARY_REPO_URL}/api/storage/bds-integrations-release/com/blackduck/integration/detect?properties=${DETECT_VERSION_KEY}'"
+      VERSION_CURL_CMD="curl ${DETECT_CURL_OPTS} --silent --header \"X-Result-Detail: info\" '${DETECT_BINARY_REPO_URL}/api/storage/bds-integrations-release/com/$(get_org_name)/integration/$(get_detect_name_prefix)?properties=${DETECT_VERSION_KEY}'"
       VERSION_EXTRACT_CMD="${VERSION_CURL_CMD} | grep \"${DETECT_VERSION_KEY}\" | sed 's/[^[]*[^\"]*\"\([^\"]*\).*/\1/'"
       DETECT_SOURCE=$(eval ${VERSION_EXTRACT_CMD})
       if [[ -z "${DETECT_SOURCE}" ]]; then
@@ -127,7 +157,7 @@ get_detect() {
         USE_LOCAL=1
       fi
     else
-      DETECT_SOURCE="${DETECT_BINARY_REPO_URL}/bds-integrations-release/com/blackduck/integration/detect/${DETECT_RELEASE_VERSION}/detect-${DETECT_RELEASE_VERSION}.jar"
+      DETECT_SOURCE="${DETECT_BINARY_REPO_URL}/bds-integrations-release/com/$(get_org_name)/integration/$(get_detect_name_prefix)/${DETECT_RELEASE_VERSION}/$(get_detect_name_prefix)-${DETECT_RELEASE_VERSION}.jar"
     fi
   fi
 
