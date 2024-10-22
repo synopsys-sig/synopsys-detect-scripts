@@ -13,9 +13,9 @@ $EnvDetectDesiredVersion = Get-EnvironmentVariable -Key "DETECT_LATEST_RELEASE_V
 # *that* key will be used to get the download url from
 # artifactory. These DETECT_VERSION_KEY values are
 # properties in Artifactory that resolve to download
-# urls for the detect jar file. As of 2024-10-08, the
+# urls for the detect jar file. As of 2024-10-22, the
 # available DETECT_VERSION_KEY values are:
-# DETECT_LATEST_10
+#
 # Every new major version of detect will have its own
 # DETECT_LATEST_X key.
 $EnvDetectVersionKey = Get-EnvironmentVariable -Key "DETECT_VERSION_KEY" -DefaultValue "DETECT_LATEST_10";
@@ -232,11 +232,30 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
 
     if ($DetectSource -eq "") {
         if ($DetectVersion -eq "") {
-            $DetectVersionUrl = "https://repo.blackduck.com/api/storage/bds-integrations-release/com/blackduck/integration/detect?properties=" + $DetectVersionKey
+            $detectVersionKeySplit = $DetectVersionKey.split("_") # Split the key provided, as an example key would be of form: DETECT_LATEST_9
+            $detectVersionChar = $detectVersionKeySplit[-1]
+            $detectVersionNumber = [int]$detectVersionChar
+
+            # If major version is 9 or less, than download from com/synopsys/integration location or else com/blackduck/integration
+            if($detectVersionNumber -le 9) {
+                $DetectVersionUrl = "https://repo.blackduck.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
+            } else {
+                $DetectVersionUrl = "https://repo.blackduck.com/api/storage/bds-integrations-release/com/blackduck/integration/detect?properties=" + $DetectVersionKey
+            }
             $DetectSource = Receive-DetectSource -ProxyInfo $ProxyInfo -DetectVersionUrl $DetectVersionUrl -DetectVersionKey $DetectVersionKey
         }
         else {
-            $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/blackduck/integration/detect/" + $DetectVersion + "/detect-" + $DetectVersion + ".jar"
+            $detectVersionSplit= $DetectVersion.split(".") # Split the key provided, as an example version would be of form: 8.11.2
+            $detectVersionChar = $detectVersionSplit[0] # Get the major version from the variable
+            $detectVersionNumber = [int]$detectVersionChar
+
+            # If major version is 9 or less, than download from com/synopsys/integration location or else com/blackduck/integration
+            if($detectVersionNumber -le 9) {
+                $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/" + $DetectVersion + "/synopsys-detect-" + $DetectVersion + ".jar"
+            } else {
+                $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/blackduck/integration/detect/" + $DetectVersion + "/detect-" + $DetectVersion + ".jar"
+            }
+
         }
     }
 
