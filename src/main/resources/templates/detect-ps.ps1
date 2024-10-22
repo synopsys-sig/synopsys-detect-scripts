@@ -236,7 +236,7 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
             $detectVersionChar = $detectVersionKeySplit[-1]
             $detectVersionNumber = [int]$detectVersionChar
 
-            # If major version is 9 or less, than download from synopsys location or else blackduck
+            # If major version is 9 or less, than download from com/synopsys/integration location or else com/blackduck/integration
             if($detectVersionNumber -le 9) {
                 $DetectVersionUrl = "https://repo.blackduck.com/api/storage/bds-integrations-release/com/synopsys/integration/synopsys-detect?properties=" + $DetectVersionKey
             } else {
@@ -249,7 +249,7 @@ function Get-DetectJar ($DetectFolder, $DetectSource, $DetectVersionKey, $Detect
             $detectVersionChar = $detectVersionSplit[0] # Get the major version from the variable
             $detectVersionNumber = [int]$detectVersionChar
 
-            # If major version is 9 or less, than download from synopsys location or else blackduck
+            # If major version is 9 or less, than download from com/synopsys/integration location or else com/blackduck/integration
             if($detectVersionNumber -le 9) {
                 $DetectSource = "https://repo.blackduck.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/" + $DetectVersion + "/synopsys-detect-" + $DetectVersion + ".jar"
             } else {
