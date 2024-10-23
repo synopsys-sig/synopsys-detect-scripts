@@ -8,8 +8,8 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.synopsys.integration:common-gradle-plugin:${managedCgpVersion}"
-        classpath 'com.synopsys.integration:integration-rest:10.3.3'
+        classpath "com.blackduck.integration:common-gradle-plugin:${managedCgpVersion}"
+        classpath 'com.blackduck.integration:integration-rest:11.0.0'
         classpath 'org.codehaus.groovy:groovy-all:2.4.12'
         classpath 'org.junit.jupiter:junit-jupiter:5.4.2'
         classpath 'org.mockito:mockito-core:2.+'
@@ -28,10 +28,10 @@ repositories {
     maven { url "${internalRepoHost}/artifactory/jcenter" }
 }
 
-group = 'com.synopsys.integration'
+group = 'com.blackduck.integration'
 version = '3.2.0-SNAPSHOT'
 
-apply plugin: 'com.synopsys.integration.simple'
+apply plugin: 'com.blackduck.integration.simple'
 
 jar {
     manifest {
@@ -40,7 +40,7 @@ jar {
 }
 
 shadowJar {
-    getArchiveBaseName().set('synopsys-detect-scripts')
+    getArchiveBaseName().set('detect-scripts')
     classifier = null
 }
 
@@ -67,6 +67,6 @@ task generateCert(type: JavaExec) {
 }
 
 dependencies {
-    implementation 'com.synopsys.integration:blackduck-common:62.0.1'
+    implementation 'com.blackduck.integration:blackduck-common:67.0.1'
     implementation 'org.freemarker:freemarker:2.3.31'
 }

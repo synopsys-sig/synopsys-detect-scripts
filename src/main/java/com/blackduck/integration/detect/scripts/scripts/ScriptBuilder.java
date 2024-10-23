@@ -26,15 +26,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.synopsys.integration.exception.IntegrationException;
-import com.synopsys.integration.log.IntLogger;
-import com.synopsys.integration.log.Slf4jIntLogger;
-import com.synopsys.integration.rest.HttpUrl;
-import com.synopsys.integration.rest.client.IntHttpClient;
-import com.synopsys.integration.rest.proxy.ProxyInfo;
-import com.synopsys.integration.rest.request.Request;
-import com.synopsys.integration.rest.response.Response;
-import com.synopsys.integration.util.ResourceUtil;
+import com.blackduck.integration.exception.IntegrationException;
+import com.blackduck.integration.log.IntLogger;
+import com.blackduck.integration.log.Slf4jIntLogger;
+import com.blackduck.integration.rest.HttpUrl;
+import com.blackduck.integration.rest.client.IntHttpClient;
+import com.blackduck.integration.rest.proxy.ProxyInfo;
+import com.blackduck.integration.rest.request.Request;
+import com.blackduck.integration.rest.response.Response;
+import com.blackduck.integration.util.ResourceUtil;
 
 public class ScriptBuilder {
     // When moving to a new Detect major version:

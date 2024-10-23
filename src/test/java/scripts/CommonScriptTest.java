@@ -26,8 +26,8 @@ import org.junit.jupiter.api.Test;
 
 @Tag("integration")
 public abstract class CommonScriptTest {
-    // TODO: Change this to 8 once the artifactory property DETECT_LATEST_8 exists
-    protected static final int DETECT_LATEST_VERSION = 7;
+    // TODO: Change this to 11 once the artifactory property DETECT_LATEST_11 exists
+    protected static final int DETECT_LATEST_VERSION = 10;
 
     protected static final File WORKING_DIRECTORY = new File(System.getProperty("user.dir"));
     protected static final File TEST_OUTPUT_DIRECTORY = new File(WORKING_DIRECTORY, "build/tmp/scripts/");
@@ -102,7 +102,7 @@ public abstract class CommonScriptTest {
     @Test
     void testDetectSource() throws IOException, InterruptedException {
         final Map<String, String> environment = createEnvironment(true);
-        environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://sig-repo.synopsys.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/5.1.0/synopsys-detect-5.1.0.jar");
+        environment.put(EnvironmentVariables.DETECT_SOURCE.name(), "https://repo.blackduck.com/bds-integrations-release/com/synopsys/integration/synopsys-detect/5.1.0/synopsys-detect-5.1.0.jar");
 
         final Process process = executeScript(environment, new ArrayList<>(), true);
         assertExitCode(process, 0);

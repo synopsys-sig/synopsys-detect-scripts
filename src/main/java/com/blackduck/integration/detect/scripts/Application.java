@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 import org.apache.commons.io.FileUtils;
 
 import com.blackduck.integration.detect.scripts.scripts.ScriptBuilder;
-import com.synopsys.integration.exception.IntegrationException;
+import com.blackduck.integration.exception.IntegrationException;
 
 import freemarker.template.TemplateException;
 
