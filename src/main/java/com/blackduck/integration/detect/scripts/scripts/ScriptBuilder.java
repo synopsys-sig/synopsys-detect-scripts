@@ -1,5 +1,5 @@
 /*
- * synopsys-detect-scripts
+ * detect-scripts
  *
  * Copyright (c) 2024 Black Duck Software, Inc.
  *
