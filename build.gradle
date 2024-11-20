@@ -48,7 +48,6 @@ jar.finalizedBy shadowJar
 
 build.dependsOn.add("generateVersionFile")
 build.dependsOn.add("generateScripts")
-build.dependsOn.add("generateCert")
 
 task generateVersionFile {
     final File versionFile = new File(project.projectDir, "src/main/resources/version.txt")
@@ -59,11 +58,6 @@ task generateVersionFile {
 task generateScripts(type: JavaExec) {
     main = "-jar"
     args(jar.getArchiveFile().get().asFile, "scripts", "${project.buildDir}/libs/")
-}
-
-task generateCert(type: JavaExec) {
-    main = "-jar"
-    args(jar.getArchiveFile().get().asFile, "cert", "${project.buildDir}/libs/")
 }
 
 dependencies {
