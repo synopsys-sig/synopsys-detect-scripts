@@ -11,8 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import org.apache.commons.io.FileUtils;
-
 import com.blackduck.integration.detect.scripts.scripts.ScriptBuilder;
 import com.blackduck.integration.exception.IntegrationException;
 
@@ -31,12 +29,8 @@ public class Application {
          if (operation.equals("scripts")) {
             ScriptBuilder scriptBuilder = new ScriptBuilder();
             scriptBuilder.generateScripts(outputDirectory);
-        } else if (operation.equals("cert")) {
-            final File certSource = new File("src/main/resources/jar_verification.crt");
-            final File certDestination = new File(outputDirectory, "jar_verification.crt");
-            FileUtils.copyFile(certSource, certDestination);
         } else {
-            throw new IllegalArgumentException("Unknown operation. Must be 'scripts' or 'certs': " + operation);
+            throw new IllegalArgumentException("Unknown operation. Must be 'scripts': " + operation);
         }
 
     }
