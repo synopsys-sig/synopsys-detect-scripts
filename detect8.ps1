@@ -1,5 +1,19 @@
 # Detect Powershell Script
 # Recommended Invocation: powershell "irm https://detect.synopsys.com/detect.ps1?$(Get-Random) | iex; detect"
+
+function Write-RebrandingMsg() {
+    Write-Host "***"
+    Write-Host "***"
+    Write-Host "*** Warning: Synopsys Detect has been renamed and rebranded as part of Black Duck being established as a standalone company."
+    Write-Host "*** Please modify your processes to download Black Duck Detect from https://detect.blackduck.com/detect8.ps1 before 14th February 2025."
+    Write-Host "*** From 14th February 2025 this script will fail and not execute any scans."
+    Write-Host "*** For more information please see the domain name change annoucement here: https://community.blackduck.com/s/question/0D5Uh00000JsImfKAF/black-duck-detect-scripts-and-the-impact-of-decommissioning-of-detectsynopsyscom"
+    Write-Host "***"
+    Write-Host "***"
+}
+
+Write-RebrandingMsg
+
 $ProgressPreference = 'SilentlyContinue'
 function Get-EnvironmentVariable($Key, $DefaultValue) { if (-not (Test-Path Env:$Key)) { return $DefaultValue; }else { return (Get-ChildItem Env:$Key).Value; } }
 
