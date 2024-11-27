@@ -1,5 +1,18 @@
 #!/bin/bash
 
+write_rebranding_msg() {
+	echo "***"
+	echo "***"
+  echo "*** Warning: Synopsys Detect has been renamed and rebranded as part of Black Duck being established as a standalone company."
+  echo "*** Please modify your processes to download Black Duck Detect from https://detect.blackduck.com/detect10.sh before 14th February 2025."
+  echo "*** From 14th February 2025 this script will fail and not execute any scans."
+  echo "*** For more information please see the domain name change annoucement here: https://community.blackduck.com/s/question/0D5Uh00000JsImfKAF/black-duck-detect-scripts-and-the-impact-of-decommissioning-of-detectsynopsyscom"
+	echo "***"
+	echo "***"
+}
+
+write_rebranding_msg
+
 get_path_separator() {
   # Performs a check to see if the system is Windows based.
   if [[ `uname` == *"NT"* ]] || [[ `uname` == *"UWIN"* ]]; then
